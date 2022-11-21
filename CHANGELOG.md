@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [12.0.1] - 2022-11-21
 ### Added
 
 ### Changed
@@ -117,7 +119,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.0.0...main
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...main
+[12.0.1]: https://github.com/cucumber/cucumber/compare/query/v12.0.0...main
 [12.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v11.0.0...query/v12.0.0
 [11.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v10.1.0...query/v11.0.0
 [10.1.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v10.0.0...query/v10.1.0
