@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@cucumber/messages": "^21.0.0",
-    "@teppeis/multimaps": "2.0.0"
+    "@teppeis/multimaps": "3.0.0"
   },
   "directories": {
     "test": "test"
