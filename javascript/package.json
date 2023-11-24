@@ -56,7 +56,7 @@
     "typescript": "5.3.2"
   },
   "dependencies": {
-    "@cucumber/messages": "^22.0.0",
+    "@cucumber/messages": "^24.0.0",
     "@teppeis/multimaps": "3.0.0"
   },
   "directories": {
