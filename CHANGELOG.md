@@ -119,8 +119,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...main
-[12.0.1]: https://github.com/cucumber/cucumber/compare/query/v12.0.0...main
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...HEAD
+[12.0.1]: https://github.com/cucumber/cucumber/compare/query/v12.0.0...v12.0.1
 [12.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v11.0.0...query/v12.0.0
 [11.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v10.1.0...query/v11.0.0
 [10.1.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v10.0.0...query/v10.1.0
