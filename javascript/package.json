@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/cucumber/cucumber.git"
+    "url": "git://github.com/cucumber/query.git"
   },
   "keywords": [
     "cucumber"
@@ -23,9 +23,9 @@
   "author": "Cucumber Limited <cukes@googlegroups.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cucumber/cucumber/issues"
+    "url": "https://github.com/cucumber/query/issues"
   },
-  "homepage": "https://github.com/cucumber/cucumber#readme",
+  "homepage": "https://github.com/cucumber/query#readme",
   "devDependencies": {
     "@cucumber/compatibility-kit": "^15.0.0",
     "@cucumber/fake-cucumber": "^16.0.0",
