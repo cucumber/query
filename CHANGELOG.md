@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [12.0.2] - 2024-03-26
 ### Fixed
 - Correct repo URL in `package.json`
 
@@ -29,13 +31,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Bump `@cucumber/messages` to v17.0.0
 
 ### Fixed
+- `Query#getPickleStepAttachments`
+- `Query#getPickleStepTestStepResults`
+- `Query#getPickleTestStepResults`
+- `Query#getStatusCounts`
+- `Query#getTestStepResults`
+- `Query#getTestStepsAttachments`
 - Methods that return/map step results now include results from _only the last attempt_ where there have been retries ([#1631](https://github.com/cucumber/common/pull/1631)). Affects methods:
-  - `Query#getPickleStepAttachments`
-  - `Query#getPickleStepTestStepResults`
-  - `Query#getPickleTestStepResults`
-  - `Query#getStatusCounts`
-  - `Query#getTestStepResults`
-  - `Query#getTestStepsAttachments`
 
 ## [10.1.0] - 2021-05-31
 ### Added
@@ -121,7 +123,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.0.2...HEAD
+[12.0.2]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...v12.0.2
 [12.0.1]: https://github.com/cucumber/cucumber/compare/query/v12.0.0...v12.0.1
 [12.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v11.0.0...query/v12.0.0
 [11.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v10.1.0...query/v11.0.0
