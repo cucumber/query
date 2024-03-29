@@ -1,0 +1,93 @@
+{
+  "countMostSevereTestStepResultStatus" : {
+    "PASSED" : 1
+  },
+  "countTestCasesStarted" : 1,
+  "findAllPickles" : 1,
+  "findAllPickleSteps" : 1,
+  "findAllTestCaseStarted" : 1,
+  "findAllTestSteps" : 1,
+  "findAllTestCaseStartedGroupedByFeature" : [
+    [
+      "minimal",
+      [
+        "7"
+      ]
+    ]
+  ],
+  "findFeatureBy" : [
+    "minimal"
+  ],
+  "findMostSevereTestStepResulBy" : [
+    "PASSED"
+  ],
+  "findNameOf" : {
+    "long" : [
+      "minimal - cukes"
+    ],
+    "excludeFeatureName" : [
+      "cukes"
+    ],
+    "longPickleName" : [
+      "minimal - cukes"
+    ],
+    "short" : [
+      "cukes"
+    ],
+    "shortPickleName" : [
+      "cukes"
+    ]
+  },
+  "findPickleBy" : [
+    "cukes"
+  ],
+  "findPickleStepBy" : [
+    "I have 42 cukes in my belly"
+  ],
+  "findStepBy" : [
+    "I have 42 cukes in my belly"
+  ],
+  "findTestCaseBy" : [
+    "6"
+  ],
+  "findTestCaseDurationBy" : [
+    {
+      "seconds" : 0,
+      "nanos" : 3000000
+    }
+  ],
+  "findTestCaseFinishedBy" : [
+    "7"
+  ],
+  "findTestRunDuration" : {
+    "seconds" : 0,
+    "nanos" : 5000000
+  },
+  "findTestRunFinished" : {
+    "success" : true,
+    "timestamp" : {
+      "seconds" : 0,
+      "nanos" : 5000000
+    }
+  },
+  "findTestRunStarted" : {
+    "timestamp" : {
+      "seconds" : 0,
+      "nanos" : 0
+    }
+  },
+  "findTestStepBy" : [
+    "5"
+  ],
+  "findTestStepsFinishedBy" : [
+    [
+      "5"
+    ]
+  ],
+  "findTestStepFinishedAndTestStepBy" : [
+    [
+      "5",
+      "5"
+    ]
+  ]
+}

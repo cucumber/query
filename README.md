@@ -24,3 +24,25 @@ status of a step, a scenario or an entire file.
 | `getDocumentResults(uri: string): messages.ITestResult[]`                               |      |    |      |      | ✓          |
 | `getStepMatchArguments(uri: string, lineNumber: number): messages.IStepMatchArgument[]` |      |    |      |      | ✓          |
 | `getGherkinStep(gherkinStepId: string): messages.GherkinDocument.Feature.IStep`         |      |    |      |      | ✓          |
+| `countMostSevereTestStepResultStatus()`                                                 |      |    | ✓    |      |            |
+| `countTestCasesStarted()`                                                               |      |    | ✓    |      |            |
+| `findAllPickles()`                                                                      |      |    | ✓    |      |            |
+| `findAllPickleSteps()`                                                                  |      |    | ✓    |      |            |
+| `findAllTestCaseStarted()`                                                              |      |    | ✓    |      |            |
+| `findAllTestSteps()`                                                                    |      |    | ✓    |      |            |
+| `findAllTestCaseStartedGroupedByFeature()`                                              |      |    | ✓    |      |            |
+| `findFeatureBy(TestCaseStarted)`                                                        |      |    | ✓    |      |            |
+| `findMostSevereTestStepResulBy(TestCaseStarted)`                                        |      |    | ✓    |      |            |
+| `findNameOf(Pickle, NamingStrategy)`                                                    |      |    | ✓    |      |            |
+| `findPickleBy(TestCaseStarted)`                                                         |      |    | ✓    |      |            |
+| `findPickleStepBy(TestStep testStep)`                                                   |      |    | ✓    |      |            |
+| `findStepBy(PickleStep pickleStep)`                                                     |      |    | ✓    |      |            |
+| `findTestCaseBy(TestCaseStarted)`                                                       |      |    | ✓    |      |            |
+| `findTestCaseDurationBy(TestCaseStarted)`                                               |      |    | ✓    |      |            |
+| `findTestCaseFinishedBy(TestCaseStarted)`                                               |      |    | ✓    |      |            |
+| `findTestRunDuration()`                                                                 |      |    | ✓    |      |            | 
+| `findTestRunFinished()`                                                                 |      |    | ✓    |      |            |
+| `findTestRunStarted()`                                                                  |      |    | ✓    |      |            |
+| `findTestStepBy(TestStepFinished)`                                                      |      |    | ✓    |      |            |
+| `findTestStepsFinishedBy(TestCaseStarted)`                                              |      |    | ✓    |      |            |
+| `findTestStepFinishedAndTestStepBy(TestCaseStarted)`                                    |      |    | ✓    |      |            |
