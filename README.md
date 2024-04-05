@@ -1,6 +1,29 @@
-# Cucumber Query
+<h1 align="center">
+  <img src="https://raw.githubusercontent.com/cucumber/cucumber-js/7df2c9b4f04099b81dc5c00cd73b404401cd6e46/docs/images/logo.svg" alt="">
+  <br>
+  Cucumber Query
+</h1>
+<p align="center">
+  <b>Given one <a href="https://github.com/cucumber/messages">Cucumber Message</a>, find another</b>
+</p>
 
-This is a query API for [cucumber-messages](https://github.com/cucumber/messages).
+<p align="center">
+  <a href="https://www.npmjs.com/package/@cucumber/query">
+    <img src="https://img.shields.io/npm/v/@cucumber/query.svg?color=dark-green" alt="npm">
+  </a>
+  <a href="https://central.sonatype.com/artifact/io.cucumber/query">
+    <img src="https://img.shields.io/maven-central/v/io.cucumber/query.svg?label=Maven%20Central&color=dark-green" alt="maven-central">
+  </a>
+  <a href="https://github.com/cucumber/query/actions/workflows/release-github.yaml">
+    <img src="https://github.com/cucumber/query/actions/workflows/release-github.yaml/badge.svg" alt="build">
+  </a>
+  <a href="https://opencollective.com/cucumber">
+    <img src="https://opencollective.com/cucumber/backers/badge.svg" alt="backers">
+  </a>
+  <a href="https://opencollective.com/cucumber">
+    <img src="https://opencollective.com/cucumber/sponsors/badge.svg" alt="sponsors">
+  </a>
+</p>
 
 ## Overview
 
@@ -9,40 +32,41 @@ using `id` fields. It's a bit similar to rows in a relational database, with
 primary and foreign keys.
 
 Consumers of these messages may want to *query* the messages for certain information.
-For example, [cucumber-react](https://github.com/cucumber/cucumber-react) needs to know the status of a [Step](../cucumber-messages/messages.md#io.cucumber.messages.GherkinDocument.Feature.Step) as it
+For example, [cucumber-react](https://github.com/cucumber/cucumber-react) needs to know the status of
+a [Step](../cucumber-messages/messages.md#io.cucumber.messages.GherkinDocument.Feature.Step) as it
 is rendering the [GherkinDocument](../cucumber-messages/messages.md#io.cucumber.messages.GherkinDocument)
 
-The `cucumber-query` library makes this easy by providing a function to look up the
+The Query library makes this easy by providing a function to look up the
 status of a step, a scenario or an entire file.
 
 ## API
 
-| Query function                                                                          | .NET | Go | Java | Ruby | TypeScript |
-| --------------------------------------------------------------------------------------- | ---- | -- | ---- | ---- | ---------- |
-| `getStepResults(uri: string, lineNumber: number): messages.ITestResult[]`               |      |    |      |      | ✓          |
-| `getScenarioResults(uri: string, lineNumber: number): messages.ITestResult[]`           |      |    |      |      | ✓          |
-| `getDocumentResults(uri: string): messages.ITestResult[]`                               |      |    |      |      | ✓          |
-| `getStepMatchArguments(uri: string, lineNumber: number): messages.IStepMatchArgument[]` |      |    |      |      | ✓          |
-| `getGherkinStep(gherkinStepId: string): messages.GherkinDocument.Feature.IStep`         |      |    |      |      | ✓          |
-| `countMostSevereTestStepResultStatus()`                                                 |      |    | ✓    |      |            |
-| `countTestCasesStarted()`                                                               |      |    | ✓    |      |            |
-| `findAllPickles()`                                                                      |      |    | ✓    |      |            |
-| `findAllPickleSteps()`                                                                  |      |    | ✓    |      |            |
-| `findAllTestCaseStarted()`                                                              |      |    | ✓    |      |            |
-| `findAllTestSteps()`                                                                    |      |    | ✓    |      |            |
-| `findAllTestCaseStartedGroupedByFeature()`                                              |      |    | ✓    |      |            |
-| `findFeatureBy(TestCaseStarted)`                                                        |      |    | ✓    |      |            |
-| `findMostSevereTestStepResulBy(TestCaseStarted)`                                        |      |    | ✓    |      |            |
-| `findNameOf(Pickle, NamingStrategy)`                                                    |      |    | ✓    |      |            |
-| `findPickleBy(TestCaseStarted)`                                                         |      |    | ✓    |      |            |
-| `findPickleStepBy(TestStep testStep)`                                                   |      |    | ✓    |      |            |
-| `findStepBy(PickleStep pickleStep)`                                                     |      |    | ✓    |      |            |
-| `findTestCaseBy(TestCaseStarted)`                                                       |      |    | ✓    |      |            |
-| `findTestCaseDurationBy(TestCaseStarted)`                                               |      |    | ✓    |      |            |
-| `findTestCaseFinishedBy(TestCaseStarted)`                                               |      |    | ✓    |      |            |
-| `findTestRunDuration()`                                                                 |      |    | ✓    |      |            | 
-| `findTestRunFinished()`                                                                 |      |    | ✓    |      |            |
-| `findTestRunStarted()`                                                                  |      |    | ✓    |      |            |
-| `findTestStepBy(TestStepFinished)`                                                      |      |    | ✓    |      |            |
-| `findTestStepsFinishedBy(TestCaseStarted)`                                              |      |    | ✓    |      |            |
-| `findTestStepFinishedAndTestStepBy(TestCaseStarted)`                                    |      |    | ✓    |      |            |
+| Query function                                                                                | .NET | Go  | Java | Ruby | TypeScript |
+|-----------------------------------------------------------------------------------------------|------|-----|------|------|------------|
+| `getStepResults(uri: string, lineNumber: number): messages.ITestResult[]`                     |      |     |      |      | ✓          |
+| `getScenarioResults(uri: string, lineNumber: number): messages.ITestResult[]`                 |      |     |      |      | ✓          |
+| `getDocumentResults(uri: string): messages.ITestResult[]`                                     |      |     |      |      | ✓          |
+| `getStepMatchArguments(uri: string, lineNumber: number): messages.IStepMatchArgument[]`       |      |     |      |      | ✓          |
+| `getGherkinStep(gherkinStepId: string): messages.GherkinDocument.Feature.IStep`               |      |     |      |      | ✓          |
+| `countMostSevereTestStepResultStatus(): Map<TestStepResultStatus, Long>`                      |      |     | ✓    |      |            |
+| `countTestCasesStarted(): int`                                                                |      |     | ✓    |      |            |
+| `findAllPickles(): List<Pickle>`                                                              |      |     | ✓    |      |            |
+| `findAllPickleSteps(): List<PickleStep>`                                                      |      |     | ✓    |      |            |
+| `findAllTestCaseStarted(): List<TestCaseStarted>                                              |      |     | ✓    |      |            |
+| `findAllTestCaseStartedGroupedByFeature(): Map<Optional<Feature>, List<TestCaseStarted>>`     |      |     | ✓    |      |            |
+| `findAllTestSteps(): List<TestStep>`                                                          |      |     | ✓    |      |            |
+| `findFeatureBy(TestCaseStarted): Optional<Feature>`                                           |      |     | ✓    |      |            |
+| `findMostSevereTestStepResulBy(TestCaseStarted): Optional<TestStepResult>`                    |      |     | ✓    |      |            |
+| `findNameOf(Pickle, NamingStrategy): String`                                                  |      |     | ✓    |      |            |
+| `findPickleBy(TestCaseStarted): Optional<Pickle>`                                             |      |     | ✓    |      |            |
+| `findPickleStepBy(TestStep testStep): Optional<PickleStep>`                                   |      |     | ✓    |      |            |
+| `findStepBy(PickleStep pickleStep): Optional<Step>`                                           |      |     | ✓    |      |            |
+| `findTestCaseBy(TestCaseStarted): Optional<TestCase>`                                         |      |     | ✓    |      |            |
+| `findTestCaseDurationBy(TestCaseStarted): Optional<Duration>`                                 |      |     | ✓    |      |            |
+| `findTestCaseFinishedBy(TestCaseStarted): Optional<TestCaseFinished>`                         |      |     | ✓    |      |            |
+| `findTestRunDuration(): Optional<Duration>`                                                   |      |     | ✓    |      |            |
+| `findTestRunFinished(): Optional<TestRunFinished>`                                            |      |     | ✓    |      |            |
+| `findTestRunStarted(): Optional<TestRunStarted>`                                              |      |     | ✓    |      |            |
+| `findTestStepBy(TestStepFinished): Optional<TestStep>`                                        |      |     | ✓    |      |            |
+| `findTestStepsFinishedBy(TestCaseStarted): List<TestStepFinished>`                            |      |     | ✓    |      |            |
+| `findTestStepFinishedAndTestStepBy(TestCaseStarted): List<Entry<TestStepFinished, TestStep>>` |      |     | ✓    |      |            |
