@@ -56,7 +56,8 @@ import static java.util.stream.Collectors.toList;
  * <p>
  * It is safe to query and update this class concurrently.
  *
- * @see <a href=https://github.com/cucumber/messages?tab=readme-ov-file#message-overview>Cucumber Messages - Message Overview</a>
+ * @see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
+ *
  */
 public final class Query {
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
