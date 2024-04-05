@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [12.1.2] - 2024-04-05
 ### Fixed
 - java: Do not expose `SimpleEntry` as part of the public API
 
@@ -133,7 +135,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.1.1...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.1.2...HEAD
+[12.1.2]: https://github.com/cucumber/cucumber/compare/query/v12.1.1...v12.1.2
 [12.1.1]: https://github.com/cucumber/cucumber/compare/query/v12.1.0...v12.1.1
 [12.1.0]: https://github.com/cucumber/cucumber/compare/query/v12.0.2...v12.1.0
 [12.0.2]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...v12.0.2
