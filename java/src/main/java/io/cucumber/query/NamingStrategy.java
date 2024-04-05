@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import static io.cucumber.query.NamingStrategy.ExampleName.NUMBER;
 import static io.cucumber.query.NamingStrategy.FeatureName.INCLUDE;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Names {@link Pickle Pickles} in a {@link GherkinDocument}.
@@ -127,7 +128,7 @@ public abstract class NamingStrategy {
         private final ExampleName exampleName;
 
         private ShortNamingStrategy(ExampleName exampleName) {
-            this.exampleName = exampleName;
+            this.exampleName = requireNonNull(exampleName);
         }
 
         String name(GherkinDocumentElements elements, Pickle pickle) {
@@ -144,8 +145,8 @@ public abstract class NamingStrategy {
         private final ExampleName exampleName;
 
         private LongNamingStrategy(FeatureName featureName, ExampleName exampleName) {
-            this.featureName = featureName;
-            this.exampleName = exampleName;
+            this.featureName = requireNonNull(featureName);
+            this.exampleName = requireNonNull(exampleName);
         }
 
         String name(GherkinDocumentElements elements, Pickle pickle) {
@@ -172,16 +173,16 @@ public abstract class NamingStrategy {
         private ExampleName exampleName = NUMBER;
 
         public Builder(Strategy strategy) {
-            this.strategy = strategy;
+            this.strategy = requireNonNull(strategy);
         }
 
         public Builder exampleName(ExampleName exampleName) {
-            this.exampleName = exampleName;
+            this.exampleName = requireNonNull(exampleName);
             return this;
         }
 
         public Builder featureName(FeatureName featureName) {
-            this.featureName = featureName;
+            this.featureName = requireNonNull(featureName);
             return this;
         }
 

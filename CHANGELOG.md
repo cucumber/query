@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- java: Require all arguments to the naming strategy builder to be non-null
 
 ## [12.1.2] - 2024-04-05
 ### Fixed
