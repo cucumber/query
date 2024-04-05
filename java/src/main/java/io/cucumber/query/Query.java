@@ -98,10 +98,9 @@ public final class Query {
     }
 
     public List<TestCaseStarted> findAllTestCaseStarted() {
-        return testCaseStarted.stream()
-                .sorted(comparing(TestCaseStarted::getId))
-                .collect(toList());
+        return new ArrayList<>(testCaseStarted);
     }
+
     public List<TestStep> findAllTestSteps() {
         return testStepById.values().stream()
                 .sorted(comparing(TestStep::getId))
@@ -109,7 +108,7 @@ public final class Query {
     }
 
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
-        return findAllTestCaseStarted()
+        List<SimpleEntry<Optional<GherkinDocumentElements>, TestCaseStarted>> collect = findAllTestCaseStarted()
                 .stream()
                 .map(testCaseStarted -> {
                     Optional<GherkinDocumentElements> astNodes = findGherkinAstNodesBy(testCaseStarted);
@@ -119,6 +118,9 @@ public final class Query {
                 .sorted(nullsFirst(comparing(entry -> entry.getKey()
                         .flatMap(nodes -> nodes.document().getUri())
                         .orElse(null))))
+                .collect(toList());
+        return collect
+                .stream()
                 .map(entry -> {
                     // Unpack the now sorted entries
                     Optional<Feature> feature = entry.getKey().flatMap(GherkinDocumentElements::feature);
@@ -127,7 +129,8 @@ public final class Query {
                 })
                 // Group into a linked hashmap to preserve order
                 .collect(groupingBy(SimpleEntry::getKey, LinkedHashMap::new, collectingAndThen(toList(),
-                        entries -> entries.stream().map(SimpleEntry::getValue).collect(toList()))));
+                        entries -> entries.stream().map(SimpleEntry::getValue)
+                                .collect(toList()))));
     }
 
 
