@@ -1,0 +1,316 @@
+{
+  "countMostSevereTestStepResultStatus" : {
+    "PASSED" : 2,
+    "FAILED" : 2,
+    "UNDEFINED" : 2
+  },
+  "countTestCasesStarted" : 6,
+  "findAllPickles" : 6,
+  "findAllPickleSteps" : 18,
+  "findAllTestCaseStarted" : 6,
+  "findAllTestSteps" : 18,
+  "findAllTestCaseStartedGroupedByFeature" : [
+    [
+      "Examples Tables",
+      [
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75"
+      ]
+    ]
+  ],
+  "findFeatureBy" : [
+    "Examples Tables",
+    "Examples Tables",
+    "Examples Tables",
+    "Examples Tables",
+    "Examples Tables",
+    "Examples Tables"
+  ],
+  "findMostSevereTestStepResulBy" : [
+    "PASSED",
+    "PASSED",
+    "FAILED",
+    "FAILED",
+    "UNDEFINED",
+    "UNDEFINED"
+  ],
+  "findNameOf" : {
+    "long" : [
+      "Examples Tables - Eating cucumbers - These are passing - Example #1.1",
+      "Examples Tables - Eating cucumbers - These are passing - Example #1.2",
+      "Examples Tables - Eating cucumbers - These are failing - Example #2.1",
+      "Examples Tables - Eating cucumbers - These are failing - Example #2.2",
+      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Example #3.1",
+      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Example #3.2"
+    ],
+    "excludeFeatureName" : [
+      "Eating cucumbers - These are passing - Example #1.1",
+      "Eating cucumbers - These are passing - Example #1.2",
+      "Eating cucumbers - These are failing - Example #2.1",
+      "Eating cucumbers - These are failing - Example #2.2",
+      "Eating cucumbers - These are undefined because the value is not an {int} - Example #3.1",
+      "Eating cucumbers - These are undefined because the value is not an {int} - Example #3.2"
+    ],
+    "longPickleName" : [
+      "Examples Tables - Eating cucumbers - These are passing - Eating cucumbers",
+      "Examples Tables - Eating cucumbers - These are passing - Eating cucumbers",
+      "Examples Tables - Eating cucumbers - These are failing - Eating cucumbers",
+      "Examples Tables - Eating cucumbers - These are failing - Eating cucumbers",
+      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Eating cucumbers",
+      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Eating cucumbers"
+    ],
+    "short" : [
+      "Example #1.1",
+      "Example #1.2",
+      "Example #2.1",
+      "Example #2.2",
+      "Example #3.1",
+      "Example #3.2"
+    ],
+    "shortPickleName" : [
+      "Eating cucumbers",
+      "Eating cucumbers",
+      "Eating cucumbers",
+      "Eating cucumbers",
+      "Eating cucumbers",
+      "Eating cucumbers"
+    ]
+  },
+  "findPickleBy" : [
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers"
+  ],
+  "findPickleStepBy" : [
+    "there are 12 cucumbers",
+    "I eat 5 cucumbers",
+    "I should have 7 cucumbers",
+    "there are 20 cucumbers",
+    "I eat 5 cucumbers",
+    "I should have 15 cucumbers",
+    "there are 12 cucumbers",
+    "I eat 20 cucumbers",
+    "I should have 0 cucumbers",
+    "there are 0 cucumbers",
+    "I eat 1 cucumbers",
+    "I should have 0 cucumbers",
+    "there are 12 cucumbers",
+    "I eat banana cucumbers",
+    "I should have 12 cucumbers",
+    "there are 0 cucumbers",
+    "I eat 1 cucumbers",
+    "I should have apple cucumbers"
+  ],
+  "findStepBy" : [
+    "there are <start> cucumbers",
+    "I eat <eat> cucumbers",
+    "I should have <left> cucumbers",
+    "there are <start> cucumbers",
+    "I eat <eat> cucumbers",
+    "I should have <left> cucumbers",
+    "there are <start> cucumbers",
+    "I eat <eat> cucumbers",
+    "I should have <left> cucumbers",
+    "there are <start> cucumbers",
+    "I eat <eat> cucumbers",
+    "I should have <left> cucumbers",
+    "there are <start> cucumbers",
+    "I eat <eat> cucumbers",
+    "I should have <left> cucumbers",
+    "there are <start> cucumbers",
+    "I eat <eat> cucumbers",
+    "I should have <left> cucumbers"
+  ],
+  "findTestCaseBy" : [
+    "49",
+    "53",
+    "57",
+    "61",
+    "65",
+    "69"
+  ],
+  "findTestCaseDurationBy" : [
+    {
+      "seconds" : 0,
+      "nanos" : 7000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 7000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 7000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 7000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 7000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 7000000
+    }
+  ],
+  "findTestCaseFinishedBy" : [
+    "70",
+    "71",
+    "72",
+    "73",
+    "74",
+    "75"
+  ],
+  "findTestRunDuration" : {
+    "seconds" : 0,
+    "nanos" : 49000000
+  },
+  "findTestRunFinished" : {
+    "success" : false,
+    "timestamp" : {
+      "seconds" : 0,
+      "nanos" : 49000000
+    }
+  },
+  "findTestRunStarted" : {
+    "timestamp" : {
+      "seconds" : 0,
+      "nanos" : 0
+    }
+  },
+  "findTestStepBy" : [
+    "46",
+    "47",
+    "48",
+    "50",
+    "51",
+    "52",
+    "54",
+    "55",
+    "56",
+    "58",
+    "59",
+    "60",
+    "62",
+    "63",
+    "64",
+    "66",
+    "67",
+    "68"
+  ],
+  "findTestStepsFinishedBy" : [
+    [
+      "46",
+      "47",
+      "48"
+    ],
+    [
+      "50",
+      "51",
+      "52"
+    ],
+    [
+      "54",
+      "55",
+      "56"
+    ],
+    [
+      "58",
+      "59",
+      "60"
+    ],
+    [
+      "62",
+      "63",
+      "64"
+    ],
+    [
+      "66",
+      "67",
+      "68"
+    ]
+  ],
+  "findTestStepFinishedAndTestStepBy" : [
+    [
+      "46",
+      "46"
+    ],
+    [
+      "47",
+      "47"
+    ],
+    [
+      "48",
+      "48"
+    ],
+    [
+      "50",
+      "50"
+    ],
+    [
+      "51",
+      "51"
+    ],
+    [
+      "52",
+      "52"
+    ],
+    [
+      "54",
+      "54"
+    ],
+    [
+      "55",
+      "55"
+    ],
+    [
+      "56",
+      "56"
+    ],
+    [
+      "58",
+      "58"
+    ],
+    [
+      "59",
+      "59"
+    ],
+    [
+      "60",
+      "60"
+    ],
+    [
+      "62",
+      "62"
+    ],
+    [
+      "63",
+      "63"
+    ],
+    [
+      "64",
+      "64"
+    ],
+    [
+      "66",
+      "66"
+    ],
+    [
+      "67",
+      "67"
+    ],
+    [
+      "68",
+      "68"
+    ]
+  ]
+}

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added 
+- java: implementation of query ([#39](https://github.com/cucumber/query/pull/39))
+
 ## [12.0.2] - 2024-03-26
 ### Fixed
 - Correct repo URL in `package.json`
