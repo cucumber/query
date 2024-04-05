@@ -30,6 +30,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -102,12 +103,6 @@ public final class Query {
         return new ArrayList<>(testCaseStarted);
     }
 
-    public List<TestStep> findAllTestSteps() {
-        return testStepById.values().stream()
-                .sorted(comparing(TestStep::getId))
-                .collect(toList());
-    }
-
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
@@ -131,6 +126,11 @@ public final class Query {
                                 .collect(toList()))));
     }
 
+    public List<TestStep> findAllTestSteps() {
+        return testStepById.values().stream()
+                .sorted(comparing(TestStep::getId))
+                .collect(toList());
+    }
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
         return findGherkinAstNodesBy(testCaseStarted).flatMap(GherkinDocumentElements::feature);
@@ -225,7 +225,7 @@ public final class Query {
         return new ArrayList<>(testStepsFinished);
     }
 
-    public List<SimpleEntry<TestStepFinished, TestStep>> findTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted) {
+    public List<Entry<TestStepFinished, TestStep>> findTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted) {
         return findTestStepsFinishedBy(testCaseStarted).stream()
                 .map(testStepFinished -> findTestStepBy(testStepFinished).map(testStep -> new SimpleEntry<>(testStepFinished, testStep)))
                 .filter(Optional::isPresent)
