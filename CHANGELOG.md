@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-### Added 
+## [12.1.0] - 2024-04-05
+### Added
 - java: implementation of query ([#39](https://github.com/cucumber/query/pull/39))
 
 ## [12.0.2] - 2024-03-26
@@ -126,7 +127,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.0.2...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.1.0...HEAD
+[12.1.0]: https://github.com/cucumber/cucumber/compare/query/v12.0.2...v12.1.0
 [12.0.2]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...v12.0.2
 [12.0.1]: https://github.com/cucumber/cucumber/compare/query/v12.0.0...v12.0.1
 [12.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v11.0.0...query/v12.0.0
