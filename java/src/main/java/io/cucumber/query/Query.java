@@ -108,19 +108,16 @@ public final class Query {
     }
 
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
-        List<SimpleEntry<Optional<GherkinDocumentElements>, TestCaseStarted>> collect = findAllTestCaseStarted()
+        return findAllTestCaseStarted()
                 .stream()
-                .map(testCaseStarted -> {
-                    Optional<GherkinDocumentElements> astNodes = findGherkinAstNodesBy(testCaseStarted);
-                    return new SimpleEntry<>(astNodes, testCaseStarted);
+                .map(testCaseStarted1 -> {
+                    Optional<GherkinDocumentElements> astNodes = findGherkinAstNodesBy(testCaseStarted1);
+                    return new SimpleEntry<>(astNodes, testCaseStarted1);
                 })
                 // Sort entries by gherkin document URI for consistent ordering
-                .sorted(nullsFirst(comparing(entry -> entry.getKey()
+                .sorted(nullsFirst(comparing(entry1 -> entry1.getKey()
                         .flatMap(nodes -> nodes.document().getUri())
                         .orElse(null))))
-                .collect(toList());
-        return collect
-                .stream()
                 .map(entry -> {
                     // Unpack the now sorted entries
                     Optional<Feature> feature = entry.getKey().flatMap(GherkinDocumentElements::feature);
