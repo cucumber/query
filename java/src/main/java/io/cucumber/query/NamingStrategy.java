@@ -109,68 +109,99 @@ public abstract class NamingStrategy {
 
     abstract String name(GherkinDocumentElements elements, Pickle pickle);
 
-
-    private static String exampleNumber(GherkinDocumentElements elements, Integer index) {
-        String examplesPrefix = elements.examplesIndex()
-                .map(examplesIndex -> examplesIndex + 1)
-                .map(examplesIndex -> examplesIndex + ".")
-                .orElse("");
-        return "Example #" + examplesPrefix + (index + 1);
-    }
-
-    private static String join(List<String> pieces) {
-        return pieces.stream()
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.joining(" - "));
-    }
-
     private static class ShortNamingStrategy extends NamingStrategy {
+        private final NamingVisitor visitor;
         private final ExampleName exampleName;
 
-        private ShortNamingStrategy(ExampleName exampleName) {
+        private ShortNamingStrategy(NamingVisitor visitor, ExampleName exampleName) {
+            this.visitor = requireNonNull(visitor);
             this.exampleName = requireNonNull(exampleName);
         }
 
         String name(GherkinDocumentElements elements, Pickle pickle) {
             return elements.exampleIndex()
                     .filter(index -> exampleName == NUMBER)
-                    .map(index -> exampleNumber(elements, index))
-                    .orElseGet(pickle::getName);
+                    .map(index -> {
+                        Integer examplesIndex = elements.examplesIndex().orElse(0);
+                        return visitor.accept(examplesIndex, index);
+                    })
+                    .orElseGet(() -> visitor.accept(pickle));
         }
-
     }
 
     private static class LongNamingStrategy extends NamingStrategy {
+        private final NamingVisitor visitor;
+        private final CharSequence delimiter;
         private final FeatureName featureName;
         private final ExampleName exampleName;
 
-        private LongNamingStrategy(FeatureName featureName, ExampleName exampleName) {
+        private LongNamingStrategy(NamingVisitor visitor, CharSequence delimiter, FeatureName featureName, ExampleName exampleName) {
+            this.visitor = requireNonNull(visitor);
+            this.delimiter = requireNonNull(delimiter);
             this.featureName = requireNonNull(featureName);
             this.exampleName = requireNonNull(exampleName);
         }
 
         String name(GherkinDocumentElements elements, Pickle pickle) {
             List<String> pieces = new ArrayList<>();
-            elements.feature().map(Feature::getName)
+            elements.feature().map(visitor::accept)
                     .filter(feature -> featureName == INCLUDE)
                     .ifPresent(pieces::add);
-            elements.rule().map(Rule::getName)
+            elements.rule().map(visitor::accept)
                     .ifPresent(pieces::add);
-            elements.scenario().map(Scenario::getName)
+            elements.scenario().map(visitor::accept)
                     .ifPresent(pieces::add);
-            elements.examples().map(Examples::getName)
+            elements.examples().map(visitor::accept)
                     .ifPresent(pieces::add);
             elements.exampleIndex()
-                    .map(index -> exampleName == NUMBER ? exampleNumber(elements, index) : pickle.getName())
+                    .map(index -> {
+                        Integer examplesIndex = elements.examplesIndex().orElse(0);
+                        return exampleName == NUMBER ? visitor.accept(examplesIndex, index) : visitor.accept(pickle);
+                    })
                     .ifPresent(pieces::add);
-            return join(pieces);
+
+            return pieces.stream()
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.joining(delimiter));
+        }
+    }
+
+    public interface NamingVisitor {
+        default String accept(Feature feature) {
+            return feature.getName();
+        }
+
+        default String accept(Rule rule) {
+            return rule.getName();
+        }
+
+        default String accept(Scenario scenario) {
+            return scenario.getName();
+        }
+
+        default String accept(Examples examples) {
+            return examples.getName();
+        }
+
+        default String accept(int examplesIndex, int exampleIndex) {
+            return "Example #" + (examplesIndex + 1) + "." + (exampleIndex + 1);
+        }
+
+        default String accept(Pickle pickle) {
+            return pickle.getName();
         }
     }
 
     public static class Builder {
+        private static class DefaultNamingVisitor implements NamingVisitor {
+
+        }
+
         private final Strategy strategy;
         private FeatureName featureName = INCLUDE;
         private ExampleName exampleName = NUMBER;
+        private NamingVisitor visitor = new DefaultNamingVisitor();
+        private CharSequence delimiter = " - ";
 
         public Builder(Strategy strategy) {
             this.strategy = requireNonNull(strategy);
@@ -186,12 +217,23 @@ public abstract class NamingStrategy {
             return this;
         }
 
+        public Builder namingVisitor(NamingVisitor visitor) {
+            this.visitor = requireNonNull(visitor);
+            return this;
+        }
+        public Builder delimiter(CharSequence delimiter) {
+            this.delimiter = requireNonNull(delimiter);
+            return this;
+        }
+
         public NamingStrategy build() {
             if (strategy == Strategy.SHORT) {
-                return new ShortNamingStrategy(exampleName);
+                return new ShortNamingStrategy(visitor, exampleName);
             }
-            return new LongNamingStrategy(featureName, exampleName);
+            return new LongNamingStrategy(visitor, delimiter, featureName, exampleName);
 
         }
     }
+
+
 }

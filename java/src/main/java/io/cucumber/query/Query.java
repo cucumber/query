@@ -6,11 +6,14 @@ import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
+import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.StepDefinition;
 import io.cucumber.messages.types.TableRow;
 import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
@@ -26,12 +29,14 @@ import io.cucumber.messages.types.Timestamp;
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -71,7 +76,9 @@ public final class Query {
     private final Map<String, Step> stepById = new ConcurrentHashMap<>();
     private final Map<String, TestStep> testStepById = new ConcurrentHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new ConcurrentHashMap<>();
+    private final Map<String, Hook> hookById = new ConcurrentHashMap<>();
     private final Map<String, GherkinDocumentElements> gherkinAstNodesById = new ConcurrentHashMap<>();
+    private final Map<String, StepDefinition> stepDefinitionById = new ConcurrentHashMap<>();
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
@@ -141,9 +148,36 @@ public final class Query {
     }
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
+        requireNonNull(testCaseStarted);
         return findGherkinAstNodesBy(testCaseStarted).flatMap(GherkinDocumentElements::feature);
     }
 
+    public Optional<Hook> findHookBy(TestStep testStep) {
+        requireNonNull(testStep);
+        return testStep.getHookId()
+                .map(hookById::get);
+    }
+
+    public Optional<GherkinDocument> findGherkinDocumentBy(TestCaseStarted testCaseStarted) {
+        requireNonNull(testCaseStarted);
+        return findGherkinAstNodesBy(testCaseStarted).map(GherkinDocumentElements::document);
+    }
+
+
+    public Optional<Scenario> findScenarioBy(TestCaseStarted testCaseStarted) {
+        requireNonNull(testCaseStarted);
+        return findGherkinAstNodesBy(testCaseStarted).flatMap(GherkinDocumentElements::scenario);
+    }
+
+    public Optional<Location> findLocationOf(Pickle pickle) {
+        requireNonNull(pickle);
+        return findGherkinAstNodesBy(pickle)
+                .flatMap(gherkinDocumentElements -> {
+                    Optional<Location> exampleLocation = gherkinDocumentElements.example().map(TableRow::getLocation);
+                    Optional<Location> scenarioLocation = gherkinDocumentElements.scenario().map(Scenario::getLocation);
+                    return exampleLocation.map(Optional::of).orElse(scenarioLocation);
+                });
+    }
     public Optional<TestStepResult> findMostSevereTestStepResulBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestStepsFinishedBy(testCaseStarted)
@@ -169,7 +203,7 @@ public final class Query {
     }
 
     public Optional<PickleStep> findPickleStepBy(TestStep testStep) {
-        requireNonNull(testCaseStarted);
+        requireNonNull(testStep);
         return testStep.getPickleStepId()
                 .map(pickleStepById::get);
     }
@@ -178,6 +212,15 @@ public final class Query {
         requireNonNull(pickleStep);
         String stepId = pickleStep.getAstNodeIds().get(0);
         return ofNullable(stepById.get(stepId));
+    }
+
+    public List<StepDefinition> findStepDefinitionBy(TestStep testStep) {
+        requireNonNull(testStep);
+        return testStep.getStepDefinitionIds().map(ids -> ids.stream()
+                        .map(stepDefinitionById::get)
+                        .filter(Objects::nonNull)
+                        .collect(toList()))
+                .orElseGet(Collections::emptyList);
     }
 
     public Optional<TestCase> findTestCaseBy(TestCaseStarted testCaseStarted) {
@@ -248,7 +291,9 @@ public final class Query {
         envelope.getTestCaseFinished().ifPresent(this::updateTestCaseFinished);
         envelope.getTestStepFinished().ifPresent(this::updateTestStepFinished);
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
+        envelope.getHook().ifPresent(this::updateHook);
         envelope.getPickle().ifPresent(this::updatePickle);
+        envelope.getStepDefinition().ifPresent(this::updateStepDefinition);
         envelope.getTestCase().ifPresent(this::updateTestCase);
         envelope.getAttachment().ifPresent(this::updateAttachment);
     }
@@ -279,9 +324,17 @@ public final class Query {
         event.getTestSteps().forEach(testStep -> testStepById.put(testStep.getId(), testStep));
     }
 
+    private void updateHook(Hook event) {
+        this.hookById.put(event.getId(), event);
+    }
+
     private void updatePickle(Pickle event) {
         this.pickleById.put(event.getId(), event);
         event.getSteps().forEach(pickleStep -> pickleStepById.put(pickleStep.getId(), pickleStep));
+    }
+
+    private void updateStepDefinition(StepDefinition event) {
+        this.stepDefinitionById.put(event.getId(), event);
     }
 
     private void updateGherkinDocument(GherkinDocument document) {
