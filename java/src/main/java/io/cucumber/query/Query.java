@@ -1,6 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
+import io.cucumber.messages.types.Attachment;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
@@ -58,11 +59,11 @@ import static java.util.stream.Collectors.toList;
  * It is safe to query and update this class concurrently.
  *
  * @see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
- *
  */
 public final class Query {
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
     private final Deque<TestCaseStarted> testCaseStarted = new ConcurrentLinkedDeque<>();
+    private final Map<String, List<Attachment>> attachmentsByTestStepId = new ConcurrentHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, Pickle> pickleById = new ConcurrentHashMap<>();
@@ -130,6 +131,13 @@ public final class Query {
         return testStepById.values().stream()
                 .sorted(comparing(TestStep::getId))
                 .collect(toList());
+    }
+
+    public List<Attachment> findAllAttachmentsBy(TestStep testStep) {
+        requireNonNull(testStep);
+        List<Attachment> attachments = attachmentsByTestStepId.getOrDefault(testStep.getId(), emptyList());
+        // Concurrency
+        return new ArrayList<>(attachments);
     }
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
@@ -242,6 +250,12 @@ public final class Query {
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         envelope.getPickle().ifPresent(this::updatePickle);
         envelope.getTestCase().ifPresent(this::updateTestCase);
+        envelope.getAttachment().ifPresent(this::updateAttachment);
+    }
+
+    private void updateAttachment(Attachment event) {
+        event.getTestStepId()
+                .ifPresent(testStepId -> attachmentsByTestStepId.compute(testStepId, updateList(event)));
     }
 
     private Optional<GherkinDocumentElements> findGherkinAstNodesBy(Pickle pickle) {
