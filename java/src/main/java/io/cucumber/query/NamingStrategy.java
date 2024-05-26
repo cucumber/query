@@ -10,7 +10,8 @@ import static io.cucumber.query.NamingStrategy.FeatureName.INCLUDE;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Names {@link Pickle Pickles} and other elements in a {@link GherkinDocument}.
+ * Names {@link Pickle Pickles} and other elements in a
+ * {@link GherkinDocument}.
  * <p>
  * Pickles in a Gherkin document have a name. But represented
  * without the structure of a Gherkin document (e.g. in a flat xml report),
