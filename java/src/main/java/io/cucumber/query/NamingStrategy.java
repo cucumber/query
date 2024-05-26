@@ -1,22 +1,17 @@
 package io.cucumber.query;
 
-import io.cucumber.messages.types.Examples;
-import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Pickle;
-import io.cucumber.messages.types.Rule;
-import io.cucumber.messages.types.Scenario;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static io.cucumber.query.NamingStrategy.ExampleName.NUMBER;
+import static io.cucumber.query.LineageReducer.descending;
+import static io.cucumber.query.NamingCollector.of;
+import static io.cucumber.query.NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
 import static io.cucumber.query.NamingStrategy.FeatureName.INCLUDE;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Names {@link Pickle Pickles} in a {@link GherkinDocument}.
+ * Names {@link Pickle Pickles} and other elements in a
+ * {@link GherkinDocument}.
  * <p>
  * Pickles in a Gherkin document have a name. But represented
  * without the structure of a Gherkin document (e.g. in a flat xml report),
@@ -24,10 +19,10 @@ import static java.util.Objects.requireNonNull;
  * problem by prefixing an elements name with the names of all its ancestors,
  * optionally including the feature name.
  * <p>
- * Furthermore, Pickles derived from an example can be named in two ways.
+ * Furthermore, Pickles derived from an example can be named in three ways.
  * Either by their example number (e.g. {@code Example #3.14}) or by their
- * pickle name. If a parameterized pickle name is used, the latter may be
- * preferable.
+ * pickle name. If a parameterized pickle name is used, a combination of both
+ * can be used.
  *
  * <pre>{@code
  * Feature: Examples Tables
@@ -46,12 +41,14 @@ import static java.util.Objects.requireNonNull;
  *       |    12 |  20 |    0 |
  *       |     0 |   1 |    0 |
  * }</pre>
- * With the long strategy, using example numbers the pickles in this example would be named:
+ *
+ * With the long strategy, using example numbers and the pickle if
+ * parameterized, the pickles in this example would be named:
  * <ul>
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are passing - Example #1.1
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are passing - Example #1.2
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are failing - Example #2.1
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are failing - Example #2.2
+ *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are passing - #1.1: Eating 5 cucumbers
+ *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are passing - #1.2: Eating 6 cucumbers
+ *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are failing - #2.1: Eating 20 cucumbers
+ *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are failing - #2.2: Eating 1 cucumbers
  * </ul>
  * <p>
  * And with the short strategy, using pickle names:
@@ -62,7 +59,7 @@ import static java.util.Objects.requireNonNull;
  *     <li>Eating 1 cucumbers
  * </ul>
  */
-public abstract class NamingStrategy {
+public abstract class NamingStrategy implements LineageReducer<String> {
 
     public enum Strategy {
         /**
@@ -78,13 +75,21 @@ public abstract class NamingStrategy {
 
     public enum ExampleName {
         /**
-         * Number examples, for example {@code Example #3.14}
+         * Number examples, for example {@code #1.2}
          */
         NUMBER,
+
         /**
-         * Use the name of the pickle associated with the example.
+         * Use the name of the pickle associated with the example. For example
+         * {@code Eating 6 cucumbers}.
          */
-        PICKLE
+        PICKLE,
+
+        /**
+         * Number examples, and if the pickle name is parameterized include it
+         * too. For example {@code #1.2 - Eating 6 cucumbers}.
+         */
+        NUMBER_AND_PICKLE_IF_PARAMETERIZED
     }
 
     public enum FeatureName {
@@ -107,70 +112,11 @@ public abstract class NamingStrategy {
         // Could be made a public interface if GherkinDocumentElements had a better API
     }
 
-    abstract String name(GherkinDocumentElements elements, Pickle pickle);
-
-
-    private static String exampleNumber(GherkinDocumentElements elements, Integer index) {
-        String examplesPrefix = elements.examplesIndex()
-                .map(examplesIndex -> examplesIndex + 1)
-                .map(examplesIndex -> examplesIndex + ".")
-                .orElse("");
-        return "Example #" + examplesPrefix + (index + 1);
-    }
-
-    private static String join(List<String> pieces) {
-        return pieces.stream()
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.joining(" - "));
-    }
-
-    private static class ShortNamingStrategy extends NamingStrategy {
-        private final ExampleName exampleName;
-
-        private ShortNamingStrategy(ExampleName exampleName) {
-            this.exampleName = requireNonNull(exampleName);
-        }
-
-        String name(GherkinDocumentElements elements, Pickle pickle) {
-            return elements.exampleIndex()
-                    .filter(index -> exampleName == NUMBER)
-                    .map(index -> exampleNumber(elements, index))
-                    .orElseGet(pickle::getName);
-        }
-
-    }
-
-    private static class LongNamingStrategy extends NamingStrategy {
-        private final FeatureName featureName;
-        private final ExampleName exampleName;
-
-        private LongNamingStrategy(FeatureName featureName, ExampleName exampleName) {
-            this.featureName = requireNonNull(featureName);
-            this.exampleName = requireNonNull(exampleName);
-        }
-
-        String name(GherkinDocumentElements elements, Pickle pickle) {
-            List<String> pieces = new ArrayList<>();
-            elements.feature().map(Feature::getName)
-                    .filter(feature -> featureName == INCLUDE)
-                    .ifPresent(pieces::add);
-            elements.rule().map(Rule::getName)
-                    .ifPresent(pieces::add);
-            elements.scenario().map(Scenario::getName)
-                    .ifPresent(pieces::add);
-            elements.examples().map(Examples::getName)
-                    .ifPresent(pieces::add);
-            elements.exampleIndex()
-                    .map(index -> exampleName == NUMBER ? exampleNumber(elements, index) : pickle.getName())
-                    .ifPresent(pieces::add);
-            return join(pieces);
-        }
-    }
-
     public static class Builder {
+
         private final Strategy strategy;
         private FeatureName featureName = INCLUDE;
-        private ExampleName exampleName = NUMBER;
+        private ExampleName exampleName = NUMBER_AND_PICKLE_IF_PARAMETERIZED;
 
         public Builder(Strategy strategy) {
             this.strategy = requireNonNull(strategy);
@@ -187,11 +133,25 @@ public abstract class NamingStrategy {
         }
 
         public NamingStrategy build() {
-            if (strategy == Strategy.SHORT) {
-                return new ShortNamingStrategy(exampleName);
-            }
-            return new LongNamingStrategy(featureName, exampleName);
+            return new Adaptor(descending(of(strategy, featureName, exampleName)));
+        }
+    }
 
+    private static class Adaptor extends NamingStrategy {
+        private final LineageReducer<String> delegate;
+
+        Adaptor(LineageReducer<String> delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public String reduce(Lineage lineage) {
+            return delegate.reduce(lineage);
+        }
+
+        @Override
+        public String reduce(Lineage lineage, Pickle pickle) {
+            return delegate.reduce(lineage, pickle);
         }
     }
 }
