@@ -56,12 +56,12 @@
       "Eating cucumbers - These are undefined because the value is not an {int} - Example #3.2"
     ],
     "longPickleName" : [
-      "Examples Tables - Eating cucumbers - These are passing - Eating cucumbers",
-      "Examples Tables - Eating cucumbers - These are passing - Eating cucumbers",
-      "Examples Tables - Eating cucumbers - These are failing - Eating cucumbers",
-      "Examples Tables - Eating cucumbers - These are failing - Eating cucumbers",
-      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Eating cucumbers",
-      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Eating cucumbers"
+      "Examples Tables - Eating cucumbers - These are passing",
+      "Examples Tables - Eating cucumbers - These are passing",
+      "Examples Tables - Eating cucumbers - These are failing",
+      "Examples Tables - Eating cucumbers - These are failing",
+      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int}",
+      "Examples Tables - Eating cucumbers - These are undefined because the value is not an {int}"
     ],
     "short" : [
       "Example #1.1",

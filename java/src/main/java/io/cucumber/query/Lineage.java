@@ -18,7 +18,7 @@ import static java.util.Objects.requireNonNull;
  * This works without any ordering because Gherkins document
  * structure is simple enough to hard code.
  */
-class GherkinDocumentElements {
+class Lineage {
     private final GherkinDocument document;
     private final Feature feature;
     private final Rule rule;
@@ -28,11 +28,11 @@ class GherkinDocumentElements {
     private final Integer examplesIndex;
     private final Integer exampleIndex;
 
-    GherkinDocumentElements(GherkinDocument document, Feature feature, Rule rule, Scenario scenario) {
+    Lineage(GherkinDocument document, Feature feature, Rule rule, Scenario scenario) {
         this(document, feature, rule, scenario, null, null, null, null);
     }
 
-    GherkinDocumentElements(GherkinDocument document, Feature feature, Rule rule, Scenario scenario, Integer examplesIndex, Examples examples, Integer exampleIndex, TableRow example) {
+    Lineage(GherkinDocument document, Feature feature, Rule rule, Scenario scenario, Integer examplesIndex, Examples examples, Integer exampleIndex, TableRow example) {
         this.document = requireNonNull(document);
         this.feature = feature;
         this.rule = rule;
@@ -79,7 +79,7 @@ class GherkinDocumentElements {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GherkinDocumentElements that = (GherkinDocumentElements) o;
+        Lineage that = (Lineage) o;
         return document.equals(that.document) && feature.equals(that.feature) && Objects.equals(rule, that.rule) && scenario.equals(that.scenario) && Objects.equals(examples, that.examples) && Objects.equals(example, that.example) && Objects.equals(examplesIndex, that.examplesIndex) && Objects.equals(exampleIndex, that.exampleIndex);
     }
 

@@ -70,7 +70,7 @@ public final class Query {
     private final Map<String, Step> stepById = new ConcurrentHashMap<>();
     private final Map<String, TestStep> testStepById = new ConcurrentHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new ConcurrentHashMap<>();
-    private final Map<String, GherkinDocumentElements> gherkinAstNodesById = new ConcurrentHashMap<>();
+    private final Map<String, Lineage> gherkinAstNodesById = new ConcurrentHashMap<>();
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
@@ -107,7 +107,7 @@ public final class Query {
         return findAllTestCaseStarted()
                 .stream()
                 .map(testCaseStarted1 -> {
-                    Optional<GherkinDocumentElements> astNodes = findGherkinAstNodesBy(testCaseStarted1);
+                    Optional<Lineage> astNodes = findGherkinAstNodesBy(testCaseStarted1);
                     return new SimpleEntry<>(astNodes, testCaseStarted1);
                 })
                 // Sort entries by gherkin document URI for consistent ordering
@@ -116,7 +116,7 @@ public final class Query {
                         .orElse(null))))
                 .map(entry -> {
                     // Unpack the now sorted entries
-                    Optional<Feature> feature = entry.getKey().flatMap(GherkinDocumentElements::feature);
+                    Optional<Feature> feature = entry.getKey().flatMap(Lineage::feature);
                     TestCaseStarted testcaseStarted = entry.getValue();
                     return new SimpleEntry<>(feature, testcaseStarted);
                 })
@@ -133,7 +133,7 @@ public final class Query {
     }
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
-        return findGherkinAstNodesBy(testCaseStarted).flatMap(GherkinDocumentElements::feature);
+        return findGherkinAstNodesBy(testCaseStarted).flatMap(Lineage::feature);
     }
 
     public Optional<TestStepResult> findMostSevereTestStepResulBy(TestCaseStarted testCaseStarted) {
@@ -149,8 +149,24 @@ public final class Query {
         requireNonNull(namingStrategy);
 
         return findGherkinAstNodesBy(pickle)
-                .map(gherkinDocumentElements -> namingStrategy.name(gherkinDocumentElements, pickle))
+                .map(lineage -> namingStrategy.name(lineage, pickle))
                 .orElse(pickle.getName());
+    }
+
+    /**
+     * TODO: Not public, no use yet.
+     *
+     * @param pickle
+     * @param visitingStrategy
+     * @return
+     * @param <T>
+     */
+    <T> Optional<T> findLinageOf(Pickle pickle, LineageVisitingStrategy<T> visitingStrategy) {
+        requireNonNull(pickle);
+        requireNonNull(visitingStrategy);
+
+        return findGherkinAstNodesBy(pickle)
+                .map(lineage -> visitingStrategy.visit(lineage, pickle));
     }
 
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
@@ -244,14 +260,14 @@ public final class Query {
         envelope.getTestCase().ifPresent(this::updateTestCase);
     }
 
-    private Optional<GherkinDocumentElements> findGherkinAstNodesBy(Pickle pickle) {
+    private Optional<Lineage> findGherkinAstNodesBy(Pickle pickle) {
         requireNonNull(pickle);
         List<String> astNodeIds = pickle.getAstNodeIds();
         String pickleAstNodeId = astNodeIds.get(astNodeIds.size() - 1);
         return Optional.ofNullable(gherkinAstNodesById.get(pickleAstNodeId));
     }
 
-    private Optional<GherkinDocumentElements> findGherkinAstNodesBy(TestCaseStarted testCaseStarted) {
+    private Optional<Lineage> findGherkinAstNodesBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
                 .flatMap(this::findGherkinAstNodesBy);
     }
@@ -307,7 +323,7 @@ public final class Query {
     }
 
     private void updateScenario(GherkinDocument document, Feature feature, Rule rule, Scenario scenario) {
-        this.gherkinAstNodesById.put(scenario.getId(), new GherkinDocumentElements(document, feature, rule, scenario));
+        this.gherkinAstNodesById.put(scenario.getId(), new Lineage(document, feature, rule, scenario));
         updateSteps(scenario.getSteps());
 
         List<Examples> examples = scenario.getExamples();
@@ -316,7 +332,7 @@ public final class Query {
             List<TableRow> tableRows = currentExamples.getTableBody();
             for (int exampleIndex = 0; exampleIndex < tableRows.size(); exampleIndex++) {
                 TableRow currentExample = tableRows.get(exampleIndex);
-                gherkinAstNodesById.put(currentExample.getId(), new GherkinDocumentElements(document, feature, rule, scenario, examplesIndex, currentExamples, exampleIndex, currentExample));
+                gherkinAstNodesById.put(currentExample.getId(), new Lineage(document, feature, rule, scenario, examplesIndex, currentExamples, exampleIndex, currentExample));
             }
         }
     }
