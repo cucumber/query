@@ -136,6 +136,7 @@ public class QueryAcceptanceTest {
         names.put("shortPickleName", query.findAllPickles().stream()
                 .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(SHORT).exampleName(PICKLE).build()))
                 .collect(toList()));
+
         results.put("findNameOf", names);
 
         results.put("findPickleBy", query.findAllTestCaseStarted().stream()

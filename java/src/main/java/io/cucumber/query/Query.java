@@ -21,6 +21,7 @@ import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepResultStatus;
 import io.cucumber.messages.types.Timestamp;
+import io.cucumber.query.LineageReducerStrategy.Descending;
 
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
@@ -35,6 +36,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
@@ -58,7 +60,6 @@ import static java.util.stream.Collectors.toList;
  * It is safe to query and update this class concurrently.
  *
  * @see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
- *
  */
 public final class Query {
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
@@ -70,7 +71,7 @@ public final class Query {
     private final Map<String, Step> stepById = new ConcurrentHashMap<>();
     private final Map<String, TestStep> testStepById = new ConcurrentHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new ConcurrentHashMap<>();
-    private final Map<String, Lineage> gherkinAstNodesById = new ConcurrentHashMap<>();
+    private final Map<Object, Lineage> lineageById = new ConcurrentHashMap<>();
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
@@ -107,7 +108,7 @@ public final class Query {
         return findAllTestCaseStarted()
                 .stream()
                 .map(testCaseStarted1 -> {
-                    Optional<Lineage> astNodes = findGherkinAstNodesBy(testCaseStarted1);
+                    Optional<Lineage> astNodes = findLineageBy(testCaseStarted1);
                     return new SimpleEntry<>(astNodes, testCaseStarted1);
                 })
                 // Sort entries by gherkin document URI for consistent ordering
@@ -133,7 +134,7 @@ public final class Query {
     }
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
-        return findGherkinAstNodesBy(testCaseStarted).flatMap(Lineage::feature);
+        return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
     }
 
     public Optional<TestStepResult> findMostSevereTestStepResulBy(TestCaseStarted testCaseStarted) {
@@ -144,29 +145,121 @@ public final class Query {
                 .max(testStepResultComparator);
     }
 
-    public String findNameOf(Pickle pickle, NamingStrategy namingStrategy) {
-        requireNonNull(pickle);
+    public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
+        requireNonNull(element);
         requireNonNull(namingStrategy);
-
-        return findGherkinAstNodesBy(pickle)
-                .map(lineage -> namingStrategy.name(lineage, pickle))
-                .orElse(pickle.getName());
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
+                .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
-    /**
-     * TODO: Not public, no use yet.
-     *
-     * @param pickle
-     * @param visitingStrategy
-     * @return
-     * @param <T>
-     */
-    <T> Optional<T> findLinageOf(Pickle pickle, LineageVisitingStrategy<T> visitingStrategy) {
-        requireNonNull(pickle);
-        requireNonNull(visitingStrategy);
+    public String findNameOf(Feature element, NamingStrategy namingStrategy) {
+        requireNonNull(element);
+        requireNonNull(namingStrategy);
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
+                .orElseThrow(createElementWasNotPartOfThisQueryObject());
+    }
 
-        return findGherkinAstNodesBy(pickle)
-                .map(lineage -> visitingStrategy.visit(lineage, pickle));
+    public String findNameOf(Rule element, NamingStrategy namingStrategy) {
+        requireNonNull(element);
+        requireNonNull(namingStrategy);
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
+                .orElseThrow(createElementWasNotPartOfThisQueryObject());
+    }
+
+    public String findNameOf(Scenario element, NamingStrategy namingStrategy) {
+        requireNonNull(element);
+        requireNonNull(namingStrategy);
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
+                .orElseThrow(createElementWasNotPartOfThisQueryObject());
+    }
+
+    public String findNameOf(Examples element, NamingStrategy namingStrategy) {
+        requireNonNull(element);
+        requireNonNull(namingStrategy);
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
+                .orElseThrow(createElementWasNotPartOfThisQueryObject());
+    }
+
+    public String findNameOf(TableRow element, NamingStrategy namingStrategy) {
+        requireNonNull(element);
+        requireNonNull(namingStrategy);
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
+                .orElseThrow(createElementWasNotPartOfThisQueryObject());
+    }
+
+    public String findNameOf(Pickle element, NamingStrategy namingStrategy) {
+        requireNonNull(element);
+        requireNonNull(namingStrategy);
+        return findLineageBy(element)
+                .map(lineage -> namingStrategy.reduce(lineage, element))
+                .orElseThrow(createElementWasNotPartOfThisQueryObject());
+    }
+
+    private static Supplier<IllegalArgumentException> createElementWasNotPartOfThisQueryObject() {
+        return () -> new IllegalArgumentException("Element was not part of this query object");
+    }
+
+    <T> Optional<T> reduceLinageOf(GherkinDocument element, Supplier<LineageReducer<T>> reducerSupplier) {
+        requireNonNull(element);
+        requireNonNull(reducerSupplier);
+        Descending<T> strategy = new Descending<>(reducerSupplier);
+        return findLineageBy(element)
+                .map(strategy::reduce);
+    }
+
+    <T> Optional<T> reduceLinageOf(Feature element, Supplier<LineageReducer<T>> reducerSupplier) {
+        requireNonNull(element);
+        requireNonNull(reducerSupplier);
+        Descending<T> strategy = new Descending<>(reducerSupplier);
+        return findLineageBy(element)
+                .map(strategy::reduce);
+    }
+
+
+    <T> Optional<T> reduceLinageOf(Rule element, Supplier<LineageReducer<T>> reducerSupplier) {
+        requireNonNull(element);
+        requireNonNull(reducerSupplier);
+        Descending<T> strategy = new Descending<>(reducerSupplier);
+        return findLineageBy(element)
+                .map(strategy::reduce);
+    }
+
+    <T> Optional<T> reduceLinageOf(Scenario element, Supplier<LineageReducer<T>> reducerSupplier) {
+        requireNonNull(element);
+        requireNonNull(reducerSupplier);
+        Descending<T> strategy = new Descending<>(reducerSupplier);
+        return findLineageBy(element)
+                .map(strategy::reduce);
+    }
+
+    <T> Optional<T> reduceLinageOf(Examples element, Supplier<LineageReducer<T>> reducerSupplier) {
+        requireNonNull(element);
+        requireNonNull(reducerSupplier);
+        Descending<T> strategy = new Descending<>(reducerSupplier);
+        return findLineageBy(element)
+                .map(strategy::reduce);
+    }
+
+    <T> Optional<T> reduceLinageOf(TableRow element, Supplier<LineageReducer<T>> reducerSupplier) {
+        requireNonNull(element);
+        requireNonNull(reducerSupplier);
+        Descending<T> strategy = new Descending<>(reducerSupplier);
+        return findLineageBy(element)
+                .map(strategy::reduce);
+    }
+
+    <T> Optional<T> reduceLinageOf(Pickle element, Supplier<LineageReducer<T>> reducerSupplier) {
+        requireNonNull(element);
+        requireNonNull(reducerSupplier);
+        Descending<T> strategy = new Descending<>(reducerSupplier);
+        return findLineageBy(element)
+                .map(lineage -> strategy.reduce(lineage, element));
     }
 
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
@@ -260,16 +353,46 @@ public final class Query {
         envelope.getTestCase().ifPresent(this::updateTestCase);
     }
 
-    private Optional<Lineage> findGherkinAstNodesBy(Pickle pickle) {
+    private Optional<Lineage> findLineageBy(GherkinDocument element) {
+        requireNonNull(element);
+        return Optional.ofNullable(lineageById.get(element.getUri()));
+    }
+
+    private Optional<Lineage> findLineageBy(Feature element) {
+        requireNonNull(element);
+        return Optional.ofNullable(lineageById.get(element));
+    }
+
+    private Optional<Lineage> findLineageBy(Rule element) {
+        requireNonNull(element);
+        return Optional.ofNullable(lineageById.get(element.getId()));
+    }
+
+    private Optional<Lineage> findLineageBy(Scenario element) {
+        requireNonNull(element);
+        return Optional.ofNullable(lineageById.get(element.getId()));
+    }
+
+    private Optional<Lineage> findLineageBy(Examples element) {
+        requireNonNull(element);
+        return Optional.ofNullable(lineageById.get(element.getId()));
+    }
+
+    private Optional<Lineage> findLineageBy(TableRow element) {
+        requireNonNull(element);
+        return Optional.ofNullable(lineageById.get(element.getId()));
+    }
+
+    private Optional<Lineage> findLineageBy(Pickle pickle) {
         requireNonNull(pickle);
         List<String> astNodeIds = pickle.getAstNodeIds();
         String pickleAstNodeId = astNodeIds.get(astNodeIds.size() - 1);
-        return Optional.ofNullable(gherkinAstNodesById.get(pickleAstNodeId));
+        return Optional.ofNullable(lineageById.get(pickleAstNodeId));
     }
 
-    private Optional<Lineage> findGherkinAstNodesBy(TestCaseStarted testCaseStarted) {
+    private Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
-                .flatMap(this::findGherkinAstNodesBy);
+                .flatMap(this::findLineageBy);
     }
 
     private void updateTestCaseStarted(TestCaseStarted testCaseStarted) {
@@ -287,23 +410,20 @@ public final class Query {
     }
 
     private void updateGherkinDocument(GherkinDocument document) {
-        document.getFeature().ifPresent(feature -> updateFeature(document, feature));
+        lineageById.putAll(Lineages.of(document));
+        document.getFeature().ifPresent(this::updateFeature);
     }
 
-    private void updateFeature(GherkinDocument document, Feature feature) {
+    private void updateFeature(Feature feature) {
         feature.getChildren()
                 .forEach(featureChild -> {
                     featureChild.getBackground().ifPresent(background -> updateSteps(background.getSteps()));
-                    featureChild.getScenario().ifPresent(scenario -> updateScenario(document, feature, null, scenario));
+                    featureChild.getScenario().ifPresent(this::updateScenario);
                     featureChild.getRule().ifPresent(rule -> rule.getChildren().forEach(ruleChild -> {
                         ruleChild.getBackground().ifPresent(background -> updateSteps(background.getSteps()));
-                        ruleChild.getScenario().ifPresent(scenario -> updateScenario(document, feature, rule, scenario));
+                        ruleChild.getScenario().ifPresent(this::updateScenario);
                     }));
                 });
-    }
-
-    private void updateSteps(List<Step> steps) {
-        steps.forEach(step -> stepById.put(step.getId(), step));
     }
 
     private void updateTestStepFinished(TestStepFinished event) {
@@ -322,19 +442,12 @@ public final class Query {
         this.testRunStarted = event;
     }
 
-    private void updateScenario(GherkinDocument document, Feature feature, Rule rule, Scenario scenario) {
-        this.gherkinAstNodesById.put(scenario.getId(), new Lineage(document, feature, rule, scenario));
+    private void updateScenario(Scenario scenario) {
         updateSteps(scenario.getSteps());
+    }
 
-        List<Examples> examples = scenario.getExamples();
-        for (int examplesIndex = 0; examplesIndex < examples.size(); examplesIndex++) {
-            Examples currentExamples = examples.get(examplesIndex);
-            List<TableRow> tableRows = currentExamples.getTableBody();
-            for (int exampleIndex = 0; exampleIndex < tableRows.size(); exampleIndex++) {
-                TableRow currentExample = tableRows.get(exampleIndex);
-                gherkinAstNodesById.put(currentExample.getId(), new Lineage(document, feature, rule, scenario, examplesIndex, currentExamples, exampleIndex, currentExample));
-            }
-        }
+    private void updateSteps(List<Step> steps) {
+        steps.forEach(step -> stepById.put(step.getId(), step));
     }
 
     private <K, E> BiFunction<K, List<E>, List<E>> updateList(E element) {
