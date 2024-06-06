@@ -10,8 +10,7 @@
     "eslint-fix": "eslint --ext ts,tsx --max-warnings 0 --fix",
     "eslint": "eslint --ext ts,tsx --max-warnings 0",
     "test": "mocha",
-    "prepublishOnly": "tsc --build tsconfig.build.json",
-    "upgrade": "npm-check-updates --upgrade"
+    "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "repository": {
     "type": "git",
