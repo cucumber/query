@@ -8,7 +8,7 @@ import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.TableRow;
 
-interface LineageReducer<T> {
+public interface LineageReducer<T> {
     default void add(GherkinDocument document) {
 
     }

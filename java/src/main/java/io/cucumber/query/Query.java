@@ -5,6 +5,8 @@ import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
+import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
 import io.cucumber.messages.types.Rule;
@@ -20,6 +22,7 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepResultStatus;
+import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.Timestamp;
 import io.cucumber.query.LineageReducerStrategy.Descending;
 
@@ -64,6 +67,7 @@ import static java.util.stream.Collectors.toList;
 public final class Query {
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
     private final Deque<TestCaseStarted> testCaseStarted = new ConcurrentLinkedDeque<>();
+    private final Map<String, TestCaseStarted> testCaseStartedById =  new ConcurrentHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, Pickle> pickleById = new ConcurrentHashMap<>();
@@ -72,6 +76,7 @@ public final class Query {
     private final Map<String, TestStep> testStepById = new ConcurrentHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new ConcurrentHashMap<>();
     private final Map<Object, Lineage> lineageById = new ConcurrentHashMap<>();
+    private final Map<String, Hook> hookById = new ConcurrentHashMap<>();
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
@@ -137,6 +142,11 @@ public final class Query {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
     }
 
+    public Optional<Hook> findHookBy(TestStep testStep) {
+        requireNonNull(testStep);
+        return testStep.getHookId().map(hookById::get);
+    }
+
     public Optional<TestStepResult> findMostSevereTestStepResulBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestStepsFinishedBy(testCaseStarted)
@@ -193,12 +203,16 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
-    public String findNameOf(Pickle element, NamingStrategy namingStrategy) {
+    public Optional<String> findNameOf(Pickle element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
         return findLineageBy(element)
-                .map(lineage -> namingStrategy.reduce(lineage, element))
-                .orElseThrow(createElementWasNotPartOfThisQueryObject());
+                .map(lineage -> namingStrategy.reduce(lineage, element));
+    }
+
+    public Optional<Location> findLocationOf(Pickle element) {
+        requireNonNull(element);
+        return reduceLinageOf(element, LocationOf::new);
     }
 
     private static Supplier<IllegalArgumentException> createElementWasNotPartOfThisQueryObject() {
@@ -254,7 +268,7 @@ public final class Query {
                 .map(strategy::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(Pickle element, Supplier<LineageReducer<T>> reducerSupplier) {
+    public <T> Optional<T> reduceLinageOf(Pickle element, Supplier<LineageReducer<T>> reducerSupplier) {
         requireNonNull(element);
         requireNonNull(reducerSupplier);
         Descending<T> strategy = new Descending<>(reducerSupplier);
@@ -269,8 +283,15 @@ public final class Query {
                 .map(pickleById::get);
     }
 
+    public Optional<Pickle> findPickleBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return findTestCaseBy(testStepStarted)
+                .map(TestCase::getPickleId)
+                .map(pickleById::get);
+    }
+
     public Optional<PickleStep> findPickleStepBy(TestStep testStep) {
-        requireNonNull(testCaseStarted);
+        requireNonNull(testStep);
         return testStep.getPickleStepId()
                 .map(pickleStepById::get);
     }
@@ -281,9 +302,25 @@ public final class Query {
         return ofNullable(stepById.get(stepId));
     }
 
+    public Optional<Step> findStepBy(TestStep testStep) {
+        requireNonNull(testStep);
+        return findPickleStepBy(testStep)
+                .flatMap(this::findStepBy);
+    }
+
     public Optional<TestCase> findTestCaseBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseById.get(testCaseStarted.getTestCaseId()));
+    }
+
+    public Optional<TestCase> findTestCaseBy(TestStepStarted testCaseStarted) {
+        return findTestCaseStartedBy(testCaseStarted)
+                .flatMap(this::findTestCaseBy);
+    }
+
+    public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return ofNullable(testCaseStartedById.get(testStepStarted.getTestCaseStartedId()));
     }
 
     public Optional<Duration> findTestCaseDurationBy(TestCaseStarted testCaseStarted) {
@@ -321,6 +358,11 @@ public final class Query {
         return ofNullable(testRunStarted);
     }
 
+    public Optional<TestStep> findTestStepBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return ofNullable(testStepById.get(testStepStarted.getTestStepId()));
+    }
+
     public Optional<TestStep> findTestStepBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
         return ofNullable(testStepById.get(testStepFinished.getTestStepId()));
@@ -351,6 +393,7 @@ public final class Query {
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         envelope.getPickle().ifPresent(this::updatePickle);
         envelope.getTestCase().ifPresent(this::updateTestCase);
+        envelope.getHook().ifPresent(this::updateHook);
     }
 
     private Optional<Lineage> findLineageBy(GherkinDocument element) {
@@ -397,6 +440,7 @@ public final class Query {
 
     private void updateTestCaseStarted(TestCaseStarted testCaseStarted) {
         this.testCaseStarted.add(testCaseStarted);
+        this.testCaseStartedById.put(testCaseStarted.getId(), testCaseStarted);
     }
 
     private void updateTestCase(TestCase event) {
@@ -448,6 +492,10 @@ public final class Query {
 
     private void updateSteps(List<Step> steps) {
         steps.forEach(step -> stepById.put(step.getId(), step));
+    }
+
+    private void updateHook(Hook event) {
+        this.hookById.put(event.getId(), event);
     }
 
     private <K, E> BiFunction<K, List<E>, List<E>> updateList(E element) {
