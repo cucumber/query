@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [12.2.0] - 2024-06-22
 ### Changed
--  Include pickle name if parameterized ((#44)[https://github.com/cucumber/query/pull/44])
+- Include pickle name if parameterized ((#44)[https://github.com/cucumber/query/pull/44])
 
 ### Fixed
 - java: Require all arguments to the naming strategy builder to be non-null
@@ -140,7 +142,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.1.2...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.2.0...HEAD
+[12.2.0]: https://github.com/cucumber/cucumber/compare/query/v12.1.2...v12.2.0
 [12.1.2]: https://github.com/cucumber/cucumber/compare/query/v12.1.1...v12.1.2
 [12.1.1]: https://github.com/cucumber/cucumber/compare/query/v12.1.0...v12.1.1
 [12.1.0]: https://github.com/cucumber/cucumber/compare/query/v12.0.2...v12.1.0
