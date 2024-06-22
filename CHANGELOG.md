@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+-  Include pickle name if parameterized ((#44)[https://github.com/cucumber/query/pull/44])
+
 ### Fixed
 - java: Require all arguments to the naming strategy builder to be non-null
 
