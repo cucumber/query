@@ -17,7 +17,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <T> the type reduced to.
  */
-interface LineageReducer<T> {
+public interface LineageReducer<T> {
 
     static <T> LineageReducer<T> descending(Supplier<? extends LineageCollector<T>> collector) {
         return new LineageReducerDescending<>(collector);

@@ -15,7 +15,7 @@ import io.cucumber.messages.types.TableRow;
  *
  * @param <T> the type reduced to.
  */
-interface LineageCollector<T> {
+public interface LineageCollector<T> {
     default void add(GherkinDocument document) {
 
     }

@@ -99,10 +99,6 @@ class Lineage {
         return Optional.ofNullable(exampleIndex);
     }
 
-    <T> LineageReducer reduce(Supplier<LineageCollector<T>> collector) {
-        return new LineageReducerDescending(collector);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

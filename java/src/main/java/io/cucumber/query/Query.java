@@ -20,6 +20,7 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepResultStatus;
+import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.Timestamp;
 
 import java.time.Duration;
@@ -239,7 +240,7 @@ public final class Query {
                 .map(reducer::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(Pickle element, LineageReducer<T> reducer) {
+    public <T> Optional<T> reduceLinageOf(Pickle element, LineageReducer<T> reducer) {
         requireNonNull(element);
         requireNonNull(reducer);
         return findLineageBy(element)
@@ -303,6 +304,11 @@ public final class Query {
 
     public Optional<TestRunStarted> findTestRunStarted() {
         return ofNullable(testRunStarted);
+    }
+
+    public Optional<TestStep> findTestStepBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return ofNullable(testStepById.get(testStepStarted.getTestStepId()));
     }
 
     public Optional<TestStep> findTestStepBy(TestStepFinished testStepFinished) {
