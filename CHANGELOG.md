@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Update dependency io.cucumber:messages up to v26 ((#53)[https://github.com/cucumber/query/pull/53])
+
 ## [12.2.0] - 2024-06-22
 ### Changed
 - Include pickle name if parameterized ((#44)[https://github.com/cucumber/query/pull/44])
