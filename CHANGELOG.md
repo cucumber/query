@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
-- Update dependency @cucumber/messages to v26  ((#52)[https://github.com/cucumber/query/pull/52])
-- Update dependency io.cucumber:messages up to v26 ((#53)[https://github.com/cucumber/query/pull/53])
+- Update dependency @cucumber/messages to v26  ([#52](https://github.com/cucumber/query/pull/52))
+- Update dependency io.cucumber:messages up to v26 ([#53](https://github.com/cucumber/query/pull/53))
 
 ## [12.2.0] - 2024-06-22
 ### Changed
@@ -146,29 +146,29 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.2.0...HEAD
-[12.2.0]: https://github.com/cucumber/cucumber/compare/query/v12.1.2...v12.2.0
-[12.1.2]: https://github.com/cucumber/cucumber/compare/query/v12.1.1...v12.1.2
-[12.1.1]: https://github.com/cucumber/cucumber/compare/query/v12.1.0...v12.1.1
-[12.1.0]: https://github.com/cucumber/cucumber/compare/query/v12.0.2...v12.1.0
-[12.0.2]: https://github.com/cucumber/cucumber/compare/query/v12.0.1...v12.0.2
-[12.0.1]: https://github.com/cucumber/cucumber/compare/query/v12.0.0...v12.0.1
-[12.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v11.0.0...query/v12.0.0
-[11.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v10.1.0...query/v11.0.0
-[10.1.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v10.0.0...query/v10.1.0
-[10.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v9.0.2...query/v10.0.0
-[9.0.2]: https://github.com/cucumber/cucumber/compare/cucumber-query/v9.0.1...query/v9.0.2
-[9.0.1]: https://github.com/cucumber/cucumber/compare/cucumber-query/v9.0.0...query/v9.0.1
-[9.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v8.0.0...query/v9.0.0
-[8.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v7.0.1...query/v8.0.0
-[7.0.1]: https://github.com/cucumber/cucumber/compare/cucumber-query/v7.0.0...query/v7.0.1
-[7.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v6.1.0...query/v7.0.0
-[6.1.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v6.0.0...query/v6.1.0
-[6.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v5.0.0...query/v6.0.0
-[5.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v4.0.0...query/v5.0.0
-[4.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v3.0.0...query/v4.0.0
-[3.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v2.0.0...query/v3.0.0
-[2.0.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v1.1.1...query/v2.0.0
-[1.1.1]: https://github.com/cucumber/cucumber/compare/cucumber-query/v1.1.0...query/v1.1.1
-[1.1.0]: https://github.com/cucumber/cucumber/compare/cucumber-query/v1.0.0...cucumber-query/v1.1.0
-[1.0.0]: https://github.com/cucumber/cucumber/releases/tag/cucumber-query/v1.0.0
+[Unreleased]: https://github.com/cucumber/query/compare/v12.2.0...HEAD
+[12.2.0]: https://github.com/cucumber/query/compare/v12.1.2...v12.2.0
+[12.1.2]: https://github.com/cucumber/query/compare/v12.1.1...v12.1.2
+[12.1.1]: https://github.com/cucumber/query/compare/v12.1.0...v12.1.1
+[12.1.0]: https://github.com/cucumber/query/compare/v12.0.2...v12.1.0
+[12.0.2]: https://github.com/cucumber/query/compare/v12.0.1...v12.0.2
+[12.0.1]: https://github.com/cucumber/query/compare/v12.0.0...v12.0.1
+[12.0.0]: https://github.com/cucumber/query/compare/v11.0.0...v12.0.0
+[11.0.0]: https://github.com/cucumber/query/compare/v10.1.0...v11.0.0
+[10.1.0]: https://github.com/cucumber/query/compare/v10.0.0...v10.1.0
+[10.0.0]: https://github.com/cucumber/query/compare/v9.0.2...v10.0.0
+[9.0.2]: https://github.com/cucumber/query/compare/v9.0.1...v9.0.2
+[9.0.1]: https://github.com/cucumber/query/compare/v9.0.0...v9.0.1
+[9.0.0]: https://github.com/cucumber/query/compare/v8.0.0...v9.0.0
+[8.0.0]: https://github.com/cucumber/query/compare/v7.0.1...v8.0.0
+[7.0.1]: https://github.com/cucumber/query/compare/v7.0.0...v7.0.1
+[7.0.0]: https://github.com/cucumber/query/compare/v6.1.0...v7.0.0
+[6.1.0]: https://github.com/cucumber/query/compare/v6.0.0...v6.1.0
+[6.0.0]: https://github.com/cucumber/query/compare/v5.0.0...v6.0.0
+[5.0.0]: https://github.com/cucumber/query/compare/v4.0.0...v5.0.0
+[4.0.0]: https://github.com/cucumber/query/compare/v3.0.0...v4.0.0
+[3.0.0]: https://github.com/cucumber/query/compare/v2.0.0...v3.0.0
+[2.0.0]: https://github.com/cucumber/query/compare/v1.1.1...v2.0.0
+[1.1.1]: https://github.com/cucumber/query/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/cucumber/query/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/cucumber/query/releases/506012d2...v1.0.0
