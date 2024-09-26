@@ -35,15 +35,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Correct repo URL in `package.json`
 
 ## [12.0.1] - 2022-11-21
-### Added
-
 ### Changed
-
-### Deprecated
-
-### Fixed
-
-### Removed
+- Released using GitHub Action
 
 ## [12.0.0] - 2022-06-01
 ### Changed
