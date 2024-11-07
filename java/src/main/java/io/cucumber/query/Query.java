@@ -100,6 +100,7 @@ public final class Query {
     }
 
     public List<TestCaseStarted> findAllTestCaseStarted() {
+        // TODO only most recent attempt
         return new ArrayList<>(testCaseStarted);
     }
 
@@ -136,6 +137,7 @@ public final class Query {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
     }
 
+    // TODO correct typo in name
     public Optional<TestStepResult> findMostSevereTestStepResulBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestStepsFinishedBy(testCaseStarted)

@@ -1,6 +1,18 @@
 import * as messages from '@cucumber/messages'
-import { getWorstTestStepResult } from '@cucumber/messages'
+import {
+  Duration,
+  Feature,
+  getWorstTestStepResult, GherkinDocument,
+  Pickle, PickleStep, Rule, Scenario,
+  Step, TestCase, TestCaseFinished,
+  TestCaseStarted,
+  TestRunFinished,
+  TestRunStarted, TestStep, TestStepFinished, TestStepResult, TestStepResultStatus, TimeConversion
+} from '@cucumber/messages'
 import { ArrayMultimap } from '@teppeis/multimaps'
+import {Lineage, NamingStrategy} from "./Lineage";
+import assert from 'node:assert';
+import {comparatorById} from './helpers';
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
@@ -8,9 +20,7 @@ export default class Query {
     string,
     messages.TestStepResult
   >()
-  private readonly testStepById = new Map<string, messages.TestStep>()
   private readonly testCaseByPickleId = new Map<string, messages.TestCase>()
-  private readonly testCaseByTestCaseId = new Map<string, messages.TestCase>()
   private readonly pickleIdByTestStepId = new Map<string, string>()
   private readonly pickleStepIdByTestStepId = new Map<string, string>()
   private readonly testStepResultsbyTestStepId = new ArrayMultimap<
@@ -19,64 +29,189 @@ export default class Query {
   >()
   private readonly testStepIdsByPickleStepId = new ArrayMultimap<string, string>()
   private readonly hooksById = new Map<string, messages.Hook>()
-
   private readonly attachmentsByTestStepId = new ArrayMultimap<string, messages.Attachment>()
-
   private readonly stepMatchArgumentsListsByPickleStepId = new Map<
     string,
     readonly messages.StepMatchArgumentsList[]
   >()
 
+  private testRunStarted: TestRunStarted
+  private testRunFinished: TestRunFinished
+  private readonly testCaseStarted: Array<TestCaseStarted> = []
+  private readonly lineageById: Map<string, Lineage> = new Map()
+  private readonly stepById: Map<string, Step> = new Map()
+  private readonly pickleById: Map<string, Pickle> = new Map()
+  private readonly pickleStepById: Map<string, PickleStep> = new Map()
+  private readonly testCaseById: Map<string, TestCase> = new Map()
+  private readonly testStepById: Map<string, TestStep> = new Map()
+  private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
+  private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
+      new ArrayMultimap()
+
   public update(envelope: messages.Envelope) {
+    if (envelope.gherkinDocument) {
+      this.updateGherkinDocument(envelope.gherkinDocument)
+    }
+    if (envelope.pickle) {
+      this.updatePickle(envelope.pickle)
+    }
+    if (envelope.hook) {
+      this.hooksById.set(envelope.hook.id, envelope.hook)
+    }
+    if (envelope.testRunStarted) {
+      this.testRunStarted = envelope.testRunStarted
+    }
     if (envelope.testCase) {
-      this.testCaseByTestCaseId.set(envelope.testCase.id, envelope.testCase)
-      this.testCaseByPickleId.set(envelope.testCase.pickleId, envelope.testCase)
-      for (const testStep of envelope.testCase.testSteps) {
-        this.testStepById.set(testStep.id, testStep)
-        this.pickleIdByTestStepId.set(testStep.id, envelope.testCase.pickleId)
-        this.pickleStepIdByTestStepId.set(testStep.id, testStep.pickleStepId)
-        this.testStepIdsByPickleStepId.put(testStep.pickleStepId, testStep.id)
-        this.stepMatchArgumentsListsByPickleStepId.set(
+      this.updateTestCase(envelope.testCase)
+    }
+    if (envelope.testCaseStarted) {
+      this.updateTestCaseStarted(envelope.testCaseStarted)
+    }
+    if (envelope.attachment) {
+      this.attachmentsByTestStepId.put(envelope.attachment.testStepId, envelope.attachment)
+    }
+    if (envelope.testStepFinished) {
+      this.updateTestStepFinished(envelope.testStepFinished)
+    }
+    if (envelope.testCaseFinished) {
+      this.updateTestCaseFinished(envelope.testCaseFinished)
+    }
+    if (envelope.testRunFinished) {
+      this.testRunFinished = envelope.testRunFinished
+    }
+  }
+
+  private updateGherkinDocument(gherkinDocument: GherkinDocument) {
+    if (gherkinDocument.feature) {
+      this.updateFeature(gherkinDocument.feature, {
+        gherkinDocument,
+      })
+    }
+  }
+
+  private updateFeature(feature: Feature, lineage: Lineage) {
+    feature.children.forEach((featureChild) => {
+      if (featureChild.background) {
+        this.updateSteps(featureChild.background.steps)
+      }
+      if (featureChild.scenario) {
+        this.updateScenario(featureChild.scenario, {
+          ...lineage,
+          feature,
+        })
+      }
+      if (featureChild.rule) {
+        this.updateRule(featureChild.rule, {
+          ...lineage,
+          feature,
+        })
+      }
+    })
+  }
+
+  private updateRule(rule: Rule, lineage: Lineage) {
+    rule.children.forEach((ruleChild) => {
+      if (ruleChild.background) {
+        this.updateSteps(ruleChild.background.steps)
+      }
+      if (ruleChild.scenario) {
+        this.updateScenario(ruleChild.scenario, {
+          ...lineage,
+          rule,
+        })
+      }
+    })
+  }
+
+  private updateScenario(scenario: Scenario, lineage: Lineage) {
+    this.lineageById.set(scenario.id, {
+      ...lineage,
+      scenario,
+    })
+    scenario.examples.forEach((examples, examplesIndex) => {
+      this.lineageById.set(examples.id, {
+        ...lineage,
+        scenario,
+        examples,
+        examplesIndex,
+      })
+      examples.tableBody.forEach((example, exampleIndex) => {
+        this.lineageById.set(example.id, {
+          ...lineage,
+          scenario,
+          examples,
+          examplesIndex,
+          example,
+          exampleIndex,
+        })
+      })
+    })
+    this.updateSteps(scenario.steps)
+  }
+
+  private updateSteps(steps: ReadonlyArray<Step>) {
+    steps.forEach((step) => this.stepById.set(step.id, step))
+  }
+
+  private updatePickle(pickle: Pickle) {
+    this.pickleById.set(pickle.id, pickle)
+    pickle.steps.forEach((pickleStep) => this.pickleStepById.set(pickleStep.id, pickleStep))
+  }
+
+  private updateTestCase(testCase: TestCase) {
+    this.testCaseById.set(testCase.id, testCase)
+
+    this.testCaseByPickleId.set(testCase.pickleId, testCase)
+    testCase.testSteps.forEach((testStep) => {
+      this.testStepById.set(testStep.id, testStep)
+      this.pickleIdByTestStepId.set(testStep.id, testCase.pickleId)
+      this.pickleStepIdByTestStepId.set(testStep.id, testStep.pickleStepId)
+      this.testStepIdsByPickleStepId.put(testStep.pickleStepId, testStep.id)
+      this.stepMatchArgumentsListsByPickleStepId.set(
           testStep.pickleStepId,
           testStep.stepMatchArgumentsLists
-        )
-      }
-    }
+      )
+    })
+  }
+
+  private updateTestCaseStarted(testCaseStarted: TestCaseStarted) {
+    this.testCaseStarted.push(testCaseStarted)
 
     /*
     when a test case attempt starts besides the first one, clear all existing results
     and attachments for that test case, so we always report on the latest attempt
-    TODO keep track of results and attachments from all attempts, expand API accordingly
+    (applies to legacy pickle-oriented query methods only)
      */
-    if (envelope.testCaseStarted && envelope.testCaseStarted.attempt > 0) {
-      const testCase = this.testCaseByTestCaseId.get(envelope.testCaseStarted.testCaseId)
-      this.testStepResultByPickleId.delete(testCase.pickleId)
-      for (const testStep of testCase.testSteps) {
-        this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
-        this.testStepResultsbyTestStepId.delete(testStep.id)
-        this.attachmentsByTestStepId.delete(testStep.id)
-      }
+    const testCase = this.testCaseById.get(testCaseStarted.testCaseId)
+    this.testStepResultByPickleId.delete(testCase.pickleId)
+    for (const testStep of testCase.testSteps) {
+      this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
+      this.testStepResultsbyTestStepId.delete(testStep.id)
+      this.attachmentsByTestStepId.delete(testStep.id)
     }
+  }
 
-    if (envelope.testStepFinished) {
-      const pickleId = this.pickleIdByTestStepId.get(envelope.testStepFinished.testStepId)
-      this.testStepResultByPickleId.put(pickleId, envelope.testStepFinished.testStepResult)
+  private updateTestStepFinished(testStepFinished: TestStepFinished) {
+    this.testStepFinishedByTestCaseStartedId.put(
+        testStepFinished.testCaseStartedId,
+        testStepFinished
+    )
 
-      const testStep = this.testStepById.get(envelope.testStepFinished.testStepId)
-      this.testStepResultsByPickleStepId.put(
+    const pickleId = this.pickleIdByTestStepId.get(testStepFinished.testStepId)
+    this.testStepResultByPickleId.put(pickleId, testStepFinished.testStepResult)
+    const testStep = this.testStepById.get(testStepFinished.testStepId)
+    this.testStepResultsByPickleStepId.put(
         testStep.pickleStepId,
-        envelope.testStepFinished.testStepResult
-      )
-      this.testStepResultsbyTestStepId.put(testStep.id, envelope.testStepFinished.testStepResult)
-    }
+        testStepFinished.testStepResult
+    )
+    this.testStepResultsbyTestStepId.put(testStep.id, testStepFinished.testStepResult)
+  }
 
-    if (envelope.hook) {
-      this.hooksById.set(envelope.hook.id, envelope.hook)
-    }
-
-    if (envelope.attachment) {
-      this.attachmentsByTestStepId.put(envelope.attachment.testStepId, envelope.attachment)
-    }
+  private updateTestCaseFinished(testCaseFinished: TestCaseFinished) {
+    this.testCaseFinishedByTestCaseStartedId.set(
+        testCaseFinished.testCaseStartedId,
+        testCaseFinished
+    )
   }
 
   /**
@@ -211,5 +346,162 @@ export default class Query {
       result[testStepResult.status] = count + 1
     }
     return result
+  }
+
+  /* new common interface with Java starts here */
+
+
+
+  public countMostSevereTestStepResultStatus(): Record<TestStepResultStatus, number> {
+    // TODO align with Java implementation
+    const result: Record<TestStepResultStatus, number> = {
+      [TestStepResultStatus.AMBIGUOUS]: 0,
+      [TestStepResultStatus.FAILED]: 0,
+      [TestStepResultStatus.PASSED]: 0,
+      [TestStepResultStatus.PENDING]: 0,
+      [TestStepResultStatus.SKIPPED]: 0,
+      [TestStepResultStatus.UNDEFINED]: 0,
+      [TestStepResultStatus.UNKNOWN]: 0,
+    }
+    for (const testCaseStarted of this.findAllTestCaseStarted()) {
+      const testStepResults = this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
+          ([testStepFinished]) => testStepFinished.testStepResult
+      )
+      const mostSevereResult = getWorstTestStepResult(testStepResults)
+      result[mostSevereResult.status]++
+    }
+    return result
+  }
+
+  public countTestCasesStarted(): number {
+    return this.findAllTestCaseStarted().length
+  }
+
+  public findAllPickles(): ReadonlyArray<Pickle> {
+    const pickles = [...this.pickleById.values()]
+    return pickles.sort(comparatorById)
+  }
+
+  public findAllPickleSteps(): ReadonlyArray<PickleStep> {
+    const pickleSteps = [...this.pickleStepById.values()]
+    return pickleSteps.sort(comparatorById)
+  }
+
+  public findAllTestCaseStarted(): ReadonlyArray<TestCaseStarted> {
+    return this.testCaseStarted.filter((testCaseStarted) => {
+      const testCaseFinished = this.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.id)
+      // only include if not yet finished OR won't be retried
+      return !testCaseFinished?.willBeRetried
+    })
+  }
+
+  public findAllTestCaseStartedGroupedByFeature(): Map<Feature | undefined, ReadonlyArray<TestCaseStarted>> {
+    // TODO implement
+    return new Map()
+  }
+
+  public findAllTestSteps(): ReadonlyArray<TestStep> {
+    const testSteps = [...this.testStepById.values()]
+    return testSteps.sort(comparatorById)
+  }
+
+  public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {
+    // TODO implement
+    return undefined
+  }
+
+  public findMostSevereTestStepResultBy(testCaseStarted: TestCaseStarted): TestStepResult | undefined {
+    // TODO align with Java implementation
+    return getWorstTestStepResult(
+        this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
+            ([testStepFinished]) => testStepFinished.testStepResult
+        )
+    )
+  }
+
+  public findNameOf(pickle: Pickle, namingStrategy: NamingStrategy): string {
+    const lineage = this.findLineageBy(pickle)
+    return lineage ? namingStrategy.reduce(lineage, pickle) : pickle.name
+  }
+
+  public findPickleBy(testCaseStarted: TestCaseStarted): Pickle | undefined {
+    const testCase = this.findTestCaseBy(testCaseStarted)
+    assert.ok(testCase, 'Expected to find TestCase from TestCaseStarted')
+    return this.pickleById.get(testCase.pickleId)
+  }
+
+  public findPickleStepBy(testStep: TestStep): PickleStep | undefined {
+    assert.ok(testStep.pickleStepId, 'Expected TestStep to have a pickleStepId')
+    return this.pickleStepById.get(testStep.pickleStepId)
+  }
+
+  public findStepBy(pickleStep: PickleStep): Step | undefined {
+    const [astNodeId] = pickleStep.astNodeIds
+    assert.ok('Expected PickleStep to have an astNodeId')
+    return this.stepById.get(astNodeId)
+  }
+
+  public findTestCaseBy(testCaseStarted: TestCaseStarted): TestCase | undefined {
+    return this.testCaseById.get(testCaseStarted.testCaseId)
+  }
+
+  public findTestCaseDurationBy(testCaseStarted: TestCaseStarted): Duration | undefined {
+    const testCaseFinished = this.findTestCaseFinishedBy(testCaseStarted)
+    if (!testCaseFinished) {
+      return undefined
+    }
+    return TimeConversion.millisecondsToDuration(
+        TimeConversion.timestampToMillisecondsSinceEpoch(testCaseFinished.timestamp) -
+        TimeConversion.timestampToMillisecondsSinceEpoch(testCaseStarted.timestamp)
+    )
+  }
+
+  public findTestCaseFinishedBy(testCaseStarted: TestCaseStarted): TestCaseFinished | undefined {
+    return this.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.id)
+  }
+
+  public findTestRunDuration(): Duration | undefined {
+    if (!this.testRunStarted || !this.testRunFinished) {
+      return undefined
+    }
+    return TimeConversion.millisecondsToDuration(
+        TimeConversion.timestampToMillisecondsSinceEpoch(this.testRunFinished.timestamp) -
+        TimeConversion.timestampToMillisecondsSinceEpoch(this.testRunStarted.timestamp)
+    )
+  }
+
+  public findTestRunFinished(): TestRunFinished | undefined {
+    return this.testRunFinished
+  }
+
+  public findTestRunStarted(): TestRunStarted | undefined {
+    return this.testRunStarted
+  }
+
+  public findTestStepBy(testStepFinished: TestStepFinished): TestStep | undefined {
+    return this.testStepById.get(testStepFinished.testStepId)
+  }
+
+  public findTestStepsFinishedBy(testCaseStarted: TestCaseStarted): ReadonlyArray<TestStepFinished> {
+    // multimaps `get` implements `getOrDefault([])` behaviour internally
+    return [...this.testStepFinishedByTestCaseStartedId.get(testCaseStarted.id)]
+  }
+
+  public findTestStepFinishedAndTestStepBy(
+      testCaseStarted: TestCaseStarted
+  ): ReadonlyArray<[TestStepFinished, TestStep]> {
+    return this.testStepFinishedByTestCaseStartedId
+        .get(testCaseStarted.id)
+        .map((testStepFinished) => {
+          const testStep = this.findTestStepBy(testStepFinished)
+          assert.ok(testStep, 'Expected to find TestStep by TestStepFinished')
+          return [testStepFinished, testStep]
+        })
+  }
+
+  private findLineageBy(pickle: Pickle) {
+    const deepestAstNodeId = pickle.astNodeIds.at(-1)
+    assert.ok(deepestAstNodeId, 'Expected Pickle to have at least one astNodeId')
+    return this.lineageById.get(deepestAstNodeId)
   }
 }
