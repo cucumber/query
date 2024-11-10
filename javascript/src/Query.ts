@@ -22,7 +22,7 @@ import {
 } from '@cucumber/messages'
 import {ArrayMultimap} from '@teppeis/multimaps'
 import {Lineage, NamingStrategy} from "./Lineage";
-import assert from 'node:assert';
+import assert from 'assert';
 import {comparatorBy, comparatorById} from './helpers';
 
 export default class Query {
