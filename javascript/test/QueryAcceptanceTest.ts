@@ -1,0 +1,132 @@
+import assert from 'node:assert'
+import fs from 'node:fs'
+import * as path from 'node:path'
+import { pipeline, Writable } from 'node:stream'
+import util from 'node:util'
+
+import { NdjsonToMessageStream } from '@cucumber/message-streams'
+import { Duration, Envelope, TestRunFinished, TestRunStarted, TestStepResultStatus } from '@cucumber/messages'
+import { glob } from 'glob'
+
+import Query from '../src/Query'
+
+const asyncPipeline = util.promisify(pipeline)
+const TESTDATA_PATH = path.join(__dirname, '..', '..', 'testdata')
+
+interface ResultsFixture {
+    countMostSevereTestStepResultStatus: Record<TestStepResultStatus, number>,
+    countTestCasesStarted: number,
+    findAllPickles: number,
+    findAllPickleSteps: number,
+    findAllTestCaseStarted: number,
+    findAllTestSteps: number,
+    findAllTestCaseStartedGroupedByFeature: Array<[string, any[]]>,
+    findFeatureBy: Array<string>,
+    findMostSevereTestStepResulBy: Array<TestStepResultStatus>,
+    findNameOf: {
+        long: Array<string>,
+        excludeFeatureName: Array<string>,
+        longPickleName: Array<string>,
+        short: Array<string>,
+        shortPickleName: Array<string>
+    },
+    findPickleBy: Array<string>,
+    findPickleStepBy: Array<string>,
+    findStepBy: Array<string>,
+    findTestCaseBy: Array<string>,
+    findTestCaseDurationBy: Array<Duration>,
+    findTestCaseFinishedBy: Array<string>,
+    findTestRunDuration: Duration,
+    findTestRunFinished: TestRunFinished,
+    findTestRunStarted: TestRunStarted,
+    findTestStepBy: Array<string>,
+    findTestStepsFinishedBy: Array<Array<string>>
+    findTestStepFinishedAndTestStepBy: Array<[string, string]>
+}
+
+describe('Acceptance Tests', async () => {
+    const fixtureFiles = glob.sync(`*.query-results.json`, {
+        cwd: TESTDATA_PATH,
+        absolute: true
+    })
+
+    for (const fixtureFile of fixtureFiles) {
+        const [suiteName] = path.basename(fixtureFile).split('.')
+        const ndjsonFile = fixtureFile.replace('.query-results.json', '.ndjson')
+
+        it(suiteName, async () => {
+            const query = new Query()
+
+            await asyncPipeline(
+                fs.createReadStream(ndjsonFile, { encoding: 'utf-8' }),
+                new NdjsonToMessageStream(),
+                new Writable({
+                    objectMode: true,
+                    write(envelope: Envelope, _: BufferEncoding, callback) {
+                        query.update(envelope)
+                        callback()
+                    },
+                })
+            )
+
+            const expectedResults = JSON.parse(fs.readFileSync(fixtureFile, {
+                encoding: 'utf-8',
+            })) as ResultsFixture
+
+            const actualResults: ResultsFixture = {
+                countMostSevereTestStepResultStatus: query.countMostSevereTestStepResultStatus(),
+                countTestCasesStarted: query.countTestCasesStarted(),
+                findAllPickles: query.findAllPickles().length,
+                findAllPickleSteps: query.findAllPickleSteps().length,
+                findAllTestCaseStarted: query.findAllTestCaseStarted().length,
+                findAllTestSteps: query.findAllTestSteps().length,
+                findAllTestCaseStartedGroupedByFeature: [], // TODO implement
+                findFeatureBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findFeatureBy(testCaseStarted))
+                    .map(feature => feature?.name),
+                findMostSevereTestStepResulBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findMostSevereTestStepResultBy(testCaseStarted))
+                    .map(testStepResult => testStepResult?.status),
+                findNameOf: {
+                    "long" : [], // TODO implement
+                    "excludeFeatureName" : [], // TODO implement
+                    "longPickleName" : [], // TODO implement
+                    "short" : [], // TODO implement
+                    "shortPickleName" : [], // TODO implement
+                },
+                findPickleBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findPickleBy(testCaseStarted))
+                    .map(pickle => pickle?.name),
+                findPickleStepBy: query.findAllTestSteps()
+                    .map(testStep => query.findPickleStepBy(testStep))
+                    .map(pickleStep => pickleStep?.text),
+                findStepBy: query.findAllPickleSteps()
+                    .map(pickleStep => query.findStepBy(pickleStep))
+                    .map(step => step?.text),
+                findTestCaseBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findTestCaseBy(testCaseStarted))
+                    .map(testCase => testCase?.id),
+                findTestCaseDurationBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findTestCaseDurationBy(testCaseStarted)),
+                findTestCaseFinishedBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findTestCaseFinishedBy(testCaseStarted))
+                    .map(testCaseFinished => testCaseFinished?.testCaseStartedId),
+                findTestRunDuration: query.findTestRunDuration(),
+                findTestRunFinished: query.findTestRunFinished(),
+                findTestRunStarted: query.findTestRunStarted(),
+                findTestStepBy: query.findAllTestCaseStarted()
+                    .flatMap(testCaseStarted => query.findTestStepsFinishedBy(testCaseStarted))
+                    .map(testStepFinished => query.findTestStepBy(testStepFinished))
+                    .map(testStep => testStep?.id),
+                findTestStepsFinishedBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findTestStepsFinishedBy(testCaseStarted))
+                    .map(testStepFinisheds => testStepFinisheds.map(testStepFinished => testStepFinished?.testStepId)),
+                findTestStepFinishedAndTestStepBy: query.findAllTestCaseStarted()
+                    .flatMap(testCaseStarted => query.findTestStepFinishedAndTestStepBy(testCaseStarted))
+                    .map(([testStepFinished, testStep]) => ([testStepFinished.testStepId, testStep.id]))
+            }
+
+            assert.deepStrictEqual(actualResults, expectedResults)
+        })
+    }
+})
