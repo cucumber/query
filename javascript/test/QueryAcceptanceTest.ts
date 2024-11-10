@@ -80,7 +80,8 @@ describe('Acceptance Tests', async () => {
                 findAllPickleSteps: query.findAllPickleSteps().length,
                 findAllTestCaseStarted: query.findAllTestCaseStarted().length,
                 findAllTestSteps: query.findAllTestSteps().length,
-                findAllTestCaseStartedGroupedByFeature: [], // TODO implement
+                findAllTestCaseStartedGroupedByFeature: [...query.findAllTestCaseStartedGroupedByFeature().entries()]
+                    .map(([feature, testCaseStarteds]) => [feature.name, testCaseStarteds.map(testCaseStarted => testCaseStarted.id)]),
                 findFeatureBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findFeatureBy(testCaseStarted))
                     .map(feature => feature?.name),

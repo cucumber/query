@@ -2,17 +2,28 @@ import * as messages from '@cucumber/messages'
 import {
   Duration,
   Feature,
-  getWorstTestStepResult, GherkinDocument,
-  Pickle, PickleStep, Rule, Scenario,
-  Step, TestCase, TestCaseFinished,
+  getWorstTestStepResult,
+  GherkinDocument,
+  Pickle,
+  PickleStep,
+  Rule,
+  Scenario,
+  Step,
+  TestCase,
+  TestCaseFinished,
   TestCaseStarted,
   TestRunFinished,
-  TestRunStarted, TestStep, TestStepFinished, TestStepResult, TestStepResultStatus, TimeConversion
+  TestRunStarted,
+  TestStep,
+  TestStepFinished,
+  TestStepResult,
+  TestStepResultStatus,
+  TimeConversion
 } from '@cucumber/messages'
-import { ArrayMultimap } from '@teppeis/multimaps'
+import {ArrayMultimap} from '@teppeis/multimaps'
 import {Lineage, NamingStrategy} from "./Lineage";
 import assert from 'node:assert';
-import {comparatorById} from './helpers';
+import {comparatorBy, comparatorById} from './helpers';
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
@@ -396,8 +407,14 @@ export default class Query {
   }
 
   public findAllTestCaseStartedGroupedByFeature(): Map<Feature | undefined, ReadonlyArray<TestCaseStarted>> {
-    // TODO implement
-    return new Map()
+    const results = new Map();
+    this.findAllTestCaseStarted()
+        .map(testCaseStarted => ([this.findLineageBy(testCaseStarted), testCaseStarted] as const))
+        .sort(([a], [b]) => comparatorBy(a.gherkinDocument, b.gherkinDocument, "uri"))
+        .forEach(([{feature}, testCaseStarted]) => {
+          results.set(feature, [...results.get(feature) ?? [], testCaseStarted])
+        })
+    return results
   }
 
   public findAllTestSteps(): ReadonlyArray<TestStep> {

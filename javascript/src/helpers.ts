@@ -3,10 +3,14 @@ interface WithId {
 }
 
 export function comparatorById(a: WithId, b: WithId) {
-    if ( a.id < b.id ){
+    return comparatorBy(a, b, "id")
+}
+
+export function comparatorBy(a: any, b: any, key: string) {
+    if ( a[key] < b[key] ){
         return -1;
     }
-    if ( a.id > b.id ){
+    if ( a[key] > b[key] ){
         return 1;
     }
     return 0;
