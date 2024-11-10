@@ -1,8 +1,12 @@
 {
   "countMostSevereTestStepResultStatus" : {
+    "UNKNOWN" : 0,
     "PASSED" : 5,
-    "FAILED" : 2,
-    "UNDEFINED" : 2
+    "SKIPPED" : 0,
+    "PENDING" : 0,
+    "UNDEFINED" : 2,
+    "AMBIGUOUS" : 0,
+    "FAILED" : 2
   },
   "countTestCasesStarted" : 9,
   "findAllPickles" : 9,

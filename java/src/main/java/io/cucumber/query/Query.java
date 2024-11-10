@@ -23,19 +23,14 @@ import io.cucumber.messages.types.TestStepResultStatus;
 import io.cucumber.messages.types.Timestamp;
 
 import java.time.Duration;
+import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
@@ -61,6 +56,8 @@ import static java.util.stream.Collectors.toList;
  * @see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
  */
 public final class Query {
+    private static final Map<TestStepResultStatus, Long> ZEROES_BY_TEST_STEP_RESULT_STATUSES = Arrays.stream(TestStepResultStatus.values())
+            .collect(Collectors.toMap(identity(), (s) -> 0L));
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
     private final Deque<TestCaseStarted> testCaseStarted = new ConcurrentLinkedDeque<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
@@ -74,13 +71,15 @@ public final class Query {
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
-    public Map<TestStepResultStatus, Long> countMostSevereTestStepResultStatus() {
-        return findAllTestCaseStarted().stream()
+    public EnumMap<TestStepResultStatus, Long> countMostSevereTestStepResultStatus() {
+        final EnumMap<TestStepResultStatus, Long> results = new EnumMap<>(ZEROES_BY_TEST_STEP_RESULT_STATUSES);
+        results.putAll(findAllTestCaseStarted().stream()
                 .map(this::findMostSevereTestStepResultBy)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(TestStepResult::getStatus)
-                .collect(groupingBy(identity(), LinkedHashMap::new, counting()));
+                .collect(groupingBy(identity(), LinkedHashMap::new, counting())));
+        return results;
     }
 
     public int countTestCasesStarted() {
