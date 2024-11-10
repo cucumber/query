@@ -26,7 +26,7 @@ interface ResultsFixture {
     findAllPickleSteps: number,
     findAllTestCaseStarted: number,
     findAllTestSteps: number,
-    findAllTestCaseStartedGroupedByFeature: Array<[string, any[]]>,
+    findAllTestCaseStartedGroupedByFeature: Array<[string, string[]]>,
     findFeatureBy: Array<string>,
     findMostSevereTestStepResultBy: Array<TestStepResultStatus>,
     findNameOf: {
