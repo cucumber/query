@@ -406,8 +406,7 @@ export default class Query {
   }
 
   public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {
-    // TODO implement
-    return undefined
+    return this.findLineageBy(testCaseStarted)?.feature
   }
 
   public findMostSevereTestStepResultBy(testCaseStarted: TestCaseStarted): TestStepResult | undefined {
@@ -499,7 +498,13 @@ export default class Query {
         })
   }
 
-  private findLineageBy(pickle: Pickle) {
+  private findLineageBy(element: Pickle | TestCaseStarted) {
+    let pickle
+    if ("testCaseId" in element) {
+      pickle = this.findPickleBy(element)
+    } else {
+      pickle = element
+    }
     const deepestAstNodeId = pickle.astNodeIds.at(-1)
     assert.ok(deepestAstNodeId, 'Expected Pickle to have at least one astNodeId')
     return this.lineageById.get(deepestAstNodeId)
