@@ -19,37 +19,6 @@ import {
 const asyncPipeline = util.promisify(pipeline)
 const TESTDATA_PATH = path.join(__dirname, '..', '..', 'testdata')
 
-interface ResultsFixture {
-    countMostSevereTestStepResultStatus: Record<TestStepResultStatus, number>,
-    countTestCasesStarted: number,
-    findAllPickles: number,
-    findAllPickleSteps: number,
-    findAllTestCaseStarted: number,
-    findAllTestSteps: number,
-    findAllTestCaseStartedGroupedByFeature: Array<[string, string[]]>,
-    findFeatureBy: Array<string>,
-    findMostSevereTestStepResultBy: Array<TestStepResultStatus>,
-    findNameOf: {
-        long: Array<string>,
-        excludeFeatureName: Array<string>,
-        longPickleName: Array<string>,
-        short: Array<string>,
-        shortPickleName: Array<string>
-    },
-    findPickleBy: Array<string>,
-    findPickleStepBy: Array<string>,
-    findStepBy: Array<string>,
-    findTestCaseBy: Array<string>,
-    findTestCaseDurationBy: Array<Duration>,
-    findTestCaseFinishedBy: Array<string>,
-    findTestRunDuration: Duration,
-    findTestRunFinished: TestRunFinished,
-    findTestRunStarted: TestRunStarted,
-    findTestStepBy: Array<string>,
-    findTestStepsFinishedBy: Array<Array<string>>
-    findTestStepFinishedAndTestStepBy: Array<[string, string]>
-}
-
 describe('Acceptance Tests', async () => {
     const fixtureFiles = glob.sync(`*.query-results.json`, {
         cwd: TESTDATA_PATH,
@@ -75,9 +44,12 @@ describe('Acceptance Tests', async () => {
                 })
             )
 
-            const expectedResults = JSON.parse(fs.readFileSync(fixtureFile, {
-                encoding: 'utf-8',
-            })) as ResultsFixture
+            const expectedResults: ResultsFixture = {
+                ...defaults,
+                ...JSON.parse(fs.readFileSync(fixtureFile, {
+                    encoding: 'utf-8',
+                }))
+            }
 
             const actualResults: ResultsFixture = JSON.parse(JSON.stringify({
                 countMostSevereTestStepResultStatus: query.countMostSevereTestStepResultStatus(),
@@ -137,3 +109,56 @@ describe('Acceptance Tests', async () => {
         })
     }
 })
+
+interface ResultsFixture {
+    countMostSevereTestStepResultStatus: Record<TestStepResultStatus, number>,
+    countTestCasesStarted: number,
+    findAllPickles: number,
+    findAllPickleSteps: number,
+    findAllTestCaseStarted: number,
+    findAllTestSteps: number,
+    findAllTestCaseStartedGroupedByFeature: Array<[string, string[]]>,
+    findFeatureBy: Array<string>,
+    findMostSevereTestStepResultBy: Array<TestStepResultStatus>,
+    findNameOf: {
+        long: Array<string>,
+        excludeFeatureName: Array<string>,
+        longPickleName: Array<string>,
+        short: Array<string>,
+        shortPickleName: Array<string>
+    },
+    findPickleBy: Array<string>,
+    findPickleStepBy: Array<string>,
+    findStepBy: Array<string>,
+    findTestCaseBy: Array<string>,
+    findTestCaseDurationBy: Array<Duration>,
+    findTestCaseFinishedBy: Array<string>,
+    findTestRunDuration: Duration,
+    findTestRunFinished: TestRunFinished,
+    findTestRunStarted: TestRunStarted,
+    findTestStepBy: Array<string>,
+    findTestStepsFinishedBy: Array<Array<string>>
+    findTestStepFinishedAndTestStepBy: Array<[string, string]>
+}
+
+const defaults: Partial<ResultsFixture> = {
+    findAllTestCaseStartedGroupedByFeature: [],
+    findFeatureBy: [],
+    findMostSevereTestStepResultBy: [],
+    findNameOf: {
+        long: [],
+        excludeFeatureName: [],
+        longPickleName: [],
+        short: [],
+        shortPickleName: []
+    },
+    findPickleBy: [],
+    findPickleStepBy: [],
+    findStepBy: [],
+    findTestCaseBy: [],
+    findTestCaseDurationBy: [],
+    findTestCaseFinishedBy: [],
+    findTestStepBy: [],
+    findTestStepsFinishedBy: [],
+    findTestStepFinishedAndTestStepBy: []
+}
