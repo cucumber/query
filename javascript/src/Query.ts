@@ -516,12 +516,7 @@ export default class Query {
   }
 
   private findLineageBy(element: Pickle | TestCaseStarted) {
-    let pickle
-    if ("testCaseId" in element) {
-      pickle = this.findPickleBy(element)
-    } else {
-      pickle = element
-    }
+    const pickle = "testCaseId" in element ? this.findPickleBy(element) : element
     const deepestAstNodeId = pickle.astNodeIds.at(-1)
     assert.ok(deepestAstNodeId, 'Expected Pickle to have at least one astNodeId')
     return this.lineageById.get(deepestAstNodeId)
