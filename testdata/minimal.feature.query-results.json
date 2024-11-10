@@ -18,7 +18,7 @@
   "findFeatureBy" : [
     "minimal"
   ],
-  "findMostSevereTestStepResulBy" : [
+  "findMostSevereTestStepResultBy" : [
     "PASSED"
   ],
   "findNameOf" : {

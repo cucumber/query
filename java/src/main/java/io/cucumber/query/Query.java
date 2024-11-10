@@ -76,7 +76,7 @@ public final class Query {
 
     public Map<TestStepResultStatus, Long> countMostSevereTestStepResultStatus() {
         return findAllTestCaseStarted().stream()
-                .map(this::findMostSevereTestStepResulBy)
+                .map(this::findMostSevereTestStepResultBy)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(TestStepResult::getStatus)
@@ -137,8 +137,7 @@ public final class Query {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
     }
 
-    // TODO correct typo in name
-    public Optional<TestStepResult> findMostSevereTestStepResulBy(TestCaseStarted testCaseStarted) {
+    public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestStepsFinishedBy(testCaseStarted)
                 .stream()

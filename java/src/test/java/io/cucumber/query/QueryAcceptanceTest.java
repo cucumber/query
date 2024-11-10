@@ -115,8 +115,8 @@ public class QueryAcceptanceTest {
                 .map(query::findFeatureBy)
                 .map(feature -> feature.map(Feature::getName))
                 .collect(toList()));
-        results.put("findMostSevereTestStepResulBy", query.findAllTestCaseStarted().stream()
-                .map(query::findMostSevereTestStepResulBy)
+        results.put("findMostSevereTestStepResultBy", query.findAllTestCaseStarted().stream()
+                .map(query::findMostSevereTestStepResultBy)
                 .map(testStepResult -> testStepResult.map(TestStepResult::getStatus))
                 .collect(toList()));
 

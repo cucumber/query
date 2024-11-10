@@ -22,7 +22,7 @@ interface ResultsFixture {
     findAllTestSteps: number,
     findAllTestCaseStartedGroupedByFeature: Array<[string, any[]]>,
     findFeatureBy: Array<string>,
-    findMostSevereTestStepResulBy: Array<TestStepResultStatus>,
+    findMostSevereTestStepResultBy: Array<TestStepResultStatus>,
     findNameOf: {
         long: Array<string>,
         excludeFeatureName: Array<string>,
@@ -84,7 +84,7 @@ describe('Acceptance Tests', async () => {
                 findFeatureBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findFeatureBy(testCaseStarted))
                     .map(feature => feature?.name),
-                findMostSevereTestStepResulBy: query.findAllTestCaseStarted()
+                findMostSevereTestStepResultBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findMostSevereTestStepResultBy(testCaseStarted))
                     .map(testStepResult => testStepResult?.status),
                 findNameOf: {
