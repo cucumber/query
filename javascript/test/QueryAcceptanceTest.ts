@@ -1,14 +1,20 @@
 import assert from 'node:assert'
 import fs from 'node:fs'
 import * as path from 'node:path'
-import { pipeline, Writable } from 'node:stream'
+import {pipeline, Writable} from 'node:stream'
 import util from 'node:util'
 
-import { NdjsonToMessageStream } from '@cucumber/message-streams'
-import { Duration, Envelope, TestRunFinished, TestRunStarted, TestStepResultStatus } from '@cucumber/messages'
-import { glob } from 'glob'
+import {NdjsonToMessageStream} from '@cucumber/message-streams'
+import {Duration, Envelope, TestRunFinished, TestRunStarted, TestStepResultStatus} from '@cucumber/messages'
+import {glob} from 'glob'
 
 import Query from '../src/Query'
+import {
+    namingStrategy,
+    NamingStrategyExampleName,
+    NamingStrategyFeatureName,
+    NamingStrategyLength
+} from "../src/Lineage";
 
 const asyncPipeline = util.promisify(pipeline)
 const TESTDATA_PATH = path.join(__dirname, '..', '..', 'testdata')
@@ -73,7 +79,7 @@ describe('Acceptance Tests', async () => {
                 encoding: 'utf-8',
             })) as ResultsFixture
 
-            const actualResults: ResultsFixture = {
+            const actualResults: ResultsFixture = JSON.parse(JSON.stringify({
                 countMostSevereTestStepResultStatus: query.countMostSevereTestStepResultStatus(),
                 countTestCasesStarted: query.countTestCasesStarted(),
                 findAllPickles: query.findAllPickles().length,
@@ -89,11 +95,11 @@ describe('Acceptance Tests', async () => {
                     .map(testCaseStarted => query.findMostSevereTestStepResultBy(testCaseStarted))
                     .map(testStepResult => testStepResult?.status),
                 findNameOf: {
-                    "long" : [], // TODO implement
-                    "excludeFeatureName" : [], // TODO implement
-                    "longPickleName" : [], // TODO implement
-                    "short" : [], // TODO implement
-                    "shortPickleName" : [], // TODO implement
+                    long : query.findAllPickles().map(pickle => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.LONG))),
+                    excludeFeatureName : query.findAllPickles().map(pickle => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.LONG, NamingStrategyFeatureName.EXCLUDE))),
+                    longPickleName : query.findAllPickles().map(pickle => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.LONG, NamingStrategyFeatureName.INCLUDE, NamingStrategyExampleName.PICKLE))),
+                    short : query.findAllPickles().map(pickle => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.SHORT))),
+                    shortPickleName : query.findAllPickles().map(pickle => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.SHORT, NamingStrategyFeatureName.INCLUDE, NamingStrategyExampleName.PICKLE)))
                 },
                 findPickleBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findPickleBy(testCaseStarted))
@@ -125,7 +131,7 @@ describe('Acceptance Tests', async () => {
                 findTestStepFinishedAndTestStepBy: query.findAllTestCaseStarted()
                     .flatMap(testCaseStarted => query.findTestStepFinishedAndTestStepBy(testCaseStarted))
                     .map(([testStepFinished, testStep]) => ([testStepFinished.testStepId, testStep.id]))
-            }
+            }))
 
             assert.deepStrictEqual(actualResults, expectedResults)
         })

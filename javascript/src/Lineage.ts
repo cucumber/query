@@ -103,8 +103,8 @@ class BuiltinNamingStrategy implements NamingStrategy {
 
 export function namingStrategy(
   length: NamingStrategyLength,
-  featureName: NamingStrategyFeatureName,
-  exampleName: NamingStrategyExampleName
+  featureName: NamingStrategyFeatureName = NamingStrategyFeatureName.INCLUDE,
+  exampleName: NamingStrategyExampleName = NamingStrategyExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED
 ): NamingStrategy {
   return new BuiltinNamingStrategy(length, featureName, exampleName)
 }
