@@ -23,7 +23,7 @@ import {
 import {ArrayMultimap} from '@teppeis/multimaps'
 import {Lineage, NamingStrategy} from "./Lineage";
 import assert from 'assert';
-import {comparatorBy, comparatorById} from './helpers';
+import { comparatorBy, comparatorById, comparatorByStatus } from './helpers'
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
@@ -361,10 +361,7 @@ export default class Query {
 
   /* new common interface with Java starts here */
 
-
-
   public countMostSevereTestStepResultStatus(): Record<TestStepResultStatus, number> {
-    // TODO align with Java implementation
     const result: Record<TestStepResultStatus, number> = {
       [TestStepResultStatus.AMBIGUOUS]: 0,
       [TestStepResultStatus.FAILED]: 0,
@@ -375,11 +372,13 @@ export default class Query {
       [TestStepResultStatus.UNKNOWN]: 0,
     }
     for (const testCaseStarted of this.findAllTestCaseStarted()) {
-      const testStepResults = this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
-          ([testStepFinished]) => testStepFinished.testStepResult
-      )
-      const mostSevereResult = getWorstTestStepResult(testStepResults)
-      result[mostSevereResult.status]++
+      const mostSevereResult = this.findTestStepFinishedAndTestStepBy(testCaseStarted)
+        .map(([testStepFinished]) => testStepFinished.testStepResult)
+        .sort(comparatorByStatus)
+        .at(-1)
+      if (mostSevereResult) {
+        result[mostSevereResult.status]++
+      }
     }
     return result
   }
@@ -427,12 +426,10 @@ export default class Query {
   }
 
   public findMostSevereTestStepResultBy(testCaseStarted: TestCaseStarted): TestStepResult | undefined {
-    // TODO align with Java implementation
-    return getWorstTestStepResult(
-        this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
-            ([testStepFinished]) => testStepFinished.testStepResult
-        )
-    )
+    return this.findTestStepFinishedAndTestStepBy(testCaseStarted)
+      .map(([testStepFinished]) => testStepFinished.testStepResult)
+      .sort(comparatorByStatus)
+      .at(-1)
   }
 
   public findNameOf(pickle: Pickle, namingStrategy: NamingStrategy): string {

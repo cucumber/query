@@ -14,7 +14,7 @@ import {
 } from '@cucumber/fake-cucumber'
 
 import { promisify } from 'util'
-import Query from '../src/Query'
+import Query from './Query'
 
 const pipelinePromise = promisify(pipeline)
 

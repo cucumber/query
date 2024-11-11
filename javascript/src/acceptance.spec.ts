@@ -8,13 +8,13 @@ import {NdjsonToMessageStream} from '@cucumber/message-streams'
 import {Duration, Envelope, TestRunFinished, TestRunStarted, TestStepResultStatus} from '@cucumber/messages'
 import {glob} from 'glob'
 
-import Query from '../src/Query'
+import Query from './Query'
 import {
     namingStrategy,
     NamingStrategyExampleName,
     NamingStrategyFeatureName,
     NamingStrategyLength
-} from "../src/Lineage";
+} from './Lineage'
 
 const asyncPipeline = util.promisify(pipeline)
 const TESTDATA_PATH = path.join(__dirname, '..', '..', 'testdata')
