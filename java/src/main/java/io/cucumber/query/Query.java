@@ -99,8 +99,11 @@ public final class Query {
     }
 
     public List<TestCaseStarted> findAllTestCaseStarted() {
-        // TODO only most recent attempt
-        return new ArrayList<>(testCaseStarted);
+        return this.testCaseStarted.stream()
+                .filter(testCaseStarted1 -> !findTestCaseFinishedBy(testCaseStarted1)
+                        .filter(TestCaseFinished::getWillBeRetried)
+                        .isPresent())
+                .collect(toList());
     }
 
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {

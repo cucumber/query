@@ -1,6 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.types.Envelope;
+import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
 import io.cucumber.messages.types.Timestamp;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,23 @@ class QueryTest {
                 .forEach(query::update);
 
         assertThat(query.findAllTestCaseStarted()).containsExactly(a, b, c);
+    }
+
+    @Test
+    void omitsTestCaseStartedIfFinishedAndWillBeRetried() {
+        TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0L));
+        TestCaseFinished b = new TestCaseFinished(a.getId(), new Timestamp(0L, 0L), true);
+        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0L));
+        TestCaseFinished d = new TestCaseFinished(c.getId(), new Timestamp(0L, 0L), false);
+
+        Stream.of(a, c)
+                .map(Envelope::of)
+                .forEach(query::update);
+        Stream.of(b, d)
+                .map(Envelope::of)
+                .forEach(query::update);
+
+        assertThat(query.findAllTestCaseStarted()).containsExactly(c);
     }
 
     private static String randomId() {
