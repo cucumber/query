@@ -8,8 +8,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Added
+- New methods in JavaScript implementation to match Java ([#62](https://github.com/cucumber/query/pull/62))
 - Update dependency @cucumber/messages to v26  ((#52)[https://github.com/cucumber/query/pull/52])
 - Update dependency io.cucumber:messages up to v26 ((#53)[https://github.com/cucumber/query/pull/53])
+
+### Changed
+- BREAKING CHANGE: `countMostSevereTestStepResultStatus` now returns `EnumMap` with all statuses regardless of count ([#62](https://github.com/cucumber/query/pull/62))
+- BREAKING CHANGE: `findAllTestCaseStarted` now omits `TestCaseStarted` messages where there is or will be another attempt ([#62](https://github.com/cucumber/query/pull/62))
+- BREAKING CHANGE: Rename `findMostSevereTestStepResulBy` to `findMostSevereTestStepResultBy` ([#62](https://github.com/cucumber/query/pull/62))
+
+### Removed
+- BREAKING CHANGE: Remove support for Node.js 16.x and 17.x ([#62](https://github.com/cucumber/query/pull/62))
 
 ## [12.2.0] - 2024-06-22
 ### Changed
