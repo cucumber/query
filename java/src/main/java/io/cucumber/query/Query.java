@@ -83,7 +83,7 @@ public final class Query {
     }
 
     public int countTestCasesStarted() {
-        return testCaseStarted.size();
+        return findAllTestCaseStarted().size();
     }
 
     public List<Pickle> findAllPickles() {
