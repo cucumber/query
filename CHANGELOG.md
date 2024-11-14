@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [13.0.1] - 2024-11-14
 ### Fixed
 - [Java] `countTestCasesStarted` now accounts for retried test cases ([#65](https://github.com/cucumber/query/pull/65))
 - [JavaScript] `Lineage` and related symbols now exported on entry point ([#65](https://github.com/cucumber/query/pull/65))
@@ -159,7 +161,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.1...HEAD
+[13.0.1]: https://github.com/cucumber/cucumber/compare/query/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/cucumber/cucumber/compare/query/v12.2.0...v13.0.0
 [12.2.0]: https://github.com/cucumber/cucumber/compare/query/v12.1.2...v12.2.0
 [12.1.2]: https://github.com/cucumber/cucumber/compare/query/v12.1.1...v12.1.2
