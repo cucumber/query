@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [13.0.0] - 2024-11-14
 ### Added
 - New methods in JavaScript implementation to match Java ([#62](https://github.com/cucumber/query/pull/62))
 - Update dependency @cucumber/messages to v26  ((#52)[https://github.com/cucumber/query/pull/52])
@@ -155,7 +156,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v12.2.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.0...HEAD
+[13.0.0]: https://github.com/cucumber/cucumber/compare/query/v12.2.0...v13.0.0
 [12.2.0]: https://github.com/cucumber/cucumber/compare/query/v12.1.2...v12.2.0
 [12.1.2]: https://github.com/cucumber/cucumber/compare/query/v12.1.1...v12.1.2
 [12.1.1]: https://github.com/cucumber/cucumber/compare/query/v12.1.0...v12.1.1
