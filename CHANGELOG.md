@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- `countTestCasesStarted` now accounts for retried test cases ([#65](https://github.com/cucumber/query/pull/65))
 
 ## [13.0.0] - 2024-11-14
 ### Added
