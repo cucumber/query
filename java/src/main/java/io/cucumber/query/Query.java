@@ -83,7 +83,7 @@ public final class Query {
     }
 
     public int countTestCasesStarted() {
-        return testCaseStarted.size();
+        return findAllTestCaseStarted().size();
     }
 
     public List<Pickle> findAllPickles() {
@@ -257,7 +257,7 @@ public final class Query {
     }
 
     public Optional<PickleStep> findPickleStepBy(TestStep testStep) {
-        requireNonNull(testCaseStarted);
+        requireNonNull(testStep);
         return testStep.getPickleStepId()
                 .map(pickleStepById::get);
     }

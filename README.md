@@ -48,25 +48,25 @@ status of a step, a scenario or an entire file.
 | `getDocumentResults(uri: string): messages.ITestResult[]`                                     |      |     |      |      | ✓          |
 | `getStepMatchArguments(uri: string, lineNumber: number): messages.IStepMatchArgument[]`       |      |     |      |      | ✓          |
 | `getGherkinStep(gherkinStepId: string): messages.GherkinDocument.Feature.IStep`               |      |     |      |      | ✓          |
-| `countMostSevereTestStepResultStatus(): Map<TestStepResultStatus, Long>`                      |      |     | ✓    |      |            |
-| `countTestCasesStarted(): int`                                                                |      |     | ✓    |      |            |
-| `findAllPickles(): List<Pickle>`                                                              |      |     | ✓    |      |            |
-| `findAllPickleSteps(): List<PickleStep>`                                                      |      |     | ✓    |      |            |
-| `findAllTestCaseStarted(): List<TestCaseStarted>                                              |      |     | ✓    |      |            |
-| `findAllTestCaseStartedGroupedByFeature(): Map<Optional<Feature>, List<TestCaseStarted>>`     |      |     | ✓    |      |            |
-| `findAllTestSteps(): List<TestStep>`                                                          |      |     | ✓    |      |            |
-| `findFeatureBy(TestCaseStarted): Optional<Feature>`                                           |      |     | ✓    |      |            |
-| `findMostSevereTestStepResulBy(TestCaseStarted): Optional<TestStepResult>`                    |      |     | ✓    |      |            |
-| `findNameOf(Pickle, NamingStrategy): String`                                                  |      |     | ✓    |      |            |
-| `findPickleBy(TestCaseStarted): Optional<Pickle>`                                             |      |     | ✓    |      |            |
-| `findPickleStepBy(TestStep testStep): Optional<PickleStep>`                                   |      |     | ✓    |      |            |
-| `findStepBy(PickleStep pickleStep): Optional<Step>`                                           |      |     | ✓    |      |            |
-| `findTestCaseBy(TestCaseStarted): Optional<TestCase>`                                         |      |     | ✓    |      |            |
-| `findTestCaseDurationBy(TestCaseStarted): Optional<Duration>`                                 |      |     | ✓    |      |            |
-| `findTestCaseFinishedBy(TestCaseStarted): Optional<TestCaseFinished>`                         |      |     | ✓    |      |            |
-| `findTestRunDuration(): Optional<Duration>`                                                   |      |     | ✓    |      |            |
-| `findTestRunFinished(): Optional<TestRunFinished>`                                            |      |     | ✓    |      |            |
-| `findTestRunStarted(): Optional<TestRunStarted>`                                              |      |     | ✓    |      |            |
-| `findTestStepBy(TestStepFinished): Optional<TestStep>`                                        |      |     | ✓    |      |            |
-| `findTestStepsFinishedBy(TestCaseStarted): List<TestStepFinished>`                            |      |     | ✓    |      |            |
-| `findTestStepFinishedAndTestStepBy(TestCaseStarted): List<Entry<TestStepFinished, TestStep>>` |      |     | ✓    |      |            |
+| `countMostSevereTestStepResultStatus(): Map<TestStepResultStatus, Long>`                      |      |     | ✓    |      | ✓          |
+| `countTestCasesStarted(): int`                                                                |      |     | ✓    |      | ✓          |
+| `findAllPickles(): List<Pickle>`                                                              |      |     | ✓    |      | ✓          |
+| `findAllPickleSteps(): List<PickleStep>`                                                      |      |     | ✓    |      | ✓          |
+| `findAllTestCaseStarted(): List<TestCaseStarted>`                                             |      |     | ✓    |      | ✓          |
+| `findAllTestCaseStartedGroupedByFeature(): Map<Optional<Feature>, List<TestCaseStarted>>`     |      |     | ✓    |      | ✓          |
+| `findAllTestSteps(): List<TestStep>`                                                          |      |     | ✓    |      | ✓          |
+| `findFeatureBy(TestCaseStarted): Optional<Feature>`                                           |      |     | ✓    |      | ✓          |
+| `findMostSevereTestStepResulBy(TestCaseStarted): Optional<TestStepResult>`                    |      |     | ✓    |      | ✓          |
+| `findNameOf(Pickle, NamingStrategy): String`                                                  |      |     | ✓    |      | ✓          |
+| `findPickleBy(TestCaseStarted): Optional<Pickle>`                                             |      |     | ✓    |      | ✓          |
+| `findPickleStepBy(TestStep testStep): Optional<PickleStep>`                                   |      |     | ✓    |      | ✓          |
+| `findStepBy(PickleStep pickleStep): Optional<Step>`                                           |      |     | ✓    |      | ✓          |
+| `findTestCaseBy(TestCaseStarted): Optional<TestCase>`                                         |      |     | ✓    |      | ✓          |
+| `findTestCaseDurationBy(TestCaseStarted): Optional<Duration>`                                 |      |     | ✓    |      | ✓          |
+| `findTestCaseFinishedBy(TestCaseStarted): Optional<TestCaseFinished>`                         |      |     | ✓    |      | ✓          |
+| `findTestRunDuration(): Optional<Duration>`                                                   |      |     | ✓    |      | ✓          |
+| `findTestRunFinished(): Optional<TestRunFinished>`                                            |      |     | ✓    |      | ✓          |
+| `findTestRunStarted(): Optional<TestRunStarted>`                                              |      |     | ✓    |      | ✓          |
+| `findTestStepBy(TestStepFinished): Optional<TestStep>`                                        |      |     | ✓    |      | ✓          |
+| `findTestStepsFinishedBy(TestCaseStarted): List<TestStepFinished>`                            |      |     | ✓    |      | ✓          |
+| `findTestStepFinishedAndTestStepBy(TestCaseStarted): List<Entry<TestStepFinished, TestStep>>` |      |     | ✓    |      | ✓          |

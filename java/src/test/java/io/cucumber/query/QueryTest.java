@@ -43,6 +43,7 @@ class QueryTest {
                 .forEach(query::update);
 
         assertThat(query.findAllTestCaseStarted()).containsExactly(c);
+        assertThat(query.countTestCasesStarted()).isEqualTo(1);
     }
 
     private static String randomId() {
