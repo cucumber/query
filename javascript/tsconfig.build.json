@@ -11,5 +11,10 @@
     "target": "es6",
     "module": "commonjs"
   },
-  "include": ["src", "test", "package.json"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/**/*.spec.*"
+  ]
 }

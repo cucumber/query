@@ -1,6 +1,12 @@
 {
   "countMostSevereTestStepResultStatus" : {
-    "PASSED" : 1
+    "UNKNOWN" : 0,
+    "PASSED" : 1,
+    "SKIPPED" : 0,
+    "PENDING" : 0,
+    "UNDEFINED" : 0,
+    "AMBIGUOUS" : 0,
+    "FAILED" : 0
   },
   "countTestCasesStarted" : 1,
   "findAllPickles" : 1,
@@ -18,7 +24,7 @@
   "findFeatureBy" : [
     "minimal"
   ],
-  "findMostSevereTestStepResulBy" : [
+  "findMostSevereTestStepResultBy" : [
     "PASSED"
   ],
   "findNameOf" : {
