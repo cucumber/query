@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [13.0.2] - 2024-11-15
 ### Fixed
 - [Java] Don't expose `EnumMap` implementation detail
 
@@ -163,7 +165,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.1...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.2...HEAD
+[13.0.2]: https://github.com/cucumber/cucumber/compare/query/v13.0.1...v13.0.2
 [13.0.1]: https://github.com/cucumber/cucumber/compare/query/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/cucumber/cucumber/compare/query/v12.2.0...v13.0.0
 [12.2.0]: https://github.com/cucumber/cucumber/compare/query/v12.1.2...v12.2.0
