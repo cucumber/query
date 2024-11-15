@@ -87,7 +87,7 @@ public abstract class NamingStrategy implements LineageReducer<String> {
 
         /**
          * Number examples, and if the pickle name is parameterized include it
-         * too. For example {@code #1.2 - Eating 6 cucumbers}.
+         * too. For example {@code #1.2: Eating 6 cucumbers}.
          */
         NUMBER_AND_PICKLE_IF_PARAMETERIZED
     }

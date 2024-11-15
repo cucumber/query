@@ -27,7 +27,7 @@ Choosing which type to use in another language based on what we did in Java is a
 | `Optional<T>`       | `T \| undefined`[^1]    |
 | `List<T>`           | `ReadonlyArray<T>`      | 
 | `Map<K, V>`         | `Map<K, V>`             | 
-| `EnumMap<K, V>`     | `Record<K, V>`          | 
+| `Map<K, V>`         | `Record<K, V>`          | 
 | `List<Entry<T, V>>` | `ReadonlyArray<[T, V]>` |
 
 [^1]: See <https://github.com/sindresorhus/meta/discussions/7>

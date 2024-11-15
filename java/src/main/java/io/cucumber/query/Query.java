@@ -71,8 +71,8 @@ public final class Query {
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
-    public EnumMap<TestStepResultStatus, Long> countMostSevereTestStepResultStatus() {
-        final EnumMap<TestStepResultStatus, Long> results = new EnumMap<>(ZEROES_BY_TEST_STEP_RESULT_STATUSES);
+    public Map<TestStepResultStatus, Long> countMostSevereTestStepResultStatus() {
+        EnumMap<TestStepResultStatus, Long> results = new EnumMap<>(ZEROES_BY_TEST_STEP_RESULT_STATUSES);
         results.putAll(findAllTestCaseStarted().stream()
                 .map(this::findMostSevereTestStepResultBy)
                 .filter(Optional::isPresent)
