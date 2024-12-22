@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [13.0.3] - 2024-12-22
 ### Fixed
 - [JavaScript] Remove dependency on `assert` package ([#66](https://github.com/cucumber/query/pull/66))
 
@@ -167,7 +169,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.2...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.3...HEAD
+[13.0.3]: https://github.com/cucumber/cucumber/compare/query/v13.0.2...v13.0.3
 [13.0.2]: https://github.com/cucumber/cucumber/compare/query/v13.0.1...v13.0.2
 [13.0.1]: https://github.com/cucumber/cucumber/compare/query/v13.0.0...v13.0.1
 [13.0.0]: https://github.com/cucumber/cucumber/compare/query/v12.2.0...v13.0.0
