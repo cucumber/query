@@ -39,3 +39,11 @@ function ordinal(status: TestStepResultStatus) {
         TestStepResultStatus.FAILED,
     ].indexOf(status)
 }
+
+export const assert = {
+    ok(target: unknown, message: string) {
+        if (!target) {
+            throw new Error(message)
+        }
+    }
+}

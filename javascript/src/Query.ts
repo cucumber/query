@@ -22,8 +22,7 @@ import {
 } from '@cucumber/messages'
 import {ArrayMultimap} from '@teppeis/multimaps'
 import {Lineage, NamingStrategy} from "./Lineage";
-import assert from 'assert';
-import { comparatorBy, comparatorById, comparatorByStatus } from './helpers'
+import { comparatorBy, comparatorById, comparatorByStatus, assert } from './helpers'
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
@@ -450,7 +449,7 @@ export default class Query {
 
   public findStepBy(pickleStep: PickleStep): Step | undefined {
     const [astNodeId] = pickleStep.astNodeIds
-    assert.ok('Expected PickleStep to have an astNodeId')
+    assert.ok(astNodeId, 'Expected PickleStep to have an astNodeId')
     return this.stepById.get(astNodeId)
   }
 
