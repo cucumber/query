@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- [JavaScript] Remove dependency on `assert` package ([#66](https://github.com/cucumber/query/pull/66))
 
 ## [13.0.2] - 2024-11-15
 ### Fixed

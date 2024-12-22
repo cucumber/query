@@ -2,7 +2,7 @@ import { GherkinStreams } from '@cucumber/gherkin-streams'
 import { Query as GherkinQuery } from '@cucumber/gherkin-utils'
 import * as messages from '@cucumber/messages'
 import { pipeline, Readable, Writable } from 'stream'
-import assert from 'assert'
+import assert from 'node:assert'
 import {
   SupportCode,
   withFullStackTrace,
