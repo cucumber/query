@@ -1,26 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
-import io.cucumber.messages.types.Envelope;
-import io.cucumber.messages.types.Examples;
-import io.cucumber.messages.types.Feature;
-import io.cucumber.messages.types.GherkinDocument;
-import io.cucumber.messages.types.Pickle;
-import io.cucumber.messages.types.PickleStep;
-import io.cucumber.messages.types.Rule;
-import io.cucumber.messages.types.Scenario;
-import io.cucumber.messages.types.Step;
-import io.cucumber.messages.types.TableRow;
-import io.cucumber.messages.types.TestCase;
-import io.cucumber.messages.types.TestCaseFinished;
-import io.cucumber.messages.types.TestCaseStarted;
-import io.cucumber.messages.types.TestRunFinished;
-import io.cucumber.messages.types.TestRunStarted;
-import io.cucumber.messages.types.TestStep;
-import io.cucumber.messages.types.TestStepFinished;
-import io.cucumber.messages.types.TestStepResult;
-import io.cucumber.messages.types.TestStepResultStatus;
-import io.cucumber.messages.types.Timestamp;
+import io.cucumber.messages.types.*;
 
 import java.time.Duration;
 import java.util.*;
@@ -67,6 +48,7 @@ public final class Query {
     private final Map<String, Step> stepById = new ConcurrentHashMap<>();
     private final Map<String, TestStep> testStepById = new ConcurrentHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new ConcurrentHashMap<>();
+    private final Map<String, Hook> hookById = new ConcurrentHashMap<>();
     private final Map<Object, Lineage> lineageById = new ConcurrentHashMap<>();
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
@@ -137,6 +119,12 @@ public final class Query {
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
+    }
+
+    public Optional<Hook> findHookBy(TestStep testStep) {
+        requireNonNull(testStep);
+        return testStep.getHookId()
+                .map(hookById::get);
     }
 
     public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseStarted testCaseStarted) {
@@ -338,6 +326,7 @@ public final class Query {
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         envelope.getPickle().ifPresent(this::updatePickle);
         envelope.getTestCase().ifPresent(this::updateTestCase);
+        envelope.getHook().ifPresent(this::updateHook);
     }
 
     private Optional<Lineage> findLineageBy(GherkinDocument element) {
@@ -380,6 +369,10 @@ public final class Query {
     private Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
                 .flatMap(this::findLineageBy);
+    }
+
+    private void updateHook(Hook hook) {
+        this.hookById.put(hook.getId(), hook);
     }
 
     private void updateTestCaseStarted(TestCaseStarted testCaseStarted) {

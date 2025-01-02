@@ -3,16 +3,7 @@ package io.cucumber.query;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.NdjsonToMessageIterable;
-import io.cucumber.messages.types.Envelope;
-import io.cucumber.messages.types.Feature;
-import io.cucumber.messages.types.Pickle;
-import io.cucumber.messages.types.PickleStep;
-import io.cucumber.messages.types.Step;
-import io.cucumber.messages.types.TestCaseFinished;
-import io.cucumber.messages.types.TestCaseStarted;
-import io.cucumber.messages.types.TestStep;
-import io.cucumber.messages.types.TestStepFinished;
-import io.cucumber.messages.types.TestStepResult;
+import io.cucumber.messages.types.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -24,13 +15,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
@@ -51,6 +36,7 @@ public class QueryAcceptanceTest {
 
         return Stream.of(
                         Paths.get("../testdata/empty.feature.ndjson"),
+                        Paths.get("../testdata/hooks.feature.ndjson"),
                         Paths.get("../testdata/minimal.feature.ndjson"),
                         Paths.get("../testdata/rules.feature.ndjson"),
                         Paths.get("../testdata/examples-tables.feature.ndjson")
@@ -115,6 +101,11 @@ public class QueryAcceptanceTest {
                 .map(query::findFeatureBy)
                 .map(feature -> feature.map(Feature::getName))
                 .collect(toList()));
+        results.put("findHookBy", query.findAllTestSteps().stream()
+                .map(query::findHookBy)
+                .map(hook -> hook.map(Hook::getId))
+                .filter(Optional::isPresent)
+                .collect(toList()));
         results.put("findMostSevereTestStepResultBy", query.findAllTestCaseStarted().stream()
                 .map(query::findMostSevereTestStepResultBy)
                 .map(testStepResult -> testStepResult.map(TestStepResult::getStatus))
@@ -146,6 +137,7 @@ public class QueryAcceptanceTest {
         results.put("findPickleStepBy", query.findAllTestSteps().stream()
                 .map(query::findPickleStepBy)
                 .map(pickleStep -> pickleStep.map(PickleStep::getText))
+                .filter(Optional::isPresent)
                 .collect(toList()));
         results.put("findStepBy", query.findAllPickleSteps().stream()
                 .map(query::findStepBy)

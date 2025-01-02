@@ -3,7 +3,7 @@ import {
   Duration,
   Feature,
   getWorstTestStepResult,
-  GherkinDocument,
+  GherkinDocument, Hook,
   Pickle,
   PickleStep,
   Rule,
@@ -18,7 +18,7 @@ import {
   TestStepFinished,
   TestStepResult,
   TestStepResultStatus,
-  TimeConversion
+  TimeConversion,
 } from '@cucumber/messages'
 import {ArrayMultimap} from '@teppeis/multimaps'
 import {Lineage, NamingStrategy} from "./Lineage";
@@ -424,6 +424,13 @@ export default class Query {
     return this.findLineageBy(testCaseStarted)?.feature
   }
 
+  public findHookBy(testStep: TestStep): Hook | undefined {
+    if (!testStep.hookId){
+      return undefined
+    }
+    return this.hooksById.get(testStep.hookId)
+  }
+
   public findMostSevereTestStepResultBy(testCaseStarted: TestCaseStarted): TestStepResult | undefined {
     return this.findTestStepFinishedAndTestStepBy(testCaseStarted)
       .map(([testStepFinished]) => testStepFinished.testStepResult)
@@ -443,7 +450,9 @@ export default class Query {
   }
 
   public findPickleStepBy(testStep: TestStep): PickleStep | undefined {
-    assert.ok(testStep.pickleStepId, 'Expected TestStep to have a pickleStepId')
+    if (!testStep.pickleStepId){
+      return undefined
+    }
     return this.pickleStepById.get(testStep.pickleStepId)
   }
 

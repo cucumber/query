@@ -63,6 +63,10 @@ describe('Acceptance Tests', async () => {
                 findFeatureBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findFeatureBy(testCaseStarted))
                     .map(feature => feature?.name),
+               findHookBy: query.findAllTestSteps()
+                    .map(testStep => query.findHookBy(testStep))
+                    .map(hook => hook?.id)
+                    .filter(value => !!value),
                 findMostSevereTestStepResultBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findMostSevereTestStepResultBy(testCaseStarted))
                     .map(testStepResult => testStepResult?.status),
@@ -78,7 +82,8 @@ describe('Acceptance Tests', async () => {
                     .map(pickle => pickle?.name),
                 findPickleStepBy: query.findAllTestSteps()
                     .map(testStep => query.findPickleStepBy(testStep))
-                    .map(pickleStep => pickleStep?.text),
+                    .map(pickleStep => pickleStep?.text)
+                    .filter(value => !!value),
                 findStepBy: query.findAllPickleSteps()
                     .map(pickleStep => query.findStepBy(pickleStep))
                     .map(step => step?.text),
@@ -127,6 +132,7 @@ interface ResultsFixture {
         short: Array<string>,
         shortPickleName: Array<string>
     },
+    findHookBy: Array<string>,
     findPickleBy: Array<string>,
     findPickleStepBy: Array<string>,
     findStepBy: Array<string>,
@@ -152,6 +158,7 @@ const defaults: Partial<ResultsFixture> = {
         short: [],
         shortPickleName: []
     },
+    findHookBy: [],
     findPickleBy: [],
     findPickleStepBy: [],
     findStepBy: [],
