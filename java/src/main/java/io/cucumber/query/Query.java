@@ -49,6 +49,7 @@ public final class Query {
     private final Map<String, TestStep> testStepById = new ConcurrentHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new ConcurrentHashMap<>();
     private final Map<String, Hook> hookById = new ConcurrentHashMap<>();
+    private final Map<String, List<Attachment>> attachmentsByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<Object, Lineage> lineageById = new ConcurrentHashMap<>();
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
@@ -115,6 +116,14 @@ public final class Query {
         return testStepById.values().stream()
                 .sorted(comparing(TestStep::getId))
                 .collect(toList());
+    }
+
+    public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        return this.attachmentsByTestCaseStartedId.getOrDefault(testStepFinished.getTestCaseStartedId(), emptyList()).stream()
+                .filter(attachment -> attachment.getTestStepId()
+                        .map(testStepId -> testStepFinished.getTestStepId().equals(testStepId))
+                        .orElse(false)).collect(toList());
     }
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
@@ -327,6 +336,7 @@ public final class Query {
         envelope.getPickle().ifPresent(this::updatePickle);
         envelope.getTestCase().ifPresent(this::updateTestCase);
         envelope.getHook().ifPresent(this::updateHook);
+        envelope.getAttachment().ifPresent(this::updateAttachment);
     }
 
     private Optional<Lineage> findLineageBy(GherkinDocument element) {
@@ -369,6 +379,11 @@ public final class Query {
     private Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
                 .flatMap(this::findLineageBy);
+    }
+
+    private void updateAttachment(Attachment attachment) {
+        attachment.getTestCaseStartedId()
+                .ifPresent(testCaseStartedId -> this.attachmentsByTestCaseStartedId.compute(testCaseStartedId, updateList(attachment)));
     }
 
     private void updateHook(Hook hook) {

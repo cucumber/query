@@ -25,6 +25,14 @@
       ]
     ]
   ],
+  "findAttachmentsBy" : [
+    [
+      "53",
+      "60",
+      "image/svg+xml",
+      "BASE64"
+    ]
+  ],
   "findFeatureBy" : [
     "Hooks",
     "Hooks",

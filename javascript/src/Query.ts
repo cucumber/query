@@ -1,5 +1,6 @@
 import * as messages from '@cucumber/messages'
 import {
+  Attachment,
   Duration,
   Feature,
   getWorstTestStepResult,
@@ -57,6 +58,8 @@ export default class Query {
   private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
   private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
       new ArrayMultimap()
+  private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
+      new ArrayMultimap()
 
   public update(envelope: messages.Envelope) {
     if (envelope.gherkinDocument) {
@@ -78,7 +81,7 @@ export default class Query {
       this.updateTestCaseStarted(envelope.testCaseStarted)
     }
     if (envelope.attachment) {
-      this.attachmentsByTestStepId.put(envelope.attachment.testStepId, envelope.attachment)
+      this.updateAttachment(envelope.attachment)
     }
     if (envelope.testStepFinished) {
       this.updateTestStepFinished(envelope.testStepFinished)
@@ -198,6 +201,15 @@ export default class Query {
       this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
       this.testStepResultsbyTestStepId.delete(testStep.id)
       this.attachmentsByTestStepId.delete(testStep.id)
+    }
+  }
+
+  private updateAttachment(attachment: Attachment) {
+    if (attachment.testStepId) {
+      this.attachmentsByTestStepId.put(attachment.testStepId, attachment)
+    }
+    if (attachment.testCaseStartedId) {
+      this.attachmentsByTestCaseStartedId.put(attachment.testCaseStartedId, attachment)
     }
   }
 
@@ -418,6 +430,11 @@ export default class Query {
   public findAllTestSteps(): ReadonlyArray<TestStep> {
     const testSteps = [...this.testStepById.values()]
     return testSteps.sort(comparatorById)
+  }
+
+  public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
+    return this.attachmentsByTestCaseStartedId.get(testStepFinished.testCaseStartedId)
+        .filter(attachment => attachment.testStepId === testStepFinished.testStepId)
   }
 
   public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {

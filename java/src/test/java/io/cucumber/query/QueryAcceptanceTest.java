@@ -35,6 +35,7 @@ public class QueryAcceptanceTest {
     static List<TestCase> acceptance() {
 
         return Stream.of(
+                        Paths.get("../testdata/attachments.feature.ndjson"),
                         Paths.get("../testdata/empty.feature.ndjson"),
                         Paths.get("../testdata/hooks.feature.ndjson"),
                         Paths.get("../testdata/minimal.feature.ndjson"),
@@ -97,6 +98,19 @@ public class QueryAcceptanceTest {
                 .map(entry -> Arrays.asList(entry.getKey().map(Feature::getName), entry.getValue().stream()
                         .map(TestCaseStarted::getId)
                         .collect(toList()))));
+        results.put("findAttachmentsBy", query.findAllTestCaseStarted().stream()
+                .map(query::findTestStepFinishedAndTestStepBy)
+                .flatMap(Collection::stream)
+                .map(Map.Entry::getKey)
+                .map(query::findAttachmentsBy)
+                .flatMap(Collection::stream)
+                        .map(attachment -> Arrays.asList(
+                                attachment.getTestStepId(),
+                                attachment.getTestCaseStartedId(),
+                                attachment.getMediaType(),
+                                attachment.getContentEncoding()
+                        ))
+                .collect(toList()));
         results.put("findFeatureBy", query.findAllTestCaseStarted().stream()
                 .map(query::findFeatureBy)
                 .map(feature -> feature.map(Feature::getName))

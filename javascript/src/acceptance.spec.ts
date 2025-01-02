@@ -60,10 +60,20 @@ describe('Acceptance Tests', async () => {
                 findAllTestSteps: query.findAllTestSteps().length,
                 findAllTestCaseStartedGroupedByFeature: [...query.findAllTestCaseStartedGroupedByFeature().entries()]
                     .map(([feature, testCaseStarteds]) => [feature.name, testCaseStarteds.map(testCaseStarted => testCaseStarted.id)]),
+                findAttachmentsBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findTestStepsFinishedBy(testCaseStarted))
+                    .map(testStepFinisheds => testStepFinisheds.map(testStepFinished => query.findAttachmentsBy(testStepFinished)))
+                    .flat(2)
+                    .map(attachment => ([
+                      attachment.testStepId,
+                      attachment.testCaseStartedId,
+                      attachment.mediaType,
+                      attachment.contentEncoding,
+                    ])),
                 findFeatureBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findFeatureBy(testCaseStarted))
                     .map(feature => feature?.name),
-               findHookBy: query.findAllTestSteps()
+                findHookBy: query.findAllTestSteps()
                     .map(testStep => query.findHookBy(testStep))
                     .map(hook => hook?.id)
                     .filter(value => !!value),
@@ -123,6 +133,7 @@ interface ResultsFixture {
     findAllTestCaseStarted: number,
     findAllTestSteps: number,
     findAllTestCaseStartedGroupedByFeature: Array<[string, string[]]>,
+    findAttachmentsBy: Array<[string, string, string, string]>,
     findFeatureBy: Array<string>,
     findMostSevereTestStepResultBy: Array<TestStepResultStatus>,
     findNameOf: {
@@ -149,6 +160,7 @@ interface ResultsFixture {
 
 const defaults: Partial<ResultsFixture> = {
     findAllTestCaseStartedGroupedByFeature: [],
+    findAttachmentsBy: [],
     findFeatureBy: [],
     findMostSevereTestStepResultBy: [],
     findNameOf: {
