@@ -55,7 +55,9 @@ status of a step, a scenario or an entire file.
 | `findAllTestCaseStarted(): List<TestCaseStarted>`                                             |      |     | ✓    |      | ✓          |
 | `findAllTestCaseStartedGroupedByFeature(): Map<Optional<Feature>, List<TestCaseStarted>>`     |      |     | ✓    |      | ✓          |
 | `findAllTestSteps(): List<TestStep>`                                                          |      |     | ✓    |      | ✓          |
+| `findAttachmentsBy(TestStepFinished): List<Attachment>`                                       |      |     | ✓    |      | ✓          |
 | `findFeatureBy(TestCaseStarted): Optional<Feature>`                                           |      |     | ✓    |      | ✓          |
+| `findHookBy(TestStep): Optional<Hook>`                                                        |      |     | ✓    |      | ✓          |
 | `findMostSevereTestStepResulBy(TestCaseStarted): Optional<TestStepResult>`                    |      |     | ✓    |      | ✓          |
 | `findNameOf(Pickle, NamingStrategy): String`                                                  |      |     | ✓    |      | ✓          |
 | `findPickleBy(TestCaseStarted): Optional<Pickle>`                                             |      |     | ✓    |      | ✓          |
