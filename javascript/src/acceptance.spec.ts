@@ -77,6 +77,7 @@ describe('Acceptance Tests', async () => {
                     .map(testStep => query.findHookBy(testStep))
                     .map(hook => hook?.id)
                     .filter(value => !!value),
+                findMeta: query.findMeta()?.implementation?.name,
                 findMostSevereTestStepResultBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findMostSevereTestStepResultBy(testCaseStarted))
                     .map(testStepResult => testStepResult?.status),
@@ -135,6 +136,7 @@ interface ResultsFixture {
     findAllTestCaseStartedGroupedByFeature: Array<[string, string[]]>,
     findAttachmentsBy: Array<[string, string, string, string]>,
     findFeatureBy: Array<string>,
+    findMeta: string,
     findMostSevereTestStepResultBy: Array<TestStepResultStatus>,
     findNameOf: {
         long: Array<string>,

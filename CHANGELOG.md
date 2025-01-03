@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - New method `findAttachmentsBy(TestStepFinished)` ([#67](https://github.com/cucumber/query/pull/67))
 - New method `findHookBy(TestStep)` ([#67](https://github.com/cucumber/query/pull/67))
+- New method `findMeta()` ([#67](https://github.com/cucumber/query/pull/67))
 
 ### Fixed
 - [JavaScript] Attachments are not presumed to have a related test step ([#67](https://github.com/cucumber/query/pull/67))

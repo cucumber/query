@@ -1,28 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
-import io.cucumber.messages.types.Attachment;
-import io.cucumber.messages.types.Envelope;
-import io.cucumber.messages.types.Examples;
-import io.cucumber.messages.types.Feature;
-import io.cucumber.messages.types.GherkinDocument;
-import io.cucumber.messages.types.Hook;
-import io.cucumber.messages.types.Pickle;
-import io.cucumber.messages.types.PickleStep;
-import io.cucumber.messages.types.Rule;
-import io.cucumber.messages.types.Scenario;
-import io.cucumber.messages.types.Step;
-import io.cucumber.messages.types.TableRow;
-import io.cucumber.messages.types.TestCase;
-import io.cucumber.messages.types.TestCaseFinished;
-import io.cucumber.messages.types.TestCaseStarted;
-import io.cucumber.messages.types.TestRunFinished;
-import io.cucumber.messages.types.TestRunStarted;
-import io.cucumber.messages.types.TestStep;
-import io.cucumber.messages.types.TestStepFinished;
-import io.cucumber.messages.types.TestStepResult;
-import io.cucumber.messages.types.TestStepResultStatus;
-import io.cucumber.messages.types.Timestamp;
+import io.cucumber.messages.types.*;
 
 import java.time.Duration;
 import java.util.*;
@@ -72,6 +51,7 @@ public final class Query {
     private final Map<String, Hook> hookById = new ConcurrentHashMap<>();
     private final Map<String, List<Attachment>> attachmentsByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<Object, Lineage> lineageById = new ConcurrentHashMap<>();
+    private Meta meta;
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
@@ -155,6 +135,10 @@ public final class Query {
         requireNonNull(testStep);
         return testStep.getHookId()
                 .map(hookById::get);
+    }
+
+    public Optional<Meta> findMeta() {
+        return ofNullable(meta);
     }
 
     public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseStarted testCaseStarted) {
@@ -348,6 +332,7 @@ public final class Query {
     }
 
     public void update(Envelope envelope) {
+        envelope.getMeta().ifPresent(this::updateMeta);
         envelope.getTestRunStarted().ifPresent(this::updateTestRunStarted);
         envelope.getTestRunFinished().ifPresent(this::updateTestRunFinished);
         envelope.getTestCaseStarted().ifPresent(this::updateTestCaseStarted);
@@ -464,6 +449,10 @@ public final class Query {
 
     private void updateSteps(List<Step> steps) {
         steps.forEach(step -> stepById.put(step.getId(), step));
+    }
+
+    private void updateMeta(Meta event) {
+        this.meta = event;
     }
 
     private <K, E> BiFunction<K, List<E>, List<E>> updateList(E element) {

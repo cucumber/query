@@ -4,7 +4,9 @@ import {
   Duration,
   Feature,
   getWorstTestStepResult,
-  GherkinDocument, Hook,
+  GherkinDocument,
+  Hook,
+  Meta,
   Pickle,
   PickleStep,
   Rule,
@@ -46,6 +48,7 @@ export default class Query {
     readonly messages.StepMatchArgumentsList[]
   >()
 
+  private meta: Meta
   private testRunStarted: TestRunStarted
   private testRunFinished: TestRunFinished
   private readonly testCaseStarted: Array<TestCaseStarted> = []
@@ -62,6 +65,9 @@ export default class Query {
       new ArrayMultimap()
 
   public update(envelope: messages.Envelope) {
+    if (envelope.meta) {
+      this.meta = envelope.meta
+    }
     if (envelope.gherkinDocument) {
       this.updateGherkinDocument(envelope.gherkinDocument)
     }
@@ -446,6 +452,10 @@ export default class Query {
       return undefined
     }
     return this.hooksById.get(testStep.hookId)
+  }
+
+  public findMeta(): Meta | undefined {
+    return this.meta;
   }
 
   public findMostSevereTestStepResultBy(testCaseStarted: TestCaseStarted): TestStepResult | undefined {

@@ -137,6 +137,7 @@ public class QueryAcceptanceTest {
                 .map(hook -> hook.map(Hook::getId))
                 .filter(Optional::isPresent)
                 .collect(toList()));
+        results.put("findMeta", query.findMeta().map(meta -> meta.getImplementation().getName()));
         results.put("findMostSevereTestStepResultBy", query.findAllTestCaseStarted().stream()
                 .map(query::findMostSevereTestStepResultBy)
                 .map(testStepResult -> testStepResult.map(TestStepResult::getStatus))

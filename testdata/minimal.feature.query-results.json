@@ -24,6 +24,7 @@
   "findFeatureBy" : [
     "minimal"
   ],
+  "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED"
   ],

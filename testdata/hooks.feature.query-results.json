@@ -59,6 +59,7 @@
     "6",
     "4"
   ],
+  "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
     "FAILED",

@@ -116,6 +116,7 @@
     "0",
     "0"
   ],
+  "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
     "PASSED",
