@@ -1,7 +1,29 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
-import io.cucumber.messages.types.*;
+import io.cucumber.messages.types.Attachment;
+import io.cucumber.messages.types.Envelope;
+import io.cucumber.messages.types.Examples;
+import io.cucumber.messages.types.Feature;
+import io.cucumber.messages.types.GherkinDocument;
+import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Meta;
+import io.cucumber.messages.types.Pickle;
+import io.cucumber.messages.types.PickleStep;
+import io.cucumber.messages.types.Rule;
+import io.cucumber.messages.types.Scenario;
+import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.TableRow;
+import io.cucumber.messages.types.TestCase;
+import io.cucumber.messages.types.TestCaseFinished;
+import io.cucumber.messages.types.TestCaseStarted;
+import io.cucumber.messages.types.TestRunFinished;
+import io.cucumber.messages.types.TestRunStarted;
+import io.cucumber.messages.types.TestStep;
+import io.cucumber.messages.types.TestStepFinished;
+import io.cucumber.messages.types.TestStepResult;
+import io.cucumber.messages.types.TestStepResultStatus;
+import io.cucumber.messages.types.Timestamp;
 
 import java.time.Duration;
 import java.util.*;
