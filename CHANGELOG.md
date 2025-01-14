@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [13.1.0] - 2025-01-14
 ### Added
 - New method `findAttachmentsBy(TestStepFinished)` ([#67](https://github.com/cucumber/query/pull/67))
 - New method `findHookBy(TestStep)` ([#67](https://github.com/cucumber/query/pull/67))
@@ -176,7 +178,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.0.3...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.1.0...HEAD
+[13.1.0]: https://github.com/cucumber/cucumber/compare/query/v13.0.3...v13.1.0
 [13.0.3]: https://github.com/cucumber/cucumber/compare/query/v13.0.2...v13.0.3
 [13.0.2]: https://github.com/cucumber/cucumber/compare/query/v13.0.1...v13.0.2
 [13.0.1]: https://github.com/cucumber/cucumber/compare/query/v13.0.0...v13.0.1
