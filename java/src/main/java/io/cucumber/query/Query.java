@@ -143,10 +143,11 @@ public final class Query {
 
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
-        return this.attachmentsByTestCaseStartedId.getOrDefault(testStepFinished.getTestCaseStartedId(), emptyList()).stream()
+        return attachmentsByTestCaseStartedId.getOrDefault(testStepFinished.getTestCaseStartedId(), emptyList()).stream()
                 .filter(attachment -> attachment.getTestStepId()
                         .map(testStepId -> testStepFinished.getTestStepId().equals(testStepId))
-                        .orElse(false)).collect(toList());
+                        .orElse(false))
+                .collect(toList());
     }
 
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
