@@ -28,6 +28,7 @@
     "Usage of a `Rule`",
     "Usage of a `Rule`"
   ],
+  "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
     "PASSED",

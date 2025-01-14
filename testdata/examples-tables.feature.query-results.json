@@ -40,6 +40,7 @@
     "Examples Tables",
     "Examples Tables"
   ],
+  "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
     "PASSED",

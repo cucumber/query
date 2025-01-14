@@ -5,6 +5,7 @@ import io.cucumber.messages.Convertor;
 import io.cucumber.messages.NdjsonToMessageIterable;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Feature;
+import io.cucumber.messages.types.Hook;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
 import io.cucumber.messages.types.Step;
@@ -31,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
@@ -50,7 +52,9 @@ public class QueryAcceptanceTest {
     static List<TestCase> acceptance() {
 
         return Stream.of(
+                        Paths.get("../testdata/attachments.feature.ndjson"),
                         Paths.get("../testdata/empty.feature.ndjson"),
+                        Paths.get("../testdata/hooks.feature.ndjson"),
                         Paths.get("../testdata/minimal.feature.ndjson"),
                         Paths.get("../testdata/rules.feature.ndjson"),
                         Paths.get("../testdata/examples-tables.feature.ndjson")
@@ -111,10 +115,29 @@ public class QueryAcceptanceTest {
                 .map(entry -> Arrays.asList(entry.getKey().map(Feature::getName), entry.getValue().stream()
                         .map(TestCaseStarted::getId)
                         .collect(toList()))));
+        results.put("findAttachmentsBy", query.findAllTestCaseStarted().stream()
+                .map(query::findTestStepFinishedAndTestStepBy)
+                .flatMap(Collection::stream)
+                .map(Map.Entry::getKey)
+                .map(query::findAttachmentsBy)
+                .flatMap(Collection::stream)
+                        .map(attachment -> Arrays.asList(
+                                attachment.getTestStepId(),
+                                attachment.getTestCaseStartedId(),
+                                attachment.getMediaType(),
+                                attachment.getContentEncoding()
+                        ))
+                .collect(toList()));
         results.put("findFeatureBy", query.findAllTestCaseStarted().stream()
                 .map(query::findFeatureBy)
                 .map(feature -> feature.map(Feature::getName))
                 .collect(toList()));
+        results.put("findHookBy", query.findAllTestSteps().stream()
+                .map(query::findHookBy)
+                .map(hook -> hook.map(Hook::getId))
+                .filter(Optional::isPresent)
+                .collect(toList()));
+        results.put("findMeta", query.findMeta().map(meta -> meta.getImplementation().getName()));
         results.put("findMostSevereTestStepResultBy", query.findAllTestCaseStarted().stream()
                 .map(query::findMostSevereTestStepResultBy)
                 .map(testStepResult -> testStepResult.map(TestStepResult::getStatus))
@@ -146,6 +169,7 @@ public class QueryAcceptanceTest {
         results.put("findPickleStepBy", query.findAllTestSteps().stream()
                 .map(query::findPickleStepBy)
                 .map(pickleStep -> pickleStep.map(PickleStep::getText))
+                .filter(Optional::isPresent)
                 .collect(toList()));
         results.put("findStepBy", query.findAllPickleSteps().stream()
                 .map(query::findStepBy)

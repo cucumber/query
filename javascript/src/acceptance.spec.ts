@@ -60,9 +60,24 @@ describe('Acceptance Tests', async () => {
                 findAllTestSteps: query.findAllTestSteps().length,
                 findAllTestCaseStartedGroupedByFeature: [...query.findAllTestCaseStartedGroupedByFeature().entries()]
                     .map(([feature, testCaseStarteds]) => [feature.name, testCaseStarteds.map(testCaseStarted => testCaseStarted.id)]),
+                findAttachmentsBy: query.findAllTestCaseStarted()
+                    .map(testCaseStarted => query.findTestStepsFinishedBy(testCaseStarted))
+                    .map(testStepFinisheds => testStepFinisheds.map(testStepFinished => query.findAttachmentsBy(testStepFinished)))
+                    .flat(2)
+                    .map(attachment => ([
+                      attachment.testStepId,
+                      attachment.testCaseStartedId,
+                      attachment.mediaType,
+                      attachment.contentEncoding,
+                    ])),
                 findFeatureBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findFeatureBy(testCaseStarted))
                     .map(feature => feature?.name),
+                findHookBy: query.findAllTestSteps()
+                    .map(testStep => query.findHookBy(testStep))
+                    .map(hook => hook?.id)
+                    .filter(value => !!value),
+                findMeta: query.findMeta()?.implementation?.name,
                 findMostSevereTestStepResultBy: query.findAllTestCaseStarted()
                     .map(testCaseStarted => query.findMostSevereTestStepResultBy(testCaseStarted))
                     .map(testStepResult => testStepResult?.status),
@@ -78,7 +93,8 @@ describe('Acceptance Tests', async () => {
                     .map(pickle => pickle?.name),
                 findPickleStepBy: query.findAllTestSteps()
                     .map(testStep => query.findPickleStepBy(testStep))
-                    .map(pickleStep => pickleStep?.text),
+                    .map(pickleStep => pickleStep?.text)
+                    .filter(value => !!value),
                 findStepBy: query.findAllPickleSteps()
                     .map(pickleStep => query.findStepBy(pickleStep))
                     .map(step => step?.text),
@@ -118,7 +134,9 @@ interface ResultsFixture {
     findAllTestCaseStarted: number,
     findAllTestSteps: number,
     findAllTestCaseStartedGroupedByFeature: Array<[string, string[]]>,
+    findAttachmentsBy: Array<[string, string, string, string]>,
     findFeatureBy: Array<string>,
+    findMeta: string,
     findMostSevereTestStepResultBy: Array<TestStepResultStatus>,
     findNameOf: {
         long: Array<string>,
@@ -127,6 +145,7 @@ interface ResultsFixture {
         short: Array<string>,
         shortPickleName: Array<string>
     },
+    findHookBy: Array<string>,
     findPickleBy: Array<string>,
     findPickleStepBy: Array<string>,
     findStepBy: Array<string>,
@@ -143,6 +162,7 @@ interface ResultsFixture {
 
 const defaults: Partial<ResultsFixture> = {
     findAllTestCaseStartedGroupedByFeature: [],
+    findAttachmentsBy: [],
     findFeatureBy: [],
     findMostSevereTestStepResultBy: [],
     findNameOf: {
@@ -152,6 +172,7 @@ const defaults: Partial<ResultsFixture> = {
         short: [],
         shortPickleName: []
     },
+    findHookBy: [],
     findPickleBy: [],
     findPickleStepBy: [],
     findStepBy: [],

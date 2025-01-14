@@ -1,10 +1,13 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
+import io.cucumber.messages.types.Attachment;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
+import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Meta;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
 import io.cucumber.messages.types.Rule;
@@ -67,7 +70,10 @@ public final class Query {
     private final Map<String, Step> stepById = new ConcurrentHashMap<>();
     private final Map<String, TestStep> testStepById = new ConcurrentHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new ConcurrentHashMap<>();
+    private final Map<String, Hook> hookById = new ConcurrentHashMap<>();
+    private final Map<String, List<Attachment>> attachmentsByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<Object, Lineage> lineageById = new ConcurrentHashMap<>();
+    private Meta meta;
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
 
@@ -135,8 +141,27 @@ public final class Query {
                 .collect(toList());
     }
 
+    public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        return attachmentsByTestCaseStartedId.getOrDefault(testStepFinished.getTestCaseStartedId(), emptyList()).stream()
+                .filter(attachment -> attachment.getTestStepId()
+                        .map(testStepId -> testStepFinished.getTestStepId().equals(testStepId))
+                        .orElse(false))
+                .collect(toList());
+    }
+
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
+    }
+
+    public Optional<Hook> findHookBy(TestStep testStep) {
+        requireNonNull(testStep);
+        return testStep.getHookId()
+                .map(hookById::get);
+    }
+
+    public Optional<Meta> findMeta() {
+        return ofNullable(meta);
     }
 
     public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseStarted testCaseStarted) {
@@ -330,6 +355,7 @@ public final class Query {
     }
 
     public void update(Envelope envelope) {
+        envelope.getMeta().ifPresent(this::updateMeta);
         envelope.getTestRunStarted().ifPresent(this::updateTestRunStarted);
         envelope.getTestRunFinished().ifPresent(this::updateTestRunFinished);
         envelope.getTestCaseStarted().ifPresent(this::updateTestCaseStarted);
@@ -338,6 +364,8 @@ public final class Query {
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         envelope.getPickle().ifPresent(this::updatePickle);
         envelope.getTestCase().ifPresent(this::updateTestCase);
+        envelope.getHook().ifPresent(this::updateHook);
+        envelope.getAttachment().ifPresent(this::updateAttachment);
     }
 
     private Optional<Lineage> findLineageBy(GherkinDocument element) {
@@ -380,6 +408,15 @@ public final class Query {
     private Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
                 .flatMap(this::findLineageBy);
+    }
+
+    private void updateAttachment(Attachment attachment) {
+        attachment.getTestCaseStartedId()
+                .ifPresent(testCaseStartedId -> this.attachmentsByTestCaseStartedId.compute(testCaseStartedId, updateList(attachment)));
+    }
+
+    private void updateHook(Hook hook) {
+        this.hookById.put(hook.getId(), hook);
     }
 
     private void updateTestCaseStarted(TestCaseStarted testCaseStarted) {
@@ -435,6 +472,10 @@ public final class Query {
 
     private void updateSteps(List<Step> steps) {
         steps.forEach(step -> stepById.put(step.getId(), step));
+    }
+
+    private void updateMeta(Meta event) {
+        this.meta = event;
     }
 
     private <K, E> BiFunction<K, List<E>, List<E>> updateList(E element) {

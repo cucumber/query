@@ -1,9 +1,12 @@
 import * as messages from '@cucumber/messages'
 import {
+  Attachment,
   Duration,
   Feature,
   getWorstTestStepResult,
   GherkinDocument,
+  Hook,
+  Meta,
   Pickle,
   PickleStep,
   Rule,
@@ -18,7 +21,7 @@ import {
   TestStepFinished,
   TestStepResult,
   TestStepResultStatus,
-  TimeConversion
+  TimeConversion,
 } from '@cucumber/messages'
 import {ArrayMultimap} from '@teppeis/multimaps'
 import {Lineage, NamingStrategy} from "./Lineage";
@@ -45,6 +48,7 @@ export default class Query {
     readonly messages.StepMatchArgumentsList[]
   >()
 
+  private meta: Meta
   private testRunStarted: TestRunStarted
   private testRunFinished: TestRunFinished
   private readonly testCaseStarted: Array<TestCaseStarted> = []
@@ -57,8 +61,13 @@ export default class Query {
   private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
   private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
       new ArrayMultimap()
+  private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
+      new ArrayMultimap()
 
   public update(envelope: messages.Envelope) {
+    if (envelope.meta) {
+      this.meta = envelope.meta
+    }
     if (envelope.gherkinDocument) {
       this.updateGherkinDocument(envelope.gherkinDocument)
     }
@@ -78,7 +87,7 @@ export default class Query {
       this.updateTestCaseStarted(envelope.testCaseStarted)
     }
     if (envelope.attachment) {
-      this.attachmentsByTestStepId.put(envelope.attachment.testStepId, envelope.attachment)
+      this.updateAttachment(envelope.attachment)
     }
     if (envelope.testStepFinished) {
       this.updateTestStepFinished(envelope.testStepFinished)
@@ -198,6 +207,15 @@ export default class Query {
       this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
       this.testStepResultsbyTestStepId.delete(testStep.id)
       this.attachmentsByTestStepId.delete(testStep.id)
+    }
+  }
+
+  private updateAttachment(attachment: Attachment) {
+    if (attachment.testStepId) {
+      this.attachmentsByTestStepId.put(attachment.testStepId, attachment)
+    }
+    if (attachment.testCaseStartedId) {
+      this.attachmentsByTestCaseStartedId.put(attachment.testCaseStartedId, attachment)
     }
   }
 
@@ -420,8 +438,24 @@ export default class Query {
     return testSteps.sort(comparatorById)
   }
 
+  public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
+    return this.attachmentsByTestCaseStartedId.get(testStepFinished.testCaseStartedId)
+        .filter(attachment => attachment.testStepId === testStepFinished.testStepId)
+  }
+
   public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {
     return this.findLineageBy(testCaseStarted)?.feature
+  }
+
+  public findHookBy(testStep: TestStep): Hook | undefined {
+    if (!testStep.hookId){
+      return undefined
+    }
+    return this.hooksById.get(testStep.hookId)
+  }
+
+  public findMeta(): Meta | undefined {
+    return this.meta;
   }
 
   public findMostSevereTestStepResultBy(testCaseStarted: TestCaseStarted): TestStepResult | undefined {
@@ -443,7 +477,9 @@ export default class Query {
   }
 
   public findPickleStepBy(testStep: TestStep): PickleStep | undefined {
-    assert.ok(testStep.pickleStepId, 'Expected TestStep to have a pickleStepId')
+    if (!testStep.pickleStepId){
+      return undefined
+    }
     return this.pickleStepById.get(testStep.pickleStepId)
   }
 
