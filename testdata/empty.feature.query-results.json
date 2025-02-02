@@ -69,13 +69,15 @@
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 3000000
-    }
+    },
+    "testRunStartedId" : "2"
   },
   "findTestRunStarted" : {
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 0
-    }
+    },
+    "id" : "2"
   },
   "findTestStepsFinishedBy" : [
     [ ]

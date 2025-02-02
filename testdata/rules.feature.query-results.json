@@ -127,13 +127,15 @@
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 31000000
-    }
+    },
+    "testRunStartedId" : "39"
   },
   "findTestRunStarted" : {
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 0
-    }
+    },
+    "id" : "39"
   },
   "findTestStepBy" : [
     "40",
