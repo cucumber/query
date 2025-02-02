@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [13.2.0] - 2025-02-02
 ### Changed
 - Update dependency messages to support v27
 
@@ -180,7 +182,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.1.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.2.0...HEAD
+[13.2.0]: https://github.com/cucumber/cucumber/compare/query/v13.1.0...v13.2.0
 [13.1.0]: https://github.com/cucumber/cucumber/compare/query/v13.0.3...v13.1.0
 [13.0.3]: https://github.com/cucumber/cucumber/compare/query/v13.0.2...v13.0.3
 [13.0.2]: https://github.com/cucumber/cucumber/compare/query/v13.0.1...v13.0.2
