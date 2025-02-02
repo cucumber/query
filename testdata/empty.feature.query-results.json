@@ -8,10 +8,78 @@
     "AMBIGUOUS" : 0,
     "FAILED" : 0
   },
-  "countTestCasesStarted" : 0,
-  "findAllPickles" : 0,
+  "countTestCasesStarted" : 1,
+  "findAllPickles" : 1,
   "findAllPickleSteps" : 0,
-  "findAllTestCaseStarted" : 0,
+  "findAllTestCaseStarted" : 1,
   "findAllTestSteps" : 0,
-  "findAllTestCaseStartedGroupedByFeature" : [ ]
+  "findAllTestCaseStartedGroupedByFeature" : [
+    [
+      "Empty Scenarios",
+      [
+        "4"
+      ]
+    ]
+  ],
+  "findFeatureBy" : [
+    "Empty Scenarios"
+  ],
+  "findMeta" : "fake-cucumber",
+  "findMostSevereTestStepResultBy" : [
+    null
+  ],
+  "findNameOf" : {
+    "long" : [
+      "Empty Scenarios - Blank Scenario"
+    ],
+    "excludeFeatureName" : [
+      "Blank Scenario"
+    ],
+    "longPickleName" : [
+      "Empty Scenarios - Blank Scenario"
+    ],
+    "short" : [
+      "Blank Scenario"
+    ],
+    "shortPickleName" : [
+      "Blank Scenario"
+    ]
+  },
+  "findPickleBy" : [
+    "Blank Scenario"
+  ],
+  "findTestCaseBy" : [
+    "3"
+  ],
+  "findTestCaseDurationBy" : [
+    {
+      "seconds" : 0,
+      "nanos" : 1000000
+    }
+  ],
+  "findTestCaseFinishedBy" : [
+    "4"
+  ],
+  "findTestRunDuration" : {
+    "seconds" : 0,
+    "nanos" : 3000000
+  },
+  "findTestRunFinished" : {
+    "success" : true,
+    "timestamp" : {
+      "seconds" : 0,
+      "nanos" : 3000000
+    },
+    "testRunStartedId" : "2"
+  },
+  "findTestRunStarted" : {
+    "timestamp" : {
+      "seconds" : 0,
+      "nanos" : 0
+    },
+    "id" : "2"
+  },
+  "findTestStepsFinishedBy" : [
+    [ ]
+  ]
 }

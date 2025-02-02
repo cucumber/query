@@ -17,7 +17,7 @@
     [
       "minimal",
       [
-        "7"
+        "8"
       ]
     ]
   ],
@@ -55,7 +55,7 @@
     "I have 42 cukes in my belly"
   ],
   "findTestCaseBy" : [
-    "6"
+    "7"
   ],
   "findTestCaseDurationBy" : [
     {
@@ -64,7 +64,7 @@
     }
   ],
   "findTestCaseFinishedBy" : [
-    "7"
+    "8"
   ],
   "findTestRunDuration" : {
     "seconds" : 0,
@@ -75,26 +75,28 @@
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 5000000
-    }
+    },
+    "testRunStartedId" : "5"
   },
   "findTestRunStarted" : {
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 0
-    }
+    },
+    "id" : "5"
   },
   "findTestStepBy" : [
-    "5"
+    "6"
   ],
   "findTestStepsFinishedBy" : [
     [
-      "5"
+      "6"
     ]
   ],
   "findTestStepFinishedAndTestStepBy" : [
     [
-      "5",
-      "5"
+      "6",
+      "6"
     ]
   ]
 }
