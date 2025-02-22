@@ -63,11 +63,5 @@
   },
   "overrides": {
     "@cucumber/messages": "27.2.0"
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "semi": false,
-    "singleQuote": true,
-    "printWidth": 100
   }
 }
