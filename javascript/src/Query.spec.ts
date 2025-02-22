@@ -1,19 +1,20 @@
+import assert from 'node:assert'
+
+import {
+  IncrementClock,
+  IncrementStopwatch,
+  makeTestCase,
+  makeTestPlan,
+  RunOptions,
+  SupportCode,
+  withFullStackTrace,
+} from '@cucumber/fake-cucumber'
 import { GherkinStreams } from '@cucumber/gherkin-streams'
 import { Query as GherkinQuery } from '@cucumber/gherkin-utils'
 import * as messages from '@cucumber/messages'
 import { pipeline, Readable, Writable } from 'stream'
-import assert from 'node:assert'
-import {
-  SupportCode,
-  withFullStackTrace,
-  makeTestPlan,
-  makeTestCase,
-  IncrementClock,
-  IncrementStopwatch,
-  RunOptions,
-} from '@cucumber/fake-cucumber'
-
 import { promisify } from 'util'
+
 import Query from './Query'
 
 const pipelinePromise = promisify(pipeline)

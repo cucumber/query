@@ -23,9 +23,10 @@ import {
   TestStepResultStatus,
   TimeConversion,
 } from '@cucumber/messages'
-import {ArrayMultimap} from '@teppeis/multimaps'
-import {Lineage, NamingStrategy} from "./Lineage";
-import { comparatorBy, comparatorById, comparatorByStatus, assert } from './helpers'
+import { ArrayMultimap } from '@teppeis/multimaps'
+
+import { assert, comparatorBy, comparatorById, comparatorByStatus } from './helpers'
+import { Lineage, NamingStrategy } from './Lineage'
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
@@ -60,9 +61,9 @@ export default class Query {
   private readonly testStepById: Map<string, TestStep> = new Map()
   private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
   private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
-      new ArrayMultimap()
+    new ArrayMultimap()
   private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
-      new ArrayMultimap()
+    new ArrayMultimap()
 
   public update(envelope: messages.Envelope) {
     if (envelope.meta) {
@@ -187,8 +188,8 @@ export default class Query {
       this.pickleStepIdByTestStepId.set(testStep.id, testStep.pickleStepId)
       this.testStepIdsByPickleStepId.put(testStep.pickleStepId, testStep.id)
       this.stepMatchArgumentsListsByPickleStepId.set(
-          testStep.pickleStepId,
-          testStep.stepMatchArgumentsLists
+        testStep.pickleStepId,
+        testStep.stepMatchArgumentsLists
       )
     })
   }
@@ -221,24 +222,21 @@ export default class Query {
 
   private updateTestStepFinished(testStepFinished: TestStepFinished) {
     this.testStepFinishedByTestCaseStartedId.put(
-        testStepFinished.testCaseStartedId,
-        testStepFinished
+      testStepFinished.testCaseStartedId,
+      testStepFinished
     )
 
     const pickleId = this.pickleIdByTestStepId.get(testStepFinished.testStepId)
     this.testStepResultByPickleId.put(pickleId, testStepFinished.testStepResult)
     const testStep = this.testStepById.get(testStepFinished.testStepId)
-    this.testStepResultsByPickleStepId.put(
-        testStep.pickleStepId,
-        testStepFinished.testStepResult
-    )
+    this.testStepResultsByPickleStepId.put(testStep.pickleStepId, testStepFinished.testStepResult)
     this.testStepResultsbyTestStepId.put(testStep.id, testStepFinished.testStepResult)
   }
 
   private updateTestCaseFinished(testCaseFinished: TestCaseFinished) {
     this.testCaseFinishedByTestCaseStartedId.set(
-        testCaseFinished.testCaseStartedId,
-        testCaseFinished
+      testCaseFinished.testCaseStartedId,
+      testCaseFinished
     )
   }
 
@@ -353,7 +351,11 @@ export default class Query {
 
     for (const step of testCase.testSteps) {
       if (step.hookId) {
-        pickleStepFound ? onAfterHookFound(step) : onBeforeHookFound(step)
+        if (pickleStepFound) {
+          onAfterHookFound(step)
+        } else {
+          onBeforeHookFound(step)
+        }
       } else {
         pickleStepFound = true
       }
@@ -422,14 +424,17 @@ export default class Query {
     })
   }
 
-  public findAllTestCaseStartedGroupedByFeature(): Map<Feature | undefined, ReadonlyArray<TestCaseStarted>> {
-    const results = new Map();
+  public findAllTestCaseStartedGroupedByFeature(): Map<
+    Feature | undefined,
+    ReadonlyArray<TestCaseStarted>
+  > {
+    const results = new Map()
     this.findAllTestCaseStarted()
-        .map(testCaseStarted => ([this.findLineageBy(testCaseStarted), testCaseStarted] as const))
-        .sort(([a], [b]) => comparatorBy(a.gherkinDocument, b.gherkinDocument, "uri"))
-        .forEach(([{feature}, testCaseStarted]) => {
-          results.set(feature, [...results.get(feature) ?? [], testCaseStarted])
-        })
+      .map((testCaseStarted) => [this.findLineageBy(testCaseStarted), testCaseStarted] as const)
+      .sort(([a], [b]) => comparatorBy(a.gherkinDocument, b.gherkinDocument, 'uri'))
+      .forEach(([{ feature }, testCaseStarted]) => {
+        results.set(feature, [...(results.get(feature) ?? []), testCaseStarted])
+      })
     return results
   }
 
@@ -439,8 +444,9 @@ export default class Query {
   }
 
   public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
-    return this.attachmentsByTestCaseStartedId.get(testStepFinished.testCaseStartedId)
-        .filter(attachment => attachment.testStepId === testStepFinished.testStepId)
+    return this.attachmentsByTestCaseStartedId
+      .get(testStepFinished.testCaseStartedId)
+      .filter((attachment) => attachment.testStepId === testStepFinished.testStepId)
   }
 
   public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {
@@ -448,17 +454,19 @@ export default class Query {
   }
 
   public findHookBy(testStep: TestStep): Hook | undefined {
-    if (!testStep.hookId){
+    if (!testStep.hookId) {
       return undefined
     }
     return this.hooksById.get(testStep.hookId)
   }
 
   public findMeta(): Meta | undefined {
-    return this.meta;
+    return this.meta
   }
 
-  public findMostSevereTestStepResultBy(testCaseStarted: TestCaseStarted): TestStepResult | undefined {
+  public findMostSevereTestStepResultBy(
+    testCaseStarted: TestCaseStarted
+  ): TestStepResult | undefined {
     return this.findTestStepFinishedAndTestStepBy(testCaseStarted)
       .map(([testStepFinished]) => testStepFinished.testStepResult)
       .sort(comparatorByStatus)
@@ -477,7 +485,7 @@ export default class Query {
   }
 
   public findPickleStepBy(testStep: TestStep): PickleStep | undefined {
-    if (!testStep.pickleStepId){
+    if (!testStep.pickleStepId) {
       return undefined
     }
     return this.pickleStepById.get(testStep.pickleStepId)
@@ -499,7 +507,7 @@ export default class Query {
       return undefined
     }
     return TimeConversion.millisecondsToDuration(
-        TimeConversion.timestampToMillisecondsSinceEpoch(testCaseFinished.timestamp) -
+      TimeConversion.timestampToMillisecondsSinceEpoch(testCaseFinished.timestamp) -
         TimeConversion.timestampToMillisecondsSinceEpoch(testCaseStarted.timestamp)
     )
   }
@@ -513,7 +521,7 @@ export default class Query {
       return undefined
     }
     return TimeConversion.millisecondsToDuration(
-        TimeConversion.timestampToMillisecondsSinceEpoch(this.testRunFinished.timestamp) -
+      TimeConversion.timestampToMillisecondsSinceEpoch(this.testRunFinished.timestamp) -
         TimeConversion.timestampToMillisecondsSinceEpoch(this.testRunStarted.timestamp)
     )
   }
@@ -530,25 +538,27 @@ export default class Query {
     return this.testStepById.get(testStepFinished.testStepId)
   }
 
-  public findTestStepsFinishedBy(testCaseStarted: TestCaseStarted): ReadonlyArray<TestStepFinished> {
+  public findTestStepsFinishedBy(
+    testCaseStarted: TestCaseStarted
+  ): ReadonlyArray<TestStepFinished> {
     // multimaps `get` implements `getOrDefault([])` behaviour internally
     return [...this.testStepFinishedByTestCaseStartedId.get(testCaseStarted.id)]
   }
 
   public findTestStepFinishedAndTestStepBy(
-      testCaseStarted: TestCaseStarted
+    testCaseStarted: TestCaseStarted
   ): ReadonlyArray<[TestStepFinished, TestStep]> {
     return this.testStepFinishedByTestCaseStartedId
-        .get(testCaseStarted.id)
-        .map((testStepFinished) => {
-          const testStep = this.findTestStepBy(testStepFinished)
-          assert.ok(testStep, 'Expected to find TestStep by TestStepFinished')
-          return [testStepFinished, testStep]
-        })
+      .get(testCaseStarted.id)
+      .map((testStepFinished) => {
+        const testStep = this.findTestStepBy(testStepFinished)
+        assert.ok(testStep, 'Expected to find TestStep by TestStepFinished')
+        return [testStepFinished, testStep]
+      })
   }
 
   private findLineageBy(element: Pickle | TestCaseStarted) {
-    const pickle = "testCaseId" in element ? this.findPickleBy(element) : element
+    const pickle = 'testCaseId' in element ? this.findPickleBy(element) : element
     const deepestAstNodeId = pickle.astNodeIds.at(-1)
     assert.ok(deepestAstNodeId, 'Expected Pickle to have at least one astNodeId')
     return this.lineageById.get(deepestAstNodeId)
