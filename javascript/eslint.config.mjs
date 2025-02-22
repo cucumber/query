@@ -59,6 +59,8 @@ export default [...fixupConfigRules(compat.extends(
         "simple-import-sort/exports": "error",
     },
 }, {
+    files: ["src/**/*.spec.ts"],
+
     rules: {
         "@typescript-eslint/no-non-null-assertion": "off",
     },
