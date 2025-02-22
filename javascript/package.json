@@ -9,7 +9,7 @@
     "clean": "rm -rf dist",
     "eslint-fix": "eslint --ext ts,tsx --max-warnings 0 --fix",
     "eslint": "eslint --ext ts,tsx --max-warnings 0",
-    "test": "mocha 'src/**/*.spec.*'",
+    "test": "mocha",
     "prepublishOnly": "tsc --build tsconfig.build.json"
   },
   "repository": {
