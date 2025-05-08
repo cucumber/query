@@ -1,10 +1,14 @@
 package io.cucumber.query;
 
+import io.cucumber.messages.types.Examples;
+import io.cucumber.messages.types.Feature;
+import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Pickle;
+import io.cucumber.messages.types.Rule;
+import io.cucumber.messages.types.Scenario;
+import io.cucumber.messages.types.TableRow;
 
 import java.util.function.Supplier;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Visit the {@link Lineage} of a {@linkplain io.cucumber.messages.types.GherkinDocument GherkinDocument element}
@@ -17,14 +21,53 @@ import static java.util.Objects.requireNonNull;
  *
  * @param <T> the type reduced to.
  */
-interface LineageReducer<T> {
+public interface LineageReducer<T> {
 
-    static <T> LineageReducer<T> descending(Supplier<? extends LineageCollector<T>> collector) {
+    static <T> LineageReducer<T> descending(Supplier<? extends Collector<T>> collector) {
         return new LineageReducerDescending<>(collector);
+    }
+    
+    static <T> LineageReducer<T> ascending(Supplier<? extends Collector<T>> collector) {
+        return new LineageReducerAscending<>(collector);
     }
 
     T reduce(Lineage lineage);
 
     T reduce(Lineage lineage, Pickle pickle);
 
+    /**
+     * Collect the {@link Lineage} of a
+     * {@linkplain io.cucumber.messages.types.GherkinDocument GherkinDocument element}
+     * or {@link Pickle} and reduce it to a single result.
+     *
+     * @param <T> the type reduced to.
+     */
+    interface Collector<T> {
+        default void add(GherkinDocument document) {
+    
+        }
+    
+        default void add(Feature feature) {
+    
+        }
+    
+        default void add(Rule rule) {
+    
+        }
+    
+        default void add(Scenario scenario) {
+    
+        }
+    
+        default void add(Examples examples, int index) {
+        }
+    
+        default void add(TableRow example, int index) {
+        }
+    
+        default void add(Pickle pickle) {
+        }
+    
+        T finish();
+    }
 }
