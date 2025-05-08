@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -115,14 +116,17 @@ public final class Query {
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
-                .map(testCaseStarted1 -> {
-                    Optional<Lineage> astNodes = findLineageBy(testCaseStarted1);
-                    return new SimpleEntry<>(astNodes, testCaseStarted1);
+                .map(testCaseStarted -> {
+                    Optional<Lineage> astNodes = findLineageBy(testCaseStarted);
+                    return new SimpleEntry<>(astNodes, testCaseStarted);
                 })
                 // Sort entries by gherkin document URI for consistent ordering
-                .sorted(nullsFirst(comparing(entry1 -> entry1.getKey()
-                        .flatMap(nodes -> nodes.document().getUri())
-                        .orElse(null))))
+                .sorted(comparing(
+                        entry -> entry.getKey()
+                                .flatMap(nodes -> nodes.document().getUri())
+                                .orElse(null),
+                        nullsFirst(naturalOrder())
+                ))
                 .map(entry -> {
                     // Unpack the now sorted entries
                     Optional<Feature> feature = entry.getKey().flatMap(Lineage::feature);
@@ -225,53 +229,53 @@ public final class Query {
         return () -> new IllegalArgumentException("Element was not part of this query object");
     }
 
-    <T> Optional<T> reduceLinageOf(GherkinDocument element, LineageReducer<T> reducer) {
+    public <T> Optional<T> reduceLinageOf(GherkinDocument element, LineageReducer<T> reducer) {
         requireNonNull(element);
         requireNonNull(reducer);
         return findLineageBy(element)
                 .map(reducer::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(Feature element, LineageReducer<T> reducer) {
+    public <T> Optional<T> reduceLinageOf(Feature element, LineageReducer<T> reducer) {
         requireNonNull(element);
         requireNonNull(reducer);
         return findLineageBy(element)
                 .map(reducer::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(Rule element, LineageReducer<T> reducer) {
+    public <T> Optional<T> reduceLinageOf(Rule element, LineageReducer<T> reducer) {
         requireNonNull(element);
         requireNonNull(reducer);
         return findLineageBy(element)
                 .map(reducer::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(Scenario element, LineageReducer<T> reducer) {
+    public <T> Optional<T> reduceLinageOf(Scenario element, LineageReducer<T> reducer) {
         requireNonNull(element);
         requireNonNull(reducer);
         return findLineageBy(element)
                 .map(reducer::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(Examples element, LineageReducer<T> reducer) {
+    public <T> Optional<T> reduceLinageOf(Examples element, LineageReducer<T> reducer) {
         requireNonNull(element);
         requireNonNull(reducer);
         return findLineageBy(element)
                 .map(reducer::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(TableRow element, LineageReducer<T> reducer) {
+    public <T> Optional<T> reduceLinageOf(TableRow element, LineageReducer<T> reducer) {
         requireNonNull(element);
         requireNonNull(reducer);
         return findLineageBy(element)
                 .map(reducer::reduce);
     }
 
-    <T> Optional<T> reduceLinageOf(Pickle element, LineageReducer<T> reducer) {
-        requireNonNull(element);
+    public <T> Optional<T> reduceLinageOf(Pickle pickle, LineageReducer<T> reducer) {
+        requireNonNull(pickle);
         requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(lineage -> reducer.reduce(lineage, element));
+        return findLineageBy(pickle)
+                .map(lineage -> reducer.reduce(lineage, pickle));
     }
 
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
@@ -368,44 +372,44 @@ public final class Query {
         envelope.getAttachment().ifPresent(this::updateAttachment);
     }
 
-    private Optional<Lineage> findLineageBy(GherkinDocument element) {
+    public Optional<Lineage> findLineageBy(GherkinDocument element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getUri()));
     }
 
-    private Optional<Lineage> findLineageBy(Feature element) {
+    public Optional<Lineage> findLineageBy(Feature element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element));
     }
 
-    private Optional<Lineage> findLineageBy(Rule element) {
+    public Optional<Lineage> findLineageBy(Rule element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(Scenario element) {
+    public Optional<Lineage> findLineageBy(Scenario element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(Examples element) {
+    public Optional<Lineage> findLineageBy(Examples element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(TableRow element) {
+    public Optional<Lineage> findLineageBy(TableRow element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(Pickle pickle) {
+    public Optional<Lineage> findLineageBy(Pickle pickle) {
         requireNonNull(pickle);
         List<String> astNodeIds = pickle.getAstNodeIds();
         String pickleAstNodeId = astNodeIds.get(astNodeIds.size() - 1);
         return Optional.ofNullable(lineageById.get(pickleAstNodeId));
     }
 
-    private Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
+    public Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
                 .flatMap(this::findLineageBy);
     }
