@@ -16,10 +16,10 @@ class QueryTest {
     final Query query = new Query();
 
     @Test
-    void retainsInsertionOrderForTestCaseStarted() {
-        TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0L));
-        TestCaseStarted b = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0L));
-        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0L));
+    void retainsTimestampOrderForTestCaseStarted() {
+        TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0L));
+        TestCaseStarted b = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(2L, 0L));
+        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(3L, 0L));
 
         Stream.of(a, b, c)
                 .map(Envelope::of)

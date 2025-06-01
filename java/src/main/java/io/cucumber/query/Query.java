@@ -7,6 +7,7 @@ import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Meta;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
@@ -23,6 +24,7 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepResultStatus;
+import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.Timestamp;
 
 import java.time.Duration;
@@ -30,11 +32,11 @@ import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static io.cucumber.query.LineageReducer.ascending;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
@@ -63,7 +65,7 @@ public final class Query {
     private static final Map<TestStepResultStatus, Long> ZEROES_BY_TEST_STEP_RESULT_STATUSES = Arrays.stream(TestStepResultStatus.values())
             .collect(Collectors.toMap(identity(), (s) -> 0L));
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
-    private final Deque<TestCaseStarted> testCaseStarted = new ConcurrentLinkedDeque<>();
+    private final Map<String, TestCaseStarted> testCaseStartedById = new ConcurrentHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, Pickle> pickleById = new ConcurrentHashMap<>();
@@ -106,12 +108,32 @@ public final class Query {
     }
 
     public List<TestCaseStarted> findAllTestCaseStarted() {
-        return this.testCaseStarted.stream()
-                .filter(testCaseStarted1 -> !findTestCaseFinishedBy(testCaseStarted1)
+        return this.testCaseStartedById.values().stream()
+                .sorted(comparing(TestCaseStarted::getTimestamp, timestampComparator))
+                .filter(element -> !findTestCaseFinishedBy(element)
                         .filter(TestCaseFinished::getWillBeRetried)
                         .isPresent())
                 .collect(toList());
     }
+    
+    // TODO: Move to Messages, make comparable?
+    private final Comparator<Timestamp> timestampComparator = (a, b) -> {
+        long x = a.getSeconds();
+        long y = b.getSeconds();
+        int cmp;
+        if (x < y) 
+            return -1;
+        if(y > x) 
+            return 1;
+
+        long x1 = a.getNanos();
+        long y1 = b.getNanos();
+        if (x1 < y1)
+            return -1;
+        if(y1 > x1)
+            return 1;
+        return 0;
+    };
 
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
@@ -277,10 +299,21 @@ public final class Query {
         return findLineageBy(pickle)
                 .map(lineage -> reducer.reduce(lineage, pickle));
     }
+    
+    public Optional<Location> findLocationOf(Pickle pickle) {
+       return reduceLinageOf(pickle, ascending(FirstLocationCollector::new));
+    }
 
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestCaseBy(testCaseStarted)
+                .map(TestCase::getPickleId)
+                .map(pickleById::get);
+    }
+
+    public Optional<Pickle> findPickleBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return findTestCaseBy(testStepStarted)
                 .map(TestCase::getPickleId)
                 .map(pickleById::get);
     }
@@ -302,6 +335,12 @@ public final class Query {
         return ofNullable(testCaseById.get(testCaseStarted.getTestCaseId()));
     }
 
+    public Optional<TestCase> findTestCaseBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return findTestCaseStartedBy(testStepStarted)
+                .flatMap(this::findTestCaseBy);
+    }
+
     public Optional<Duration> findTestCaseDurationBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         Timestamp started = testCaseStarted.getTimestamp();
@@ -311,6 +350,12 @@ public final class Query {
                         Convertor.toInstant(started),
                         Convertor.toInstant(finished)
                 ));
+    }
+
+    public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        String testCaseStartedId = testStepStarted.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
     }
 
     public Optional<TestCaseFinished> findTestCaseFinishedBy(TestCaseStarted testCaseStarted) {
@@ -337,6 +382,11 @@ public final class Query {
         return ofNullable(testRunStarted);
     }
 
+    public Optional<TestStep> findTestStepBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return ofNullable(testStepById.get(testStepStarted.getTestStepId()));
+    }
+    
     public Optional<TestStep> findTestStepBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
         return ofNullable(testStepById.get(testStepFinished.getTestStepId()));
@@ -424,7 +474,7 @@ public final class Query {
     }
 
     private void updateTestCaseStarted(TestCaseStarted testCaseStarted) {
-        this.testCaseStarted.add(testCaseStarted);
+        this.testCaseStartedById.put(testCaseStarted.getId(), testCaseStarted);
     }
 
     private void updateTestCase(TestCase event) {
@@ -493,4 +543,5 @@ public final class Query {
             return list;
         };
     }
+
 }
