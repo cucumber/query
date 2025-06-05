@@ -96,6 +96,52 @@
     "Attachments",
     "Attachments"
   ],
+  "findLocationBy" : [
+    {
+      "line" : 12,
+      "column" : 3
+    },
+    {
+      "line" : 18,
+      "column" : 3
+    },
+    {
+      "line" : 21,
+      "column" : 3
+    },
+    {
+      "line" : 24,
+      "column" : 3
+    },
+    {
+      "line" : 30,
+      "column" : 3
+    },
+    {
+      "line" : 33,
+      "column" : 3
+    },
+    {
+      "line" : 36,
+      "column" : 3
+    },
+    {
+      "line" : 44,
+      "column" : 7
+    },
+    {
+      "line" : 45,
+      "column" : 7
+    },
+    {
+      "line" : 47,
+      "column" : 3
+    },
+    {
+      "line" : 50,
+      "column" : 3
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",

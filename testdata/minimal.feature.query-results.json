@@ -24,6 +24,12 @@
   "findFeatureBy" : [
     "minimal"
   ],
+  "findLocationBy" : [
+    {
+      "line" : 9,
+      "column" : 3
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED"

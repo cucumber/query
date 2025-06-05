@@ -40,6 +40,44 @@
     "Examples Tables",
     "Examples Tables"
   ],
+  "findLocationBy" : [
+    {
+      "line" : 19,
+      "column" : 7
+    },
+    {
+      "line" : 20,
+      "column" : 7
+    },
+    {
+      "line" : 25,
+      "column" : 7
+    },
+    {
+      "line" : 26,
+      "column" : 7
+    },
+    {
+      "line" : 31,
+      "column" : 7
+    },
+    {
+      "line" : 32,
+      "column" : 7
+    },
+    {
+      "line" : 41,
+      "column" : 7
+    },
+    {
+      "line" : 42,
+      "column" : 7
+    },
+    {
+      "line" : 43,
+      "column" : 7
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",

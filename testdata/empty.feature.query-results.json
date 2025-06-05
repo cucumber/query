@@ -24,6 +24,12 @@
   "findFeatureBy" : [
     "Empty Scenarios"
   ],
+  "findLocationBy" : [
+    {
+      "line" : 7,
+      "column" : 3
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     null

@@ -301,7 +301,12 @@ public final class Query {
     }
     
     public Optional<Location> findLocationOf(Pickle pickle) {
-       return reduceLinageOf(pickle, ascending(FirstLocationCollector::new));
+       return findLineageBy(pickle).flatMap(lineage -> {
+           if (lineage.example().isPresent()) {
+               return lineage.example().map(TableRow::getLocation);
+           }
+           return lineage.scenario().map(Scenario::getLocation);
+       });
     }
 
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {

@@ -36,6 +36,28 @@
     "0",
     "3"
   ],
+  "findLocationBy" : [
+    {
+      "line" : 6,
+      "column" : 3
+    },
+    {
+      "line" : 9,
+      "column" : 3
+    },
+    {
+      "line" : 12,
+      "column" : 3
+    },
+    {
+      "line" : 16,
+      "column" : 3
+    },
+    {
+      "line" : 20,
+      "column" : 3
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
