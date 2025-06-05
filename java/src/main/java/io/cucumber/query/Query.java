@@ -67,7 +67,7 @@ public final class Query {
     private final Map<String, TestCaseStarted> testCaseStartedById = new ConcurrentHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
-    private final Map<String, List<TestStepFinished>> testStepsStartedByTestCaseStartedId = new ConcurrentHashMap<>();
+    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, Pickle> pickleById = new ConcurrentHashMap<>();
     private final Map<String, TestCase> testCaseById = new ConcurrentHashMap<>();
     private final Map<String, Step> stepById = new ConcurrentHashMap<>();
@@ -336,9 +336,9 @@ public final class Query {
         return ofNullable(testStepById.get(testStepFinished.getTestStepId()));
     }
 
-    public List<TestStepFinished> findTestStepsStartedBy(TestCaseStarted testCaseStarted) {
+    public List<TestStepStarted> findTestStepsStartedBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
-        List<TestStepFinished> testStepsFinished = testStepsStartedByTestCaseStartedId.
+        List<TestStepStarted> testStepsFinished = testStepsStartedByTestCaseStartedId.
                 getOrDefault(testCaseStarted.getId(), emptyList());
         // Concurrency
         return new ArrayList<>(testStepsFinished);
@@ -366,7 +366,7 @@ public final class Query {
         envelope.getTestRunFinished().ifPresent(this::updateTestRunFinished);
         envelope.getTestCaseStarted().ifPresent(this::updateTestCaseStarted);
         envelope.getTestCaseFinished().ifPresent(this::updateTestCaseFinished);
-        envelope.getTestStepFinished().ifPresent(this::updateTestStepStarted);
+        envelope.getTestStepStarted().ifPresent(this::updateTestStepStarted);
         envelope.getTestStepFinished().ifPresent(this::updateTestStepFinished);
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         envelope.getPickle().ifPresent(this::updatePickle);
@@ -457,7 +457,7 @@ public final class Query {
                 });
     }
 
-    private void updateTestStepStarted(TestStepFinished event) {
+    private void updateTestStepStarted(TestStepStarted event) {
         this.testStepsStartedByTestCaseStartedId.compute(event.getTestCaseStartedId(), updateList(event));
     }
     private void updateTestStepFinished(TestStepFinished event) {
