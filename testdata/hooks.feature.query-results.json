@@ -1,331 +1,196 @@
 {
   "countMostSevereTestStepResultStatus" : {
     "UNKNOWN" : 0,
-    "PASSED" : 2,
+    "PASSED" : 1,
     "SKIPPED" : 0,
     "PENDING" : 0,
     "UNDEFINED" : 1,
     "AMBIGUOUS" : 0,
-    "FAILED" : 2
+    "FAILED" : 1
   },
-  "countTestCasesStarted" : 5,
-  "findAllPickles" : 5,
-  "findAllPickleSteps" : 5,
-  "findAllTestCaseStarted" : 5,
-  "findAllTestSteps" : 22,
+  "countTestCasesStarted" : 3,
+  "findAllPickles" : 3,
+  "findAllPickleSteps" : 3,
+  "findAllTestCaseStarted" : 3,
+  "findAllTestSteps" : 9,
   "findAllTestCaseStartedGroupedByFeature" : [
     [
       "Hooks",
       [
-        "57",
-        "58",
-        "59",
-        "60",
-        "61"
+        "29",
+        "30",
+        "31"
       ]
     ]
   ],
-  "findAttachmentsBy" : [
-    [
-      "54",
-      "61",
-      "image/svg+xml",
-      "BASE64"
-    ]
-  ],
   "findFeatureBy" : [
-    "Hooks",
-    "Hooks",
     "Hooks",
     "Hooks",
     "Hooks"
   ],
   "findHookBy" : [
     "0",
-    "1",
-    "4",
+    "3",
     "0",
-    "1",
-    "4",
+    "3",
     "0",
-    "1",
-    "4",
-    "0",
-    "1",
-    "5",
-    "4",
-    "0",
-    "1",
-    "6",
-    "4"
+    "3"
   ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
     "FAILED",
-    "UNDEFINED",
-    "FAILED",
-    "PASSED"
+    "UNDEFINED"
   ],
   "findNameOf" : {
     "long" : [
       "Hooks - No tags and a passed step",
       "Hooks - No tags and a failed step",
-      "Hooks - No tags and a undefined step",
-      "Hooks - With a tag, a failure in the hook and a passed step",
-      "Hooks - With an tag, an valid attachment in the hook and a passed step"
+      "Hooks - No tags and a undefined step"
     ],
     "excludeFeatureName" : [
       "No tags and a passed step",
       "No tags and a failed step",
-      "No tags and a undefined step",
-      "With a tag, a failure in the hook and a passed step",
-      "With an tag, an valid attachment in the hook and a passed step"
+      "No tags and a undefined step"
     ],
     "longPickleName" : [
       "Hooks - No tags and a passed step",
       "Hooks - No tags and a failed step",
-      "Hooks - No tags and a undefined step",
-      "Hooks - With a tag, a failure in the hook and a passed step",
-      "Hooks - With an tag, an valid attachment in the hook and a passed step"
+      "Hooks - No tags and a undefined step"
     ],
     "short" : [
       "No tags and a passed step",
       "No tags and a failed step",
-      "No tags and a undefined step",
-      "With a tag, a failure in the hook and a passed step",
-      "With an tag, an valid attachment in the hook and a passed step"
+      "No tags and a undefined step"
     ],
     "shortPickleName" : [
       "No tags and a passed step",
       "No tags and a failed step",
-      "No tags and a undefined step",
-      "With a tag, a failure in the hook and a passed step",
-      "With an tag, an valid attachment in the hook and a passed step"
+      "No tags and a undefined step"
     ]
   },
   "findPickleBy" : [
     "No tags and a passed step",
     "No tags and a failed step",
-    "No tags and a undefined step",
-    "With a tag, a failure in the hook and a passed step",
-    "With an tag, an valid attachment in the hook and a passed step"
+    "No tags and a undefined step"
   ],
   "findPickleStepBy" : [
     "a step passes",
     "a step fails",
-    "a step does not exist",
-    "a step passes",
-    "a step passes"
+    "a step does not exist"
   ],
   "findStepBy" : [
     "a step passes",
     "a step fails",
-    "a step does not exist",
-    "a step passes",
-    "a step passes"
+    "a step does not exist"
   ],
   "findTestCaseBy" : [
-    "34",
-    "39",
-    "44",
-    "50",
-    "56"
+    "20",
+    "24",
+    "28"
   ],
   "findTestCaseDurationBy" : [
     {
       "seconds" : 0,
-      "nanos" : 9000000
+      "nanos" : 7000000
     },
     {
       "seconds" : 0,
-      "nanos" : 9000000
+      "nanos" : 7000000
     },
     {
       "seconds" : 0,
-      "nanos" : 9000000
-    },
-    {
-      "seconds" : 0,
-      "nanos" : 11000000
-    },
-    {
-      "seconds" : 0,
-      "nanos" : 11000000
+      "nanos" : 7000000
     }
   ],
   "findTestCaseFinishedBy" : [
-    "57",
-    "58",
-    "59",
-    "60",
-    "61"
+    "29",
+    "30",
+    "31"
   ],
   "findTestRunDuration" : {
     "seconds" : 0,
-    "nanos" : 55000000
+    "nanos" : 25000000
   },
   "findTestRunFinished" : {
     "success" : false,
     "timestamp" : {
       "seconds" : 0,
-      "nanos" : 55000000
+      "nanos" : 25000000
     },
-    "testRunStartedId" : "29"
+    "testRunStartedId" : "16"
   },
   "findTestRunStarted" : {
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 0
     },
-    "id" : "29"
+    "id" : "16"
   },
   "findTestStepBy" : [
-    "30",
-    "31",
-    "32",
-    "33",
-    "35",
-    "36",
-    "37",
-    "38",
-    "40",
-    "41",
-    "42",
-    "43",
-    "45",
-    "46",
-    "47",
-    "48",
-    "49",
-    "51",
-    "52",
-    "53",
-    "54",
-    "55"
+    "17",
+    "18",
+    "19",
+    "21",
+    "22",
+    "23",
+    "25",
+    "26",
+    "27"
   ],
   "findTestStepsFinishedBy" : [
     [
-      "30",
-      "31",
-      "32",
-      "33"
+      "17",
+      "18",
+      "19"
     ],
     [
-      "35",
-      "36",
-      "37",
-      "38"
+      "21",
+      "22",
+      "23"
     ],
     [
-      "40",
-      "41",
-      "42",
-      "43"
-    ],
-    [
-      "45",
-      "46",
-      "47",
-      "48",
-      "49"
-    ],
-    [
-      "51",
-      "52",
-      "53",
-      "54",
-      "55"
+      "25",
+      "26",
+      "27"
     ]
   ],
   "findTestStepFinishedAndTestStepBy" : [
     [
-      "30",
-      "30"
+      "17",
+      "17"
     ],
     [
-      "31",
-      "31"
+      "18",
+      "18"
     ],
     [
-      "32",
-      "32"
+      "19",
+      "19"
     ],
     [
-      "33",
-      "33"
+      "21",
+      "21"
     ],
     [
-      "35",
-      "35"
+      "22",
+      "22"
     ],
     [
-      "36",
-      "36"
+      "23",
+      "23"
     ],
     [
-      "37",
-      "37"
+      "25",
+      "25"
     ],
     [
-      "38",
-      "38"
+      "26",
+      "26"
     ],
     [
-      "40",
-      "40"
-    ],
-    [
-      "41",
-      "41"
-    ],
-    [
-      "42",
-      "42"
-    ],
-    [
-      "43",
-      "43"
-    ],
-    [
-      "45",
-      "45"
-    ],
-    [
-      "46",
-      "46"
-    ],
-    [
-      "47",
-      "47"
-    ],
-    [
-      "48",
-      "48"
-    ],
-    [
-      "49",
-      "49"
-    ],
-    [
-      "51",
-      "51"
-    ],
-    [
-      "52",
-      "52"
-    ],
-    [
-      "53",
-      "53"
-    ],
-    [
-      "54",
-      "54"
-    ],
-    [
-      "55",
-      "55"
+      "27",
+      "27"
     ]
   ]
 }

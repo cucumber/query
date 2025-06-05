@@ -1,107 +1,91 @@
 {
   "countMostSevereTestStepResultStatus" : {
     "UNKNOWN" : 0,
-    "PASSED" : 11,
+    "PASSED" : 9,
     "SKIPPED" : 0,
     "PENDING" : 0,
     "UNDEFINED" : 0,
     "AMBIGUOUS" : 0,
     "FAILED" : 0
   },
-  "countTestCasesStarted" : 11,
-  "findAllPickles" : 11,
-  "findAllPickleSteps" : 11,
-  "findAllTestCaseStarted" : 11,
-  "findAllTestSteps" : 11,
+  "countTestCasesStarted" : 9,
+  "findAllPickles" : 9,
+  "findAllPickleSteps" : 9,
+  "findAllTestCaseStarted" : 9,
+  "findAllTestSteps" : 9,
   "findAllTestCaseStartedGroupedByFeature" : [
     [
       "Attachments",
       [
-        "78",
-        "79",
-        "80",
-        "81",
-        "82",
-        "83",
-        "84",
-        "85",
-        "86",
-        "87",
-        "88"
+        "64",
+        "65",
+        "66",
+        "67",
+        "68",
+        "69",
+        "70",
+        "71",
+        "72"
       ]
     ]
   ],
   "findAttachmentsBy" : [
     [
-      "56",
-      "78",
+      "46",
+      "64",
       "application/octet-stream",
       "IDENTITY"
     ],
     [
-      "58",
-      "79",
+      "48",
+      "65",
       "text/x.cucumber.log+plain",
       "IDENTITY"
     ],
     [
-      "60",
-      "80",
+      "50",
+      "66",
       "text/x.cucumber.log+plain",
       "IDENTITY"
     ],
     [
-      "62",
-      "81",
+      "52",
+      "67",
       "application/json",
       "IDENTITY"
     ],
     [
-      "64",
-      "82",
+      "54",
+      "68",
       "text/plain",
       "BASE64"
     ],
     [
-      "66",
-      "83",
+      "56",
+      "69",
       "image/jpeg",
       "BASE64"
     ],
     [
-      "68",
-      "84",
-      "image/png",
-      "BASE64"
-    ],
-    [
+      "58",
       "70",
-      "85",
-      "image/jpeg",
-      "BASE64"
-    ],
-    [
-      "72",
-      "86",
       "image/png",
       "BASE64"
     ],
     [
-      "74",
-      "87",
+      "60",
+      "71",
       "application/pdf",
       "BASE64"
     ],
     [
-      "76",
-      "88",
+      "62",
+      "72",
       "text/uri-list",
       "IDENTITY"
     ]
   ],
   "findFeatureBy" : [
-    "Attachments",
-    "Attachments",
     "Attachments",
     "Attachments",
     "Attachments",
@@ -122,8 +106,6 @@
     "PASSED",
     "PASSED",
     "PASSED",
-    "PASSED",
-    "PASSED",
     "PASSED"
   ],
   "findNameOf" : {
@@ -135,8 +117,6 @@
       "Attachments - Byte arrays are base64-encoded regardless of media type",
       "Attachments - Attaching JPEG images",
       "Attachments - Attaching PNG images",
-      "Attachments - Attaching images in an examples table - #1.1",
-      "Attachments - Attaching images in an examples table - #1.2",
       "Attachments - Attaching PDFs with a different filename",
       "Attachments - Attaching URIs"
     ],
@@ -148,8 +128,6 @@
       "Byte arrays are base64-encoded regardless of media type",
       "Attaching JPEG images",
       "Attaching PNG images",
-      "Attaching images in an examples table - #1.1",
-      "Attaching images in an examples table - #1.2",
       "Attaching PDFs with a different filename",
       "Attaching URIs"
     ],
@@ -161,8 +139,6 @@
       "Attachments - Byte arrays are base64-encoded regardless of media type",
       "Attachments - Attaching JPEG images",
       "Attachments - Attaching PNG images",
-      "Attachments - Attaching images in an examples table - Attaching images in an examples table",
-      "Attachments - Attaching images in an examples table - Attaching images in an examples table",
       "Attachments - Attaching PDFs with a different filename",
       "Attachments - Attaching URIs"
     ],
@@ -174,8 +150,6 @@
       "Byte arrays are base64-encoded regardless of media type",
       "Attaching JPEG images",
       "Attaching PNG images",
-      "#1.1",
-      "#1.2",
       "Attaching PDFs with a different filename",
       "Attaching URIs"
     ],
@@ -187,8 +161,6 @@
       "Byte arrays are base64-encoded regardless of media type",
       "Attaching JPEG images",
       "Attaching PNG images",
-      "Attaching images in an examples table",
-      "Attaching images in an examples table",
       "Attaching PDFs with a different filename",
       "Attaching URIs"
     ]
@@ -201,8 +173,6 @@
     "Byte arrays are base64-encoded regardless of media type",
     "Attaching JPEG images",
     "Attaching PNG images",
-    "Attaching images in an examples table",
-    "Attaching images in an examples table",
     "Attaching PDFs with a different filename",
     "Attaching URIs"
   ],
@@ -212,8 +182,6 @@
     "text with ANSI escapes is logged",
     "the following string is attached as \"application/json\":",
     "an array with 10 bytes is attached as \"text/plain\"",
-    "a JPEG image is attached",
-    "a PNG image is attached",
     "a JPEG image is attached",
     "a PNG image is attached",
     "a PDF document is attached and renamed",
@@ -227,33 +195,21 @@
     "an array with 10 bytes is attached as \"text/plain\"",
     "a JPEG image is attached",
     "a PNG image is attached",
-    "a <type> image is attached",
-    "a <type> image is attached",
     "a PDF document is attached and renamed",
     "a link to \"https://cucumber.io\" is attached"
   ],
   "findTestCaseBy" : [
+    "47",
+    "49",
+    "51",
+    "53",
+    "55",
     "57",
     "59",
     "61",
-    "63",
-    "65",
-    "67",
-    "69",
-    "71",
-    "73",
-    "75",
-    "77"
+    "63"
   ],
   "findTestCaseDurationBy" : [
-    {
-      "seconds" : 0,
-      "nanos" : 3000000
-    },
-    {
-      "seconds" : 0,
-      "nanos" : 3000000
-    },
     {
       "seconds" : 0,
       "nanos" : 3000000
@@ -292,51 +248,62 @@
     }
   ],
   "findTestCaseFinishedBy" : [
-    "78",
-    "79",
-    "80",
-    "81",
-    "82",
-    "83",
-    "84",
-    "85",
-    "86",
-    "87",
-    "88"
+    "64",
+    "65",
+    "66",
+    "67",
+    "68",
+    "69",
+    "70",
+    "71",
+    "72"
   ],
   "findTestRunDuration" : {
     "seconds" : 0,
-    "nanos" : 45000000
+    "nanos" : 37000000
   },
   "findTestRunFinished" : {
     "success" : true,
     "timestamp" : {
       "seconds" : 0,
-      "nanos" : 45000000
+      "nanos" : 37000000
     },
-    "testRunStartedId" : "55"
+    "testRunStartedId" : "45"
   },
   "findTestRunStarted" : {
     "timestamp" : {
       "seconds" : 0,
       "nanos" : 0
     },
-    "id" : "55"
+    "id" : "45"
   },
   "findTestStepBy" : [
+    "46",
+    "48",
+    "50",
+    "52",
+    "54",
     "56",
     "58",
     "60",
-    "62",
-    "64",
-    "66",
-    "68",
-    "70",
-    "72",
-    "74",
-    "76"
+    "62"
   ],
   "findTestStepsFinishedBy" : [
+    [
+      "46"
+    ],
+    [
+      "48"
+    ],
+    [
+      "50"
+    ],
+    [
+      "52"
+    ],
+    [
+      "54"
+    ],
     [
       "56"
     ],
@@ -348,30 +315,29 @@
     ],
     [
       "62"
-    ],
-    [
-      "64"
-    ],
-    [
-      "66"
-    ],
-    [
-      "68"
-    ],
-    [
-      "70"
-    ],
-    [
-      "72"
-    ],
-    [
-      "74"
-    ],
-    [
-      "76"
     ]
   ],
   "findTestStepFinishedAndTestStepBy" : [
+    [
+      "46",
+      "46"
+    ],
+    [
+      "48",
+      "48"
+    ],
+    [
+      "50",
+      "50"
+    ],
+    [
+      "52",
+      "52"
+    ],
+    [
+      "54",
+      "54"
+    ],
     [
       "56",
       "56"
@@ -387,34 +353,6 @@
     [
       "62",
       "62"
-    ],
-    [
-      "64",
-      "64"
-    ],
-    [
-      "66",
-      "66"
-    ],
-    [
-      "68",
-      "68"
-    ],
-    [
-      "70",
-      "70"
-    ],
-    [
-      "72",
-      "72"
-    ],
-    [
-      "74",
-      "74"
-    ],
-    [
-      "76",
-      "76"
     ]
   ]
 }
