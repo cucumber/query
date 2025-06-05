@@ -315,7 +315,18 @@
     },
     "id" : "45"
   },
-  "findTestStepBy" : [
+  "findTestStepByTestStepStarted" : [
+    "46",
+    "48",
+    "50",
+    "52",
+    "54",
+    "56",
+    "58",
+    "60",
+    "62"
+  ],
+  "findTestStepByTestStepFinished" : [
     "46",
     "48",
     "50",
