@@ -36,7 +36,6 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static io.cucumber.query.LineageReducer.ascending;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
@@ -109,31 +108,12 @@ public final class Query {
 
     public List<TestCaseStarted> findAllTestCaseStarted() {
         return this.testCaseStartedById.values().stream()
-                .sorted(comparing(TestCaseStarted::getTimestamp, timestampComparator))
+                .sorted(comparing(TestCaseStarted::getTimestamp, new TimestampComparator()))
                 .filter(element -> !findTestCaseFinishedBy(element)
                         .filter(TestCaseFinished::getWillBeRetried)
                         .isPresent())
                 .collect(toList());
     }
-    
-    // TODO: Move to Messages, make comparable?
-    private final Comparator<Timestamp> timestampComparator = (a, b) -> {
-        long x = a.getSeconds();
-        long y = b.getSeconds();
-        int cmp;
-        if (x < y) 
-            return -1;
-        if(y > x) 
-            return 1;
-
-        long x1 = a.getNanos();
-        long y1 = b.getNanos();
-        if (x1 < y1)
-            return -1;
-        if(y1 > x1)
-            return 1;
-        return 0;
-    };
 
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
