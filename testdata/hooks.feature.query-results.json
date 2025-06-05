@@ -38,23 +38,15 @@
   ],
   "findLocationBy" : [
     {
-      "line" : 6,
+      "line" : 4,
       "column" : 3
     },
     {
-      "line" : 9,
+      "line" : 7,
       "column" : 3
     },
     {
-      "line" : 12,
-      "column" : 3
-    },
-    {
-      "line" : 16,
-      "column" : 3
-    },
-    {
-      "line" : 20,
+      "line" : 10,
       "column" : 3
     }
   ],
