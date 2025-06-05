@@ -109,7 +109,9 @@ public final class Query {
 
     public List<TestCaseStarted> findAllTestCaseStarted() {
         return this.testCaseStartedById.values().stream()
-                .sorted(comparing(TestCaseStarted::getTimestamp, new TimestampComparator()))
+                .sorted(comparing(TestCaseStarted::getTimestamp, new TimestampComparator())
+                        // tie-breaker for stability
+                        .thenComparing(TestCaseStarted::getId))
                 .filter(element -> !findTestCaseFinishedBy(element)
                         .filter(TestCaseFinished::getWillBeRetried)
                         .isPresent())
@@ -240,12 +242,12 @@ public final class Query {
     }
 
     public Optional<Location> findLocationOf(Pickle pickle) {
-       return findLineageBy(pickle).flatMap(lineage -> {
-           if (lineage.example().isPresent()) {
-               return lineage.example().map(TableRow::getLocation);
-           }
-           return lineage.scenario().map(Scenario::getLocation);
-       });
+        return findLineageBy(pickle).flatMap(lineage -> {
+            if (lineage.example().isPresent()) {
+                return lineage.example().map(TableRow::getLocation);
+            }
+            return lineage.scenario().map(Scenario::getLocation);
+        });
     }
 
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
@@ -330,7 +332,7 @@ public final class Query {
         requireNonNull(testStepStarted);
         return ofNullable(testStepById.get(testStepStarted.getTestStepId()));
     }
-    
+
     public Optional<TestStep> findTestStepBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
         return ofNullable(testStepById.get(testStepFinished.getTestStepId()));
@@ -338,10 +340,10 @@ public final class Query {
 
     public List<TestStepStarted> findTestStepsStartedBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
-        List<TestStepStarted> testStepsFinished = testStepsStartedByTestCaseStartedId.
+        List<TestStepStarted> testStepsStarted = testStepsStartedByTestCaseStartedId.
                 getOrDefault(testCaseStarted.getId(), emptyList());
         // Concurrency
-        return new ArrayList<>(testStepsFinished);
+        return new ArrayList<>(testStepsStarted);
     }
 
     public List<TestStepFinished> findTestStepsFinishedBy(TestCaseStarted testCaseStarted) {
@@ -460,6 +462,7 @@ public final class Query {
     private void updateTestStepStarted(TestStepStarted event) {
         this.testStepsStartedByTestCaseStartedId.compute(event.getTestCaseStartedId(), updateList(event));
     }
+
     private void updateTestStepFinished(TestStepFinished event) {
         this.testStepsFinishedByTestCaseStartedId.compute(event.getTestCaseStartedId(), updateList(event));
     }

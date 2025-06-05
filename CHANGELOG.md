@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- [Java] Make `Lineage` API public and add `Query.findLineageBy` methods 
+- [Java] Make `Lineage` API and `Query.findLineageBy` public 
+- [Java] Add `Query.findPickleBy(TestStepStarted)`, `.findTestCaseBy(TestStepStarted)`, `.findTestCaseStartedBy(TestStepStarted)`, `.findTestStepBy(TestStepStarted)`, `.findTestStepsStartedBy(TestCaseStarted)` methods 
+
+### Fixed
+- [Java] `Query.findAllTestCaseStarted` orders events by `timestamp` and `id`.
 
 ## [13.2.0] - 2025-02-02
 ### Changed
