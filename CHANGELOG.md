@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Make `Lineage` APIs public ([#76](https://github.com/cucumber/query/pull/76))
+- Made `Lineage` APIs public ([#76](https://github.com/cucumber/query/pull/76))
 - New method `findPickleBy(TestStepStarted)`  ([#76](https://github.com/cucumber/query/pull/76))
 - New method `findTestCaseBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
 - New method `findTestCaseStartedBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
