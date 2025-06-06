@@ -33,8 +33,8 @@ primary and foreign keys.
 
 Consumers of these messages may want to *query* the messages for certain information.
 For example, [cucumber-react](https://github.com/cucumber/cucumber-react) needs to know the status of
-a [Step](../cucumber-messages/messages.md#io.cucumber.messages.GherkinDocument.Feature.Step) as it
-is rendering the [GherkinDocument](../cucumber-messages/messages.md#io.cucumber.messages.GherkinDocument)
+a [Step](https://github.com/cucumber/messages/blob/main/messages.md#step) as it
+is rendering the [GherkinDocument](https://github.com/cucumber/messages/blob/main/messages.md#gherkindocument)
 
 The Query library makes this easy by providing a function to look up the
 status of a step, a scenario or an entire file.
