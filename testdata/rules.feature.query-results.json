@@ -28,7 +28,7 @@
     "Usage of a `Rule`",
     "Usage of a `Rule`"
   ],
-  "findLocationBy" : [
+  "findLocationOf" : [
     {
       "line" : 9,
       "column" : 5

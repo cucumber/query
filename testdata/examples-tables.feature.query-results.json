@@ -40,7 +40,7 @@
     "Examples Tables",
     "Examples Tables"
   ],
-  "findLocationBy" : [
+  "findLocationOf" : [
     {
       "line" : 19,
       "column" : 7

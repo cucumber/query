@@ -137,7 +137,7 @@ public class QueryAcceptanceTest {
                 .map(hook -> hook.map(Hook::getId))
                 .filter(Optional::isPresent)
                 .collect(toList()));
-        results.put("findLocationBy", query.findAllPickles().stream()
+        results.put("findLocationOf", query.findAllPickles().stream()
                 .map(query::findLocationOf)
                 .filter(Optional::isPresent)
                 .collect(toList()));

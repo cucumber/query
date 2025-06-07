@@ -96,7 +96,7 @@
     "Attachments",
     "Attachments"
   ],
-  "findLocationBy" : [
+  "findLocationOf" : [
     {
       "line" : 12,
       "column" : 3

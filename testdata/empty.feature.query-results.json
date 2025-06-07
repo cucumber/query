@@ -24,7 +24,7 @@
   "findFeatureBy" : [
     "Empty Scenarios"
   ],
-  "findLocationBy" : [
+  "findLocationOf" : [
     {
       "line" : 7,
       "column" : 3
