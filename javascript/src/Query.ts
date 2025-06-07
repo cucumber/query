@@ -26,8 +26,9 @@ import {
   TimeConversion,
 } from '@cucumber/messages'
 import { ArrayMultimap } from '@teppeis/multimaps'
+import sortBy from 'lodash.sortby'
 
-import { assert, comparatorBy, comparatorById, comparatorByStatus } from './helpers'
+import { assert, statusOrdinal } from './helpers'
 import { Lineage, NamingStrategy } from './Lineage'
 
 export default class Query {
@@ -54,7 +55,6 @@ export default class Query {
   private meta: Meta
   private testRunStarted: TestRunStarted
   private testRunFinished: TestRunFinished
-  private readonly testCaseStarted: Array<TestCaseStarted> = []
   private readonly testCaseStartedById: Map<string, TestCaseStarted> = new Map()
   private readonly lineageById: Map<string, Lineage> = new Map()
   private readonly stepById: Map<string, Step> = new Map()
@@ -203,7 +203,6 @@ export default class Query {
   }
 
   private updateTestCaseStarted(testCaseStarted: TestCaseStarted) {
-    this.testCaseStarted.push(testCaseStarted)
     this.testCaseStartedById.set(testCaseStarted.id, testCaseStarted)
 
     /*
@@ -404,10 +403,12 @@ export default class Query {
       [TestStepResultStatus.UNKNOWN]: 0,
     }
     for (const testCaseStarted of this.findAllTestCaseStarted()) {
-      const mostSevereResult = this.findTestStepFinishedAndTestStepBy(testCaseStarted)
-        .map(([testStepFinished]) => testStepFinished.testStepResult)
-        .sort(comparatorByStatus)
-        .at(-1)
+      const mostSevereResult = sortBy(
+        this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
+          ([testStepFinished]) => testStepFinished.testStepResult
+        ),
+        [(testStepResult) => statusOrdinal(testStepResult.status)]
+      ).at(-1)
       if (mostSevereResult) {
         result[mostSevereResult.status]++
       }
@@ -421,20 +422,27 @@ export default class Query {
 
   public findAllPickles(): ReadonlyArray<Pickle> {
     const pickles = [...this.pickleById.values()]
-    return pickles.sort(comparatorById)
+    return sortBy(pickles, 'id')
   }
 
   public findAllPickleSteps(): ReadonlyArray<PickleStep> {
     const pickleSteps = [...this.pickleStepById.values()]
-    return pickleSteps.sort(comparatorById)
+    return sortBy(pickleSteps, 'id')
   }
 
   public findAllTestCaseStarted(): ReadonlyArray<TestCaseStarted> {
-    return this.testCaseStarted.filter((testCaseStarted) => {
-      const testCaseFinished = this.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.id)
-      // only include if not yet finished OR won't be retried
-      return !testCaseFinished?.willBeRetried
-    })
+    return sortBy(
+      [...this.testCaseStartedById.values()].filter((testCaseStarted) => {
+        const testCaseFinished = this.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.id)
+        // only include if not yet finished OR won't be retried
+        return !testCaseFinished?.willBeRetried
+      }),
+      [
+        (testCaseStarted) =>
+          TimeConversion.timestampToMillisecondsSinceEpoch(testCaseStarted.timestamp),
+        'id',
+      ]
+    )
   }
 
   public findAllTestCaseStartedGroupedByFeature(): Map<
@@ -442,18 +450,20 @@ export default class Query {
     ReadonlyArray<TestCaseStarted>
   > {
     const results = new Map()
-    this.findAllTestCaseStarted()
-      .map((testCaseStarted) => [this.findLineageBy(testCaseStarted), testCaseStarted] as const)
-      .sort(([a], [b]) => comparatorBy(a.gherkinDocument, b.gherkinDocument, 'uri'))
-      .forEach(([{ feature }, testCaseStarted]) => {
-        results.set(feature, [...(results.get(feature) ?? []), testCaseStarted])
-      })
+    sortBy(
+      this.findAllTestCaseStarted().map(
+        (testCaseStarted) => [this.findLineageBy(testCaseStarted), testCaseStarted] as const
+      ),
+      [([lineage]) => lineage.gherkinDocument.uri]
+    ).forEach(([{ feature }, testCaseStarted]) => {
+      results.set(feature, [...(results.get(feature) ?? []), testCaseStarted])
+    })
     return results
   }
 
   public findAllTestSteps(): ReadonlyArray<TestStep> {
     const testSteps = [...this.testStepById.values()]
-    return testSteps.sort(comparatorById)
+    return sortBy(testSteps, 'id')
   }
 
   public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
@@ -480,10 +490,12 @@ export default class Query {
   public findMostSevereTestStepResultBy(
     testCaseStarted: TestCaseStarted
   ): TestStepResult | undefined {
-    return this.findTestStepFinishedAndTestStepBy(testCaseStarted)
-      .map(([testStepFinished]) => testStepFinished.testStepResult)
-      .sort(comparatorByStatus)
-      .at(-1)
+    return sortBy(
+      this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
+        ([testStepFinished]) => testStepFinished.testStepResult
+      ),
+      [(testStepResult) => statusOrdinal(testStepResult.status)]
+    ).at(-1)
   }
 
   public findNameOf(pickle: Pickle, namingStrategy: NamingStrategy): string {

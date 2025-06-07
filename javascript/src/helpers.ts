@@ -1,35 +1,6 @@
-import { TestStepResult, TestStepResultStatus } from '@cucumber/messages'
+import { TestStepResultStatus } from '@cucumber/messages'
 
-interface WithId {
-  id: string | number
-}
-
-export function comparatorById(a: WithId, b: WithId) {
-  return comparatorBy(a, b, 'id')
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function comparatorBy(a: any, b: any, key: string) {
-  if (a[key] < b[key]) {
-    return -1
-  }
-  if (a[key] > b[key]) {
-    return 1
-  }
-  return 0
-}
-
-export function comparatorByStatus(a: TestStepResult, b: TestStepResult) {
-  if (ordinal(a.status) < ordinal(b.status)) {
-    return -1
-  }
-  if (ordinal(a.status) > ordinal(b.status)) {
-    return 1
-  }
-  return 0
-}
-
-function ordinal(status: TestStepResultStatus) {
+export function statusOrdinal(status: TestStepResultStatus) {
   return [
     TestStepResultStatus.UNKNOWN,
     TestStepResultStatus.PASSED,
