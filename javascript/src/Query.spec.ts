@@ -12,6 +12,7 @@ import {
 import { GherkinStreams } from '@cucumber/gherkin-streams'
 import { Query as GherkinQuery } from '@cucumber/gherkin-utils'
 import * as messages from '@cucumber/messages'
+import { TestCaseStarted } from '@cucumber/messages'
 import { pipeline, Readable, Writable } from 'stream'
 import { promisify } from 'util'
 
@@ -25,6 +26,81 @@ describe('Query', () => {
   beforeEach(() => {
     gherkinQuery = new GherkinQuery()
     cucumberQuery = new Query()
+  })
+
+  describe('#findAllTestCaseStarted', () => {
+    it('retains timestamp order', () => {
+      const testCasesStarted: TestCaseStarted[] = [
+        {
+          id: '1',
+          testCaseId: '1',
+          attempt: 0,
+          timestamp: {
+            seconds: 1,
+            nanos: 1,
+          },
+        },
+        {
+          id: '2',
+          testCaseId: '2',
+          attempt: 0,
+          timestamp: {
+            seconds: 2,
+            nanos: 1,
+          },
+        },
+        {
+          id: '3',
+          testCaseId: '3',
+          attempt: 0,
+          timestamp: {
+            seconds: 2,
+            nanos: 3,
+          },
+        },
+      ]
+
+      testCasesStarted
+        .map((testCaseStarted) => ({ testCaseStarted }))
+        .reverse()
+        .forEach((envelope) => {
+          cucumberQuery.update(envelope)
+        })
+
+      assert.deepStrictEqual(cucumberQuery.findAllTestCaseStarted(), testCasesStarted)
+    })
+
+    it('uses id as tie breaker', () => {
+      const testCasesStarted: TestCaseStarted[] = [
+        {
+          id: '1',
+          testCaseId: '1',
+          attempt: 0,
+          timestamp: {
+            seconds: 1,
+            nanos: 1,
+          },
+        },
+        {
+          id: '2',
+          testCaseId: '2',
+          attempt: 0,
+          timestamp: {
+            seconds: 1,
+            nanos: 1,
+          },
+        },
+      ]
+
+      testCasesStarted
+        .map((testCaseStarted) => ({ testCaseStarted }))
+        .reverse()
+        .forEach((envelope) => {
+          cucumberQuery.update(envelope)
+        })
+
+      assert.deepStrictEqual(cucumberQuery.findAllTestCaseStarted(), testCasesStarted)
+    })
   })
 
   describe('#getPickleStepTestStepResults(pickleStepIds)', () => {

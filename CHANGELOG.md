@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Made `Lineage` APIs public ([#76](https://github.com/cucumber/query/pull/76))
+- New method `findPickleBy(TestStepStarted)`  ([#76](https://github.com/cucumber/query/pull/76))
+- New method `findTestCaseBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
+- New method `findTestCaseStartedBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
+- New method `findTestStepBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
+- New method `findTestStepsStartedBy(TestCaseStarted)` ([#76](https://github.com/cucumber/query/pull/76)) 
+
+### Fixed
+- `Query.findAllTestCaseStarted` orders events by `timestamp` and `id` ([#76](https://github.com/cucumber/query/pull/76))
 
 ## [13.2.0] - 2025-02-02
 ### Changed

@@ -143,6 +143,7 @@ describe('Acceptance Tests', async () => {
                 )
               ),
           },
+          findLocationOf: query.findAllPickles().map((pickle) => query.findLocationOf(pickle)),
           findPickleBy: query
             .findAllTestCaseStarted()
             .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
@@ -170,7 +171,12 @@ describe('Acceptance Tests', async () => {
           findTestRunDuration: query.findTestRunDuration(),
           findTestRunFinished: query.findTestRunFinished(),
           findTestRunStarted: query.findTestRunStarted(),
-          findTestStepBy: query
+          findTestStepByTestStepStarted: query
+            .findAllTestCaseStarted()
+            .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
+            .map((testStepStarted) => query.findTestStepBy(testStepStarted))
+            .map((testStep) => testStep?.id),
+          findTestStepByTestStepFinished: query
             .findAllTestCaseStarted()
             .flatMap((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
             .map((testStepFinished) => query.findTestStepBy(testStepFinished))
@@ -212,6 +218,7 @@ interface ResultsFixture {
     short: Array<string>
     shortPickleName: Array<string>
   }
+  findLocationOf: Array<Location>
   findHookBy: Array<string>
   findPickleBy: Array<string>
   findPickleStepBy: Array<string>
@@ -222,7 +229,8 @@ interface ResultsFixture {
   findTestRunDuration: Duration
   findTestRunFinished: TestRunFinished
   findTestRunStarted: TestRunStarted
-  findTestStepBy: Array<string>
+  findTestStepByTestStepStarted: Array<string>
+  findTestStepByTestStepFinished: Array<string>
   findTestStepsFinishedBy: Array<Array<string>>
   findTestStepFinishedAndTestStepBy: Array<[string, string]>
 }
@@ -246,7 +254,8 @@ const defaults: Partial<ResultsFixture> = {
   findTestCaseBy: [],
   findTestCaseDurationBy: [],
   findTestCaseFinishedBy: [],
-  findTestStepBy: [],
+  findTestStepByTestStepStarted: [],
+  findTestStepByTestStepFinished: [],
   findTestStepsFinishedBy: [],
   findTestStepFinishedAndTestStepBy: [],
 }

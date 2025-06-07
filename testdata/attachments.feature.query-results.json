@@ -96,6 +96,44 @@
     "Attachments",
     "Attachments"
   ],
+  "findLocationOf" : [
+    {
+      "line" : 12,
+      "column" : 3
+    },
+    {
+      "line" : 18,
+      "column" : 3
+    },
+    {
+      "line" : 21,
+      "column" : 3
+    },
+    {
+      "line" : 24,
+      "column" : 3
+    },
+    {
+      "line" : 30,
+      "column" : 3
+    },
+    {
+      "line" : 33,
+      "column" : 3
+    },
+    {
+      "line" : 36,
+      "column" : 3
+    },
+    {
+      "line" : 39,
+      "column" : 3
+    },
+    {
+      "line" : 42,
+      "column" : 3
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
@@ -277,7 +315,18 @@
     },
     "id" : "45"
   },
-  "findTestStepBy" : [
+  "findTestStepByTestStepStarted" : [
+    "46",
+    "48",
+    "50",
+    "52",
+    "54",
+    "56",
+    "58",
+    "60",
+    "62"
+  ],
+  "findTestStepByTestStepFinished" : [
     "46",
     "48",
     "50",

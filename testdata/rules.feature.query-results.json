@@ -28,6 +28,20 @@
     "Usage of a `Rule`",
     "Usage of a `Rule`"
   ],
+  "findLocationOf" : [
+    {
+      "line" : 9,
+      "column" : 5
+    },
+    {
+      "line" : 16,
+      "column" : 5
+    },
+    {
+      "line" : 25,
+      "column" : 5
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
@@ -137,7 +151,21 @@
     },
     "id" : "39"
   },
-  "findTestStepBy" : [
+  "findTestStepByTestStepStarted" : [
+    "40",
+    "41",
+    "42",
+    "43",
+    "45",
+    "46",
+    "47",
+    "48",
+    "50",
+    "51",
+    "52",
+    "53"
+  ],
+  "findTestStepByTestStepFinished" : [
     "40",
     "41",
     "42",

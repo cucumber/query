@@ -9,7 +9,6 @@ import io.cucumber.messages.types.TableRow;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -21,7 +20,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @see LineageReducer
  */
-class Lineage {
+public final class Lineage {
 
     private final GherkinDocument document;
     private final Feature feature;
@@ -67,40 +66,36 @@ class Lineage {
         this.exampleIndex = exampleIndex;
     }
 
-    GherkinDocument document() {
+    public GherkinDocument document() {
         return document;
     }
 
-    Optional<Feature> feature() {
+    public Optional<Feature> feature() {
         return Optional.ofNullable(feature);
     }
 
-    Optional<Rule> rule() {
+    public Optional<Rule> rule() {
         return Optional.ofNullable(rule);
     }
 
-    Optional<Scenario> scenario() {
+    public Optional<Scenario> scenario() {
         return Optional.ofNullable(scenario);
     }
 
-    Optional<Examples> examples() {
+    public Optional<Examples> examples() {
         return Optional.ofNullable(examples);
     }
 
-    Optional<TableRow> example() {
+    public Optional<TableRow> example() {
         return Optional.ofNullable(example);
     }
 
-    Optional<Integer> examplesIndex() {
+    public Optional<Integer> examplesIndex() {
         return Optional.ofNullable(examplesIndex);
     }
 
-    Optional<Integer> exampleIndex() {
+    public Optional<Integer> exampleIndex() {
         return Optional.ofNullable(exampleIndex);
-    }
-
-    <T> LineageReducer reduce(Supplier<LineageCollector<T>> collector) {
-        return new LineageReducerDescending(collector);
     }
 
     @Override

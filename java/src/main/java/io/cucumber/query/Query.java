@@ -7,6 +7,7 @@ import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Location;
 import io.cucumber.messages.types.Meta;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
@@ -23,6 +24,7 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepResultStatus;
+import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.Timestamp;
 
 import java.time.Duration;
@@ -30,13 +32,13 @@ import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsFirst;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
@@ -62,9 +64,10 @@ public final class Query {
     private static final Map<TestStepResultStatus, Long> ZEROES_BY_TEST_STEP_RESULT_STATUSES = Arrays.stream(TestStepResultStatus.values())
             .collect(Collectors.toMap(identity(), (s) -> 0L));
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
-    private final Deque<TestCaseStarted> testCaseStarted = new ConcurrentLinkedDeque<>();
+    private final Map<String, TestCaseStarted> testCaseStartedById = new ConcurrentHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
+    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, Pickle> pickleById = new ConcurrentHashMap<>();
     private final Map<String, TestCase> testCaseById = new ConcurrentHashMap<>();
     private final Map<String, Step> stepById = new ConcurrentHashMap<>();
@@ -105,8 +108,11 @@ public final class Query {
     }
 
     public List<TestCaseStarted> findAllTestCaseStarted() {
-        return this.testCaseStarted.stream()
-                .filter(testCaseStarted1 -> !findTestCaseFinishedBy(testCaseStarted1)
+        return this.testCaseStartedById.values().stream()
+                .sorted(comparing(TestCaseStarted::getTimestamp, new TimestampComparator())
+                        // tie-breaker for stability
+                        .thenComparing(TestCaseStarted::getId))
+                .filter(element -> !findTestCaseFinishedBy(element)
                         .filter(TestCaseFinished::getWillBeRetried)
                         .isPresent())
                 .collect(toList());
@@ -115,14 +121,17 @@ public final class Query {
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
-                .map(testCaseStarted1 -> {
-                    Optional<Lineage> astNodes = findLineageBy(testCaseStarted1);
-                    return new SimpleEntry<>(astNodes, testCaseStarted1);
+                .map(testCaseStarted -> {
+                    Optional<Lineage> astNodes = findLineageBy(testCaseStarted);
+                    return new SimpleEntry<>(astNodes, testCaseStarted);
                 })
                 // Sort entries by gherkin document URI for consistent ordering
-                .sorted(nullsFirst(comparing(entry1 -> entry1.getKey()
-                        .flatMap(nodes -> nodes.document().getUri())
-                        .orElse(null))))
+                .sorted(comparing(
+                        entry -> entry.getKey()
+                                .flatMap(nodes -> nodes.document().getUri())
+                                .orElse(null),
+                        nullsFirst(naturalOrder())
+                ))
                 .map(entry -> {
                     // Unpack the now sorted entries
                     Optional<Feature> feature = entry.getKey().flatMap(Lineage::feature);
@@ -175,49 +184,56 @@ public final class Query {
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
-        return reduceLinageOf(element, namingStrategy)
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
     public String findNameOf(Feature element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
-        return reduceLinageOf(element, namingStrategy)
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
     public String findNameOf(Rule element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
-        return reduceLinageOf(element, namingStrategy)
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
     public String findNameOf(Scenario element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
-        return reduceLinageOf(element, namingStrategy)
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
     public String findNameOf(Examples element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
-        return reduceLinageOf(element, namingStrategy)
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
     public String findNameOf(TableRow element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
-        return reduceLinageOf(element, namingStrategy)
+        return findLineageBy(element)
+                .map(namingStrategy::reduce)
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
     public String findNameOf(Pickle element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
-        return reduceLinageOf(element, namingStrategy)
+        return findLineageBy(element)
+                .map(lineage -> namingStrategy.reduce(lineage, element))
                 .orElseGet(element::getName);
     }
 
@@ -225,58 +241,25 @@ public final class Query {
         return () -> new IllegalArgumentException("Element was not part of this query object");
     }
 
-    <T> Optional<T> reduceLinageOf(GherkinDocument element, LineageReducer<T> reducer) {
-        requireNonNull(element);
-        requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(reducer::reduce);
-    }
-
-    <T> Optional<T> reduceLinageOf(Feature element, LineageReducer<T> reducer) {
-        requireNonNull(element);
-        requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(reducer::reduce);
-    }
-
-    <T> Optional<T> reduceLinageOf(Rule element, LineageReducer<T> reducer) {
-        requireNonNull(element);
-        requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(reducer::reduce);
-    }
-
-    <T> Optional<T> reduceLinageOf(Scenario element, LineageReducer<T> reducer) {
-        requireNonNull(element);
-        requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(reducer::reduce);
-    }
-
-    <T> Optional<T> reduceLinageOf(Examples element, LineageReducer<T> reducer) {
-        requireNonNull(element);
-        requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(reducer::reduce);
-    }
-
-    <T> Optional<T> reduceLinageOf(TableRow element, LineageReducer<T> reducer) {
-        requireNonNull(element);
-        requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(reducer::reduce);
-    }
-
-    <T> Optional<T> reduceLinageOf(Pickle element, LineageReducer<T> reducer) {
-        requireNonNull(element);
-        requireNonNull(reducer);
-        return findLineageBy(element)
-                .map(lineage -> reducer.reduce(lineage, element));
+    public Optional<Location> findLocationOf(Pickle pickle) {
+        return findLineageBy(pickle).flatMap(lineage -> {
+            if (lineage.example().isPresent()) {
+                return lineage.example().map(TableRow::getLocation);
+            }
+            return lineage.scenario().map(Scenario::getLocation);
+        });
     }
 
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestCaseBy(testCaseStarted)
+                .map(TestCase::getPickleId)
+                .map(pickleById::get);
+    }
+
+    public Optional<Pickle> findPickleBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return findTestCaseBy(testStepStarted)
                 .map(TestCase::getPickleId)
                 .map(pickleById::get);
     }
@@ -298,6 +281,12 @@ public final class Query {
         return ofNullable(testCaseById.get(testCaseStarted.getTestCaseId()));
     }
 
+    public Optional<TestCase> findTestCaseBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return findTestCaseStartedBy(testStepStarted)
+                .flatMap(this::findTestCaseBy);
+    }
+
     public Optional<Duration> findTestCaseDurationBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         Timestamp started = testCaseStarted.getTimestamp();
@@ -307,6 +296,12 @@ public final class Query {
                         Convertor.toInstant(started),
                         Convertor.toInstant(finished)
                 ));
+    }
+
+    public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        String testCaseStartedId = testStepStarted.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
     }
 
     public Optional<TestCaseFinished> findTestCaseFinishedBy(TestCaseStarted testCaseStarted) {
@@ -333,9 +328,22 @@ public final class Query {
         return ofNullable(testRunStarted);
     }
 
+    public Optional<TestStep> findTestStepBy(TestStepStarted testStepStarted) {
+        requireNonNull(testStepStarted);
+        return ofNullable(testStepById.get(testStepStarted.getTestStepId()));
+    }
+
     public Optional<TestStep> findTestStepBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
         return ofNullable(testStepById.get(testStepFinished.getTestStepId()));
+    }
+
+    public List<TestStepStarted> findTestStepsStartedBy(TestCaseStarted testCaseStarted) {
+        requireNonNull(testCaseStarted);
+        List<TestStepStarted> testStepsStarted = testStepsStartedByTestCaseStartedId.
+                getOrDefault(testCaseStarted.getId(), emptyList());
+        // Concurrency
+        return new ArrayList<>(testStepsStarted);
     }
 
     public List<TestStepFinished> findTestStepsFinishedBy(TestCaseStarted testCaseStarted) {
@@ -360,6 +368,7 @@ public final class Query {
         envelope.getTestRunFinished().ifPresent(this::updateTestRunFinished);
         envelope.getTestCaseStarted().ifPresent(this::updateTestCaseStarted);
         envelope.getTestCaseFinished().ifPresent(this::updateTestCaseFinished);
+        envelope.getTestStepStarted().ifPresent(this::updateTestStepStarted);
         envelope.getTestStepFinished().ifPresent(this::updateTestStepFinished);
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         envelope.getPickle().ifPresent(this::updatePickle);
@@ -368,44 +377,44 @@ public final class Query {
         envelope.getAttachment().ifPresent(this::updateAttachment);
     }
 
-    private Optional<Lineage> findLineageBy(GherkinDocument element) {
+    public Optional<Lineage> findLineageBy(GherkinDocument element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getUri()));
     }
 
-    private Optional<Lineage> findLineageBy(Feature element) {
+    public Optional<Lineage> findLineageBy(Feature element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element));
     }
 
-    private Optional<Lineage> findLineageBy(Rule element) {
+    public Optional<Lineage> findLineageBy(Rule element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(Scenario element) {
+    public Optional<Lineage> findLineageBy(Scenario element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(Examples element) {
+    public Optional<Lineage> findLineageBy(Examples element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(TableRow element) {
+    public Optional<Lineage> findLineageBy(TableRow element) {
         requireNonNull(element);
         return Optional.ofNullable(lineageById.get(element.getId()));
     }
 
-    private Optional<Lineage> findLineageBy(Pickle pickle) {
+    public Optional<Lineage> findLineageBy(Pickle pickle) {
         requireNonNull(pickle);
         List<String> astNodeIds = pickle.getAstNodeIds();
         String pickleAstNodeId = astNodeIds.get(astNodeIds.size() - 1);
         return Optional.ofNullable(lineageById.get(pickleAstNodeId));
     }
 
-    private Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
+    public Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
                 .flatMap(this::findLineageBy);
     }
@@ -420,7 +429,7 @@ public final class Query {
     }
 
     private void updateTestCaseStarted(TestCaseStarted testCaseStarted) {
-        this.testCaseStarted.add(testCaseStarted);
+        this.testCaseStartedById.put(testCaseStarted.getId(), testCaseStarted);
     }
 
     private void updateTestCase(TestCase event) {
@@ -448,6 +457,10 @@ public final class Query {
                         ruleChild.getScenario().ifPresent(this::updateScenario);
                     }));
                 });
+    }
+
+    private void updateTestStepStarted(TestStepStarted event) {
+        this.testStepsStartedByTestCaseStartedId.compute(event.getTestCaseStartedId(), updateList(event));
     }
 
     private void updateTestStepFinished(TestStepFinished event) {
@@ -489,4 +502,5 @@ public final class Query {
             return list;
         };
     }
+
 }

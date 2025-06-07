@@ -6,6 +6,7 @@ import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.TableRow;
+import io.cucumber.query.LineageReducer.Collector;
 import io.cucumber.query.NamingStrategy.ExampleName;
 import io.cucumber.query.NamingStrategy.FeatureName;
 import io.cucumber.query.NamingStrategy.Strategy;
@@ -24,9 +25,10 @@ import static io.cucumber.query.NamingStrategy.Strategy.SHORT;
  *
  * @see NamingStrategy
  */
-class NamingCollector implements LineageCollector<String> {
+class NamingCollector implements Collector<String> {
 
-    private final Deque<String> parts = new ArrayDeque<>();
+    // There are at most 5 levels to a feature file.
+    private final Deque<String> parts = new ArrayDeque<>(5);
     private final CharSequence delimiter = " - ";
     private final Strategy strategy;
     private final FeatureName featureName;

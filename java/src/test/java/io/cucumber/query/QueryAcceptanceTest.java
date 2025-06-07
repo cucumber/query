@@ -137,6 +137,10 @@ public class QueryAcceptanceTest {
                 .map(hook -> hook.map(Hook::getId))
                 .filter(Optional::isPresent)
                 .collect(toList()));
+        results.put("findLocationOf", query.findAllPickles().stream()
+                .map(query::findLocationOf)
+                .filter(Optional::isPresent)
+                .collect(toList()));
         results.put("findMeta", query.findMeta().map(meta -> meta.getImplementation().getName()));
         results.put("findMostSevereTestStepResultBy", query.findAllTestCaseStarted().stream()
                 .map(query::findMostSevereTestStepResultBy)
@@ -191,7 +195,13 @@ public class QueryAcceptanceTest {
                 .map(Convertor::toMessage));
         results.put("findTestRunFinished", query.findTestRunFinished());
         results.put("findTestRunStarted", query.findTestRunStarted());
-        results.put("findTestStepBy", query.findAllTestCaseStarted().stream()
+        results.put("findTestStepByTestStepStarted", query.findAllTestCaseStarted().stream()
+                .map(query::findTestStepsStartedBy)
+                .flatMap(Collection::stream)
+                .map(query::findTestStepBy)
+                .map(testStep -> testStep.map(TestStep::getId))
+                .collect(toList()));
+        results.put("findTestStepByTestStepFinished", query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepsFinishedBy)
                 .flatMap(Collection::stream)
                 .map(query::findTestStepBy)
