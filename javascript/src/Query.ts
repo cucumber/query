@@ -5,7 +5,7 @@ import {
   Feature,
   getWorstTestStepResult,
   GherkinDocument,
-  Hook,
+  Hook, Location,
   Meta,
   Pickle,
   PickleStep,
@@ -20,7 +20,7 @@ import {
   TestStep,
   TestStepFinished,
   TestStepResult,
-  TestStepResultStatus,
+  TestStepResultStatus, TestStepStarted,
   TimeConversion,
 } from '@cucumber/messages'
 import { ArrayMultimap } from '@teppeis/multimaps'
@@ -478,8 +478,16 @@ export default class Query {
     return lineage ? namingStrategy.reduce(lineage, pickle) : pickle.name
   }
 
-  public findPickleBy(testCaseStarted: TestCaseStarted): Pickle | undefined {
-    const testCase = this.findTestCaseBy(testCaseStarted)
+  public findLocationOf(pickle: Pickle): Location | undefined {
+    return undefined
+  }
+
+  public findPickleBy(element: TestCaseStarted | TestStepStarted): Pickle | undefined {
+    if ('testCaseStartedId' in element) {
+      // TODO implement lookup by TestStepStarted
+      return undefined
+    }
+    const testCase = this.findTestCaseBy(element)
     assert.ok(testCase, 'Expected to find TestCase from TestCaseStarted')
     return this.pickleById.get(testCase.pickleId)
   }
@@ -497,8 +505,12 @@ export default class Query {
     return this.stepById.get(astNodeId)
   }
 
-  public findTestCaseBy(testCaseStarted: TestCaseStarted): TestCase | undefined {
-    return this.testCaseById.get(testCaseStarted.testCaseId)
+  public findTestCaseBy(element: TestCaseStarted | TestStepStarted): TestCase | undefined {
+    if ('testCaseStartedId' in element) {
+      // TODO implement lookup by TestStepStarted
+      return undefined
+    }
+    return this.testCaseById.get(element.testCaseId)
   }
 
   public findTestCaseDurationBy(testCaseStarted: TestCaseStarted): Duration | undefined {
@@ -510,6 +522,11 @@ export default class Query {
       TimeConversion.timestampToMillisecondsSinceEpoch(testCaseFinished.timestamp) -
         TimeConversion.timestampToMillisecondsSinceEpoch(testCaseStarted.timestamp)
     )
+  }
+
+  public findTestCaseStartedBy(testStepStarted: TestStepStarted): TestCaseStarted | undefined {
+    // TODO implement
+    return undefined
   }
 
   public findTestCaseFinishedBy(testCaseStarted: TestCaseStarted): TestCaseFinished | undefined {
@@ -534,8 +551,15 @@ export default class Query {
     return this.testRunStarted
   }
 
-  public findTestStepBy(testStepFinished: TestStepFinished): TestStep | undefined {
-    return this.testStepById.get(testStepFinished.testStepId)
+  public findTestStepBy(element: TestStepStarted | TestStepFinished): TestStep | undefined {
+    return this.testStepById.get(element.testStepId)
+  }
+
+  public findTestStepsStartedBy(
+    testCaseStarted: TestCaseStarted
+  ): ReadonlyArray<TestStepStarted> {
+    // TODO implement
+    return []
   }
 
   public findTestStepsFinishedBy(
