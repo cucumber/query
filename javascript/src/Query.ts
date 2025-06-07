@@ -211,11 +211,13 @@ export default class Query {
     (applies to legacy pickle-oriented query methods only)
      */
     const testCase = this.testCaseById.get(testCaseStarted.testCaseId)
-    this.testStepResultByPickleId.delete(testCase.pickleId)
-    for (const testStep of testCase.testSteps) {
-      this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
-      this.testStepResultsbyTestStepId.delete(testStep.id)
-      this.attachmentsByTestStepId.delete(testStep.id)
+    if (testCase) {
+      this.testStepResultByPickleId.delete(testCase.pickleId)
+      for (const testStep of testCase.testSteps) {
+        this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
+        this.testStepResultsbyTestStepId.delete(testStep.id)
+        this.attachmentsByTestStepId.delete(testStep.id)
+      }
     }
   }
 
