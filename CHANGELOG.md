@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - New method `findTestStepsStartedBy(TestCaseStarted)` ([#76](https://github.com/cucumber/query/pull/76)) 
 
 ### Fixed
-- [Java] `Query.findAllTestCaseStarted` orders events by `timestamp` and `id`.
+- `Query.findAllTestCaseStarted` orders events by `timestamp` and `id` ([#76](https://github.com/cucumber/query/pull/76))
 
 ## [13.2.0] - 2025-02-02
 ### Changed
