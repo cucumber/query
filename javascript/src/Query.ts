@@ -53,6 +53,7 @@ export default class Query {
   private testRunStarted: TestRunStarted
   private testRunFinished: TestRunFinished
   private readonly testCaseStarted: Array<TestCaseStarted> = []
+  private readonly testCaseStartedById: Map<string, TestCaseStarted> = new Map()
   private readonly lineageById: Map<string, Lineage> = new Map()
   private readonly stepById: Map<string, Step> = new Map()
   private readonly pickleById: Map<string, Pickle> = new Map()
@@ -60,6 +61,8 @@ export default class Query {
   private readonly testCaseById: Map<string, TestCase> = new Map()
   private readonly testStepById: Map<string, TestStep> = new Map()
   private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
+  private readonly testStepStartedByTestCaseStartedId: ArrayMultimap<string, TestStepStarted> =
+    new ArrayMultimap()
   private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
     new ArrayMultimap()
   private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
@@ -86,6 +89,9 @@ export default class Query {
     }
     if (envelope.testCaseStarted) {
       this.updateTestCaseStarted(envelope.testCaseStarted)
+    }
+    if (envelope.testStepStarted) {
+      this.updateTestStepStarted(envelope.testStepStarted)
     }
     if (envelope.attachment) {
       this.updateAttachment(envelope.attachment)
@@ -196,6 +202,7 @@ export default class Query {
 
   private updateTestCaseStarted(testCaseStarted: TestCaseStarted) {
     this.testCaseStarted.push(testCaseStarted)
+    this.testCaseStartedById.set(testCaseStarted.id, testCaseStarted)
 
     /*
     when a test case attempt starts besides the first one, clear all existing results
@@ -209,6 +216,13 @@ export default class Query {
       this.testStepResultsbyTestStepId.delete(testStep.id)
       this.attachmentsByTestStepId.delete(testStep.id)
     }
+  }
+
+  private updateTestStepStarted(testStepStarted: TestStepStarted) {
+    this.testStepStartedByTestCaseStartedId.put(
+      testStepStarted.testCaseStartedId,
+      testStepStarted
+    )
   }
 
   private updateAttachment(attachment: Attachment) {
@@ -479,14 +493,14 @@ export default class Query {
   }
 
   public findLocationOf(pickle: Pickle): Location | undefined {
-    return undefined
+    const lineage = this.findLineageBy(pickle)
+    if (lineage?.example) {
+      return lineage.example.location
+    }
+    return lineage?.scenario?.location
   }
 
   public findPickleBy(element: TestCaseStarted | TestStepStarted): Pickle | undefined {
-    if ('testCaseStartedId' in element) {
-      // TODO implement lookup by TestStepStarted
-      return undefined
-    }
     const testCase = this.findTestCaseBy(element)
     assert.ok(testCase, 'Expected to find TestCase from TestCaseStarted')
     return this.pickleById.get(testCase.pickleId)
@@ -506,11 +520,9 @@ export default class Query {
   }
 
   public findTestCaseBy(element: TestCaseStarted | TestStepStarted): TestCase | undefined {
-    if ('testCaseStartedId' in element) {
-      // TODO implement lookup by TestStepStarted
-      return undefined
-    }
-    return this.testCaseById.get(element.testCaseId)
+    const testCaseStarted = 'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
+    assert.ok(testCaseStarted, 'Expected to find TestCaseStarted by TestStepStarted')
+    return this.testCaseById.get(testCaseStarted.testCaseId)
   }
 
   public findTestCaseDurationBy(testCaseStarted: TestCaseStarted): Duration | undefined {
@@ -525,8 +537,7 @@ export default class Query {
   }
 
   public findTestCaseStartedBy(testStepStarted: TestStepStarted): TestCaseStarted | undefined {
-    // TODO implement
-    return undefined
+    return this.testCaseStartedById.get(testStepStarted.testCaseStartedId)
   }
 
   public findTestCaseFinishedBy(testCaseStarted: TestCaseStarted): TestCaseFinished | undefined {
@@ -558,8 +569,8 @@ export default class Query {
   public findTestStepsStartedBy(
     testCaseStarted: TestCaseStarted
   ): ReadonlyArray<TestStepStarted> {
-    // TODO implement
-    return []
+    // multimaps `get` implements `getOrDefault([])` behaviour internally
+    return [...this.testStepStartedByTestCaseStartedId.get(testCaseStarted.id)]
   }
 
   public findTestStepsFinishedBy(
@@ -581,7 +592,7 @@ export default class Query {
       })
   }
 
-  private findLineageBy(element: Pickle | TestCaseStarted) {
+  private findLineageBy(element: Pickle | TestCaseStarted): Lineage | undefined {
     const pickle = 'testCaseId' in element ? this.findPickleBy(element) : element
     const deepestAstNodeId = pickle.astNodeIds.at(-1)
     assert.ok(deepestAstNodeId, 'Expected Pickle to have at least one astNodeId')
