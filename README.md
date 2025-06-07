@@ -32,7 +32,7 @@ using `id` fields. It's a bit similar to rows in a relational database, with
 primary and foreign keys.
 
 Consumers of these messages may want to *query* the messages for certain information.
-For example, [cucumber-react](https://github.com/cucumber/cucumber-react) needs to know the status of
+For example, [@cucumber/react-components](https://github.com/cucumber/react-components) needs to know the status of
 a [Step](https://github.com/cucumber/messages/blob/main/messages.md#step) as it
 is rendering the [GherkinDocument](https://github.com/cucumber/messages/blob/main/messages.md#gherkindocument)
 
