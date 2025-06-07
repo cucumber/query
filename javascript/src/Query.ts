@@ -5,7 +5,8 @@ import {
   Feature,
   getWorstTestStepResult,
   GherkinDocument,
-  Hook, Location,
+  Hook,
+  Location,
   Meta,
   Pickle,
   PickleStep,
@@ -20,7 +21,8 @@ import {
   TestStep,
   TestStepFinished,
   TestStepResult,
-  TestStepResultStatus, TestStepStarted,
+  TestStepResultStatus,
+  TestStepStarted,
   TimeConversion,
 } from '@cucumber/messages'
 import { ArrayMultimap } from '@teppeis/multimaps'
@@ -219,10 +221,7 @@ export default class Query {
   }
 
   private updateTestStepStarted(testStepStarted: TestStepStarted) {
-    this.testStepStartedByTestCaseStartedId.put(
-      testStepStarted.testCaseStartedId,
-      testStepStarted
-    )
+    this.testStepStartedByTestCaseStartedId.put(testStepStarted.testCaseStartedId, testStepStarted)
   }
 
   private updateAttachment(attachment: Attachment) {
@@ -520,7 +519,8 @@ export default class Query {
   }
 
   public findTestCaseBy(element: TestCaseStarted | TestStepStarted): TestCase | undefined {
-    const testCaseStarted = 'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
+    const testCaseStarted =
+      'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
     assert.ok(testCaseStarted, 'Expected to find TestCaseStarted by TestStepStarted')
     return this.testCaseById.get(testCaseStarted.testCaseId)
   }
@@ -566,9 +566,7 @@ export default class Query {
     return this.testStepById.get(element.testStepId)
   }
 
-  public findTestStepsStartedBy(
-    testCaseStarted: TestCaseStarted
-  ): ReadonlyArray<TestStepStarted> {
+  public findTestStepsStartedBy(testCaseStarted: TestCaseStarted): ReadonlyArray<TestStepStarted> {
     // multimaps `get` implements `getOrDefault([])` behaviour internally
     return [...this.testStepStartedByTestCaseStartedId.get(testCaseStarted.id)]
   }
