@@ -36,6 +36,20 @@
     "0",
     "3"
   ],
+  "findLocationOf" : [
+    {
+      "line" : 4,
+      "column" : 3
+    },
+    {
+      "line" : 7,
+      "column" : 3
+    },
+    {
+      "line" : 10,
+      "column" : 3
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
@@ -127,7 +141,18 @@
     },
     "id" : "16"
   },
-  "findTestStepBy" : [
+  "findTestStepByTestStepStarted" : [
+    "17",
+    "18",
+    "19",
+    "21",
+    "22",
+    "23",
+    "25",
+    "26",
+    "27"
+  ],
+  "findTestStepByTestStepFinished" : [
     "17",
     "18",
     "19",

@@ -40,6 +40,44 @@
     "Examples Tables",
     "Examples Tables"
   ],
+  "findLocationOf" : [
+    {
+      "line" : 19,
+      "column" : 7
+    },
+    {
+      "line" : 20,
+      "column" : 7
+    },
+    {
+      "line" : 25,
+      "column" : 7
+    },
+    {
+      "line" : 26,
+      "column" : 7
+    },
+    {
+      "line" : 31,
+      "column" : 7
+    },
+    {
+      "line" : 32,
+      "column" : 7
+    },
+    {
+      "line" : 41,
+      "column" : 7
+    },
+    {
+      "line" : 42,
+      "column" : 7
+    },
+    {
+      "line" : 43,
+      "column" : 7
+    }
+  ],
   "findMeta" : "fake-cucumber",
   "findMostSevereTestStepResultBy" : [
     "PASSED",
@@ -257,7 +295,36 @@
     },
     "id" : "69"
   },
-  "findTestStepBy" : [
+  "findTestStepByTestStepStarted" : [
+    "70",
+    "71",
+    "72",
+    "74",
+    "75",
+    "76",
+    "78",
+    "79",
+    "80",
+    "82",
+    "83",
+    "84",
+    "86",
+    "87",
+    "88",
+    "90",
+    "91",
+    "92",
+    "94",
+    "95",
+    "96",
+    "98",
+    "99",
+    "100",
+    "102",
+    "103",
+    "104"
+  ],
+  "findTestStepByTestStepFinished" : [
     "70",
     "71",
     "72",
