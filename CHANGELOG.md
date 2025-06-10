@@ -6,13 +6,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [13.3.0] - 2025-06-10
 ### Added
 - Made `Lineage` APIs public ([#76](https://github.com/cucumber/query/pull/76))
 - New method `findPickleBy(TestStepStarted)`  ([#76](https://github.com/cucumber/query/pull/76))
 - New method `findTestCaseBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
 - New method `findTestCaseStartedBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
 - New method `findTestStepBy(TestStepStarted)` ([#76](https://github.com/cucumber/query/pull/76))
-- New method `findTestStepsStartedBy(TestCaseStarted)` ([#76](https://github.com/cucumber/query/pull/76)) 
+- New method `findTestStepsStartedBy(TestCaseStarted)` ([#76](https://github.com/cucumber/query/pull/76))
 
 ### Fixed
 - `Query.findAllTestCaseStarted` orders events by `timestamp` and `id` ([#76](https://github.com/cucumber/query/pull/76))
@@ -192,7 +194,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.2.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.3.0...HEAD
+[13.3.0]: https://github.com/cucumber/cucumber/compare/query/v13.2.0...v13.3.0
 [13.2.0]: https://github.com/cucumber/cucumber/compare/query/v13.1.0...v13.2.0
 [13.1.0]: https://github.com/cucumber/cucumber/compare/query/v13.0.3...v13.1.0
 [13.0.3]: https://github.com/cucumber/cucumber/compare/query/v13.0.2...v13.0.3
