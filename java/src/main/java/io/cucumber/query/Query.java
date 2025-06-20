@@ -290,10 +290,22 @@ public final class Query {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseById.get(testCaseStarted.getTestCaseId()));
     }
+    
+    public Optional<TestCase> findTestCaseBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findTestCaseBy);
+    }
 
     public Optional<TestCase> findTestCaseBy(TestStepStarted testStepStarted) {
         requireNonNull(testStepStarted);
         return findTestCaseStartedBy(testStepStarted)
+                .flatMap(this::findTestCaseBy);
+    }
+
+    public Optional<TestCase> findTestCaseBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        return findTestCaseStartedBy(testStepFinished)
                 .flatMap(this::findTestCaseBy);
     }
 
@@ -307,6 +319,17 @@ public final class Query {
                         Convertor.toInstant(finished)
                 ));
     }
+    
+    public Optional<Duration> findTestCaseDurationBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        Timestamp finished = testCaseFinished.getTimestamp();
+        return findTestCaseStartedBy(testCaseFinished)
+                .map(TestCaseStarted::getTimestamp)
+                .map(started -> Duration.between(
+                        Convertor.toInstant(started),
+                        Convertor.toInstant(finished)
+                ));
+    }
 
     public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepStarted testStepStarted) {
         requireNonNull(testStepStarted);
@@ -314,6 +337,18 @@ public final class Query {
         return ofNullable(testCaseStartedById.get(testCaseStartedId));
     }
 
+    private Optional<TestCaseStarted> findTestCaseStartedBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        String testCaseStartedId = testCaseFinished.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
+    }
+    
+    public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        String testCaseStartedId = testStepFinished.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
+    }
+    
     public Optional<TestCaseFinished> findTestCaseFinishedBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseFinishedByTestCaseStartedId.get(testCaseStarted.getId()));
