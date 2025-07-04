@@ -247,8 +247,12 @@ public final class Query {
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestCaseBy(testCaseStarted)
-                .map(TestCase::getPickleId)
-                .map(pickleById::get);
+                .flatMap(this::findPickleBy);
+    }
+
+    public Optional<Pickle> findPickleBy(TestCase testCase) {
+        requireNonNull(testCase);
+        return ofNullable(pickleById.get(testCase.getPickleId()));
     }
 
     public Optional<Pickle> findPickleBy(TestStepStarted testStepStarted) {
