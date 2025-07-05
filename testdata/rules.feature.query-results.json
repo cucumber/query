@@ -108,6 +108,58 @@
     "the customer tries to buy a 1 cent chocolate bar",
     "the sale should not happen"
   ],
+  "findStepDefinitionsBy" : [
+    [
+      "0"
+    ],
+    [
+      "1"
+    ],
+    [
+      "3"
+    ],
+    [
+      "4"
+    ],
+    [
+      "0"
+    ],
+    [
+      "1"
+    ],
+    [
+      "3"
+    ],
+    [
+      "5"
+    ],
+    [
+      "0"
+    ],
+    [
+      "2"
+    ],
+    [
+      "3"
+    ],
+    [
+      "4"
+    ]
+  ],
+  "findUnambiguousStepDefinitionBy" : [
+    "0",
+    "1",
+    "3",
+    "4",
+    "0",
+    "1",
+    "3",
+    "5",
+    "0",
+    "2",
+    "3",
+    "4"
+  ],
   "findTestCaseBy" : [
     "44",
     "49",
