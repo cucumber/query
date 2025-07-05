@@ -14,6 +14,7 @@ import io.cucumber.messages.types.PickleStep;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.StepDefinition;
 import io.cucumber.messages.types.TableRow;
 import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
@@ -76,6 +77,7 @@ public final class Query {
     private final Map<String, Hook> hookById = new ConcurrentHashMap<>();
     private final Map<String, List<Attachment>> attachmentsByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<Object, Lineage> lineageById = new ConcurrentHashMap<>();
+    private final Map<String, StepDefinition> stepDefinitionById = new ConcurrentHashMap<>();
     private Meta meta;
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
@@ -276,6 +278,15 @@ public final class Query {
         return ofNullable(stepById.get(stepId));
     }
 
+    public List<StepDefinition> findStepDefinitionBy(TestStep testStep) {
+        requireNonNull(testStep);
+        return testStep.getStepDefinitionIds().map(ids -> ids.stream()
+                        .map(stepDefinitionById::get)
+                        .filter(Objects::nonNull)
+                        .collect(toList()))
+                .orElseGet(Collections::emptyList);
+    }
+
     public Optional<TestCase> findTestCaseBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseById.get(testCaseStarted.getTestCaseId()));
@@ -372,6 +383,7 @@ public final class Query {
         envelope.getTestStepFinished().ifPresent(this::updateTestStepFinished);
         envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         envelope.getPickle().ifPresent(this::updatePickle);
+        envelope.getStepDefinition().ifPresent(this::updateStepDefinition);
         envelope.getTestCase().ifPresent(this::updateTestCase);
         envelope.getHook().ifPresent(this::updateHook);
         envelope.getAttachment().ifPresent(this::updateAttachment);
@@ -423,7 +435,7 @@ public final class Query {
         attachment.getTestCaseStartedId()
                 .ifPresent(testCaseStartedId -> this.attachmentsByTestCaseStartedId.compute(testCaseStartedId, updateList(attachment)));
     }
-
+    
     private void updateHook(Hook hook) {
         this.hookById.put(hook.getId(), hook);
     }
@@ -483,6 +495,10 @@ public final class Query {
         updateSteps(scenario.getSteps());
     }
 
+    private void updateStepDefinition(StepDefinition event) {
+        this.stepDefinitionById.put(event.getId(), event);
+    }
+    
     private void updateSteps(List<Step> steps) {
         steps.forEach(step -> stepById.put(step.getId(), step));
     }
