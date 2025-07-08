@@ -11,15 +11,7 @@ namespace Io.Cucumber.Query;
 // Ported from io.cucumber.query.Query (Java)
 public class Query
 {
-    // Internal state for queries
-    private readonly List<GherkinDocument> _gherkinDocuments = new();
-    private readonly List<Pickle> _pickles = new();
-    private readonly List<TestCase> _testCases = new();
-    private readonly List<TestStepFinished> _testStepFinished = new();
-    private readonly List<TestCaseFinished> _testCaseFinished = new();
-    private readonly List<TestCaseStarted> _testCaseStarted = new();
 
-    // Additional internal state for queries (to be expanded as needed)
     private readonly ConcurrentDictionary<string, TestCaseStarted> _testCaseStartedById = new();
     private readonly ConcurrentDictionary<string, TestCaseFinished> _testCaseFinishedByTestCaseStartedId = new();
     private readonly ConcurrentDictionary<string, List<TestStepFinished>> _testStepsFinishedByTestCaseStartedId = new();
@@ -38,23 +30,26 @@ public class Query
 
     public Query() { }
 
-    // Property getters for counts
     public int MostSevereTestStepResultStatusCount => CountMostSevereTestStepResultStatus().Count;
     public int TestCasesStartedCount => FindAllTestCaseStarted().Count;
 
-    // Ported methods (incrementally implemented)
     public IDictionary<TestStepResultStatus, long> CountMostSevereTestStepResultStatus()
     {
         var statusCounts = new Dictionary<TestStepResultStatus, long>();
+        // Initialize with zero for each possible TestStepResultStatus
+        foreach (TestStepResultStatus status in Enum.GetValues(typeof(TestStepResultStatus)))
+        {
+            statusCounts[status] = 0;
+        }
         foreach (var testCaseStarted in FindAllTestCaseStarted())
         {
             var finishedSteps = FindTestStepsFinishedBy(testCaseStarted);
             if (finishedSteps.Count == 0)
                 continue;
-            // Find the most severe status (lowest enum value)
+            // Find the most severe status (largest enum value)
             var mostSevere = finishedSteps
                 .Select(f => f.TestStepResult.Status)
-                .Min();
+                .Max();
             if (statusCounts.ContainsKey(mostSevere))
                 statusCounts[mostSevere]++;
             else
@@ -94,18 +89,7 @@ public class Query
 
     public Feature? FindFeatureBy(TestCaseStarted testCaseStarted)
     {
-        // Find the TestCase for this TestCaseStarted
-        if (_testCaseById.TryGetValue(testCaseStarted.TestCaseId, out var testCase))
-        {
-            // Find the Pickle for this TestCase
-            if (_pickleById.TryGetValue(testCase.PickleId, out var pickle))
-            {
-                // Find the GherkinDocument for this Pickle
-                var doc = _gherkinDocuments.FirstOrDefault(d => d.Uri == pickle.Uri);
-                return doc?.Feature;
-            }
-        }
-        return null;
+        return FindLineageBy(testCaseStarted)?.Feature;
     }
 
     public Hook? FindHookBy(TestStep testStep)
@@ -278,10 +262,10 @@ public class Query
         var finishedSteps = FindTestStepsFinishedBy(testCaseStarted);
         if (finishedSteps.Count == 0)
             return null;
-        // Find the TestStepFinished with the most severe status (lowest enum value)
+        // Find the TestStepFinished with the most severe status (highest enum value)
         var mostSevere = finishedSteps
             .OrderBy(f => f.TestStepResult.Status)
-            .FirstOrDefault();
+            .LastOrDefault();
         return mostSevere?.TestStepResult;
     }
 
@@ -313,13 +297,11 @@ public class Query
     internal void UpdateTestCaseStarted(TestCaseStarted testCaseStarted)
     {
         _testCaseStartedById[testCaseStarted.Id] = testCaseStarted;
-        _testCaseStarted.Add(testCaseStarted);
     }
 
     internal void UpdateTestCase(TestCase testCase)
     {
         _testCaseById[testCase.Id] = testCase;
-        _testCases.Add(testCase);
         foreach (var testStep in testCase.TestSteps)
         {
             _testStepById[testStep.Id] = testStep;
@@ -329,7 +311,6 @@ public class Query
     internal void UpdatePickle(Pickle pickle)
     {
         _pickleById[pickle.Id] = pickle;
-        _pickles.Add(pickle);
         foreach (var step in pickle.Steps)
         {
             _pickleStepById[step.Id] = step;
@@ -338,12 +319,14 @@ public class Query
 
     internal void UpdateGherkinDocument(GherkinDocument document)
     {
-        _gherkinDocuments.Add(document);
+        foreach (var lineage in Lineages.Of(document))
+        {
+            _lineageById.TryAdd(lineage.Key, lineage.Value);
+        }
         if (document.Feature != null)
         {
             UpdateFeature(document.Feature);
         }
-        // Lineage population would go here if implemented
     }
 
     internal void UpdateFeature(Feature feature)
@@ -389,13 +372,11 @@ public class Query
             testStepFinished.TestCaseStartedId,
             _ => new List<TestStepFinished> { testStepFinished },
             (_, list) => { list.Add(testStepFinished); return list; });
-        _testStepFinished.Add(testStepFinished);
     }
 
     internal void UpdateTestCaseFinished(TestCaseFinished testCaseFinished)
     {
         _testCaseFinishedByTestCaseStartedId[testCaseFinished.TestCaseStartedId] = testCaseFinished;
-        _testCaseFinished.Add(testCaseFinished);
     }
 
     internal void UpdateTestRunFinished(TestRunFinished testRunFinished)
@@ -481,8 +462,20 @@ public class Query
 
     public Lineage? FindLineageBy(Pickle pickle)
     {
-        _lineageById.TryGetValue(pickle, out var lineage);
+        var astNodeIds = pickle.AstNodeIds;
+        var lastAstNodeId = astNodeIds.LastOrDefault();
+        _lineageById.TryGetValue(lastAstNodeId, out var lineage);
         return lineage;
+    }
+
+    public Lineage? FindLineageBy(TestCaseStarted testCaseStarted)
+    {
+        var pickle = FindPickleBy(testCaseStarted);
+        if (pickle == null)
+        {
+            return null;
+        }
+        return FindLineageBy(pickle);
     }
 
     public string FindNameOf(GherkinDocument element, NamingStrategy namingStrategy)

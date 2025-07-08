@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Io.Cucumber.Messages.Types;
 using Io.Cucumber.Query;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using FluentAssertions;
+using System.Security.Cryptography;
 
 namespace QueryTest
 {
@@ -46,7 +48,8 @@ namespace QueryTest
             var actualJson = JsonNode.Parse(actual);
             var expectedJson = JsonNode.Parse(expected);
 
-            Assert.AreEqual(expectedJson.ToJsonString(), actualJson.ToJsonString());
+            actualJson!.ToJsonString().Should().Be(expectedJson!.ToJsonString(),
+                $"Query results for {testCase.Name} do not match expected results.");
         }
 
         private static string WriteQueryResults(TestCase testCase)
@@ -60,7 +63,7 @@ namespace QueryTest
             while ((line = reader.ReadLine()) != null)
             {
                 if (string.IsNullOrWhiteSpace(line)) continue;
-                var envelope = JsonSerializer.Deserialize<Envelope>(line);
+                var envelope = NdjsonSerializer.Deserialize<Envelope>(line);
                 query.Update(envelope);
             }
 
@@ -68,8 +71,20 @@ namespace QueryTest
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
+            options.Converters.Add(new CucumberMessageEnumConverter<AttachmentContentEncoding>());
+            options.Converters.Add(new CucumberMessageEnumConverter<HookType>());
+            options.Converters.Add(new CucumberMessageEnumConverter<PickleStepType>());
+            options.Converters.Add(new CucumberMessageEnumConverter<SourceMediaType>());
+            options.Converters.Add(new CucumberMessageEnumConverter<StepDefinitionPatternType>());
+            options.Converters.Add(new CucumberMessageEnumConverter<StepKeywordType>());
+            options.Converters.Add(new CucumberMessageEnumConverter<TestStepResultStatus>());
+            options.Converters.Add(new TimestampOrderedConverter());
+            options.Converters.Add(new TestRunStartedOrderedConverter());
+            options.Converters.Add(new TestRunFinishedOrderedConverter());
+
             return JsonSerializer.Serialize(queryResults, options);
         }
 
@@ -77,7 +92,11 @@ namespace QueryTest
         {
             var results = new Dictionary<string, object?>
             {
-                ["countMostSevereTestStepResultStatus"] = query.CountMostSevereTestStepResultStatus(),
+                ["countMostSevereTestStepResultStatus"] = query.CountMostSevereTestStepResultStatus()
+                    .ToDictionary(
+                        kvp => kvp.Key.ToString(),
+                        kvp => (object)kvp.Value
+                    ),
                 ["countTestCasesStarted"] = query.TestCasesStartedCount,
                 ["findAllPickles"] = query.FindAllPickles().Count,
                 ["findAllPickleSteps"] = query.FindAllPickleSteps().Count,
@@ -113,7 +132,7 @@ namespace QueryTest
                     .ToList(),
                 ["findMeta"] = query.FindMeta()?.Implementation?.Name,
                 ["findMostSevereTestStepResultBy"] = query.FindAllTestCaseStarted()
-                    .Select(tcs => query.FindMostSevereTestStepResultBy(tcs)?.Status)
+                    .Select(tcs => query.FindMostSevereTestStepResultBy(tcs)?.Status.ToString())
                     .ToList(),
                 ["findNameOf"] = new Dictionary<string, object?>
                 {
@@ -137,12 +156,17 @@ namespace QueryTest
                     .Select(tcs => query.FindTestCaseBy(tcs)?.Id)
                     .ToList(),
                 ["findTestCaseDurationBy"] = query.FindAllTestCaseStarted()
-                    .Select(tcs => query.FindTestCaseDurationBy(tcs)?.ToString())
+                    .Select(tcs =>
+                    {
+                        var duration = query.FindTestCaseDurationBy(tcs);
+                        var ts = ConvertTimeSpanToTimestamp(duration);
+                        return ts;
+                    })
                     .ToList(),
                 ["findTestCaseFinishedBy"] = query.FindAllTestCaseStarted()
                     .Select(tcs => query.FindTestCaseFinishedBy(tcs)?.TestCaseStartedId)
                     .ToList(),
-                ["findTestRunDuration"] = query.FindTestRunDuration()?.ToString(),
+                ["findTestRunDuration"] = ConvertTimeSpanToTimestamp(query.FindTestRunDuration()),
                 ["findTestRunFinished"] = query.FindTestRunFinished(),
                 ["findTestRunStarted"] = query.FindTestRunStarted(),
                 ["findTestStepByTestStepStarted"] = query.FindAllTestCaseStarted()
@@ -161,7 +185,21 @@ namespace QueryTest
                     .Select(pair => new object?[] { pair.Item1.TestStepId, pair.Item2.Id })
                     .ToList(),
             };
-            return results;
+            // Filter out null values and empty collections
+            return results
+                    .Where(kvp =>
+                            kvp.Value != null &&
+                            (!(kvp.Value is IEnumerable<object> enumerable) || enumerable.Cast<object>().Any()))
+                    .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        private static Timestamp? ConvertTimeSpanToTimestamp(TimeSpan? duration)
+        {
+            if (duration == null) return null;
+            return new Timestamp(
+                (long)duration.Value.TotalSeconds,
+                (int)((duration.Value.Ticks % TimeSpan.TicksPerSecond) * 100)
+            );
         }
 
         private static Stream ReadResourceAsStream(string resourceName)
