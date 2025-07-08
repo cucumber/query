@@ -1,3 +1,4 @@
+#nullable enable
 using System.ComponentModel.DataAnnotations;
 using System;
 using Io.Cucumber.Messages.Types;
@@ -22,17 +23,7 @@ public sealed class Lineage
     private readonly TableRow? _example;
     private readonly int? _exampleIndex;
 
-    internal Lineage([Required] GherkinDocument document)
-    {
-        _document = document ?? throw new ArgumentNullException(nameof(document));
-        _feature = null;
-        _rule = null;
-        _scenario = null;
-        _examples = null;
-        _examplesIndex = null;
-        _example = null;
-        _exampleIndex = null;
-    }
+    internal Lineage([Required] GherkinDocument document) : this(document, null, null, null, null, null, null, null) { }
 
     internal Lineage(Lineage parent, Feature feature)
         : this(parent._document, feature, null, null, null, null, null, null) { }
@@ -92,8 +83,10 @@ public sealed class Lineage
             && Equals(_exampleIndex, other._exampleIndex);
     }
 
+    // Rest of the code remains unchanged
+
     public override int GetHashCode()
     {
-        return HashCode.Combine(_document, _feature, _rule, _scenario, _examples, _example, _examplesIndex, _exampleIndex);
+        return (_document, _feature, _rule, _scenario, _examples, _example, _examplesIndex, _exampleIndex).GetHashCode();
     }
 }
