@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add `findStepDefinitionsBy` and `findUnambiguousStepDefinitionBy` ([#80](https://github.com/cucumber/query/pull/80))
 
 ## [13.3.0] - 2025-06-10
 ### Added
