@@ -3,7 +3,7 @@ using Io.Cucumber.Messages.Types;
 
 namespace Io.Cucumber.Query
 {
-    // Faithful port of io.cucumber.query.LineageReducerDescending (Java)
+    // port of io.cucumber.query.LineageReducerDescending (Java)
     public class LineageReducerDescending<T> : ILineageReducer<T>
     {
         private readonly Func<ICollector<T>> _collectorSupplier;

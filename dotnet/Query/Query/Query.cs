@@ -192,8 +192,8 @@ public class Query
         var finished = FindTestCaseFinishedBy(testCaseStarted)?.Timestamp;
         if (finished != null)
         {
-            var startTime = TimestampToDateTimeOffset(started);
-            var finishTime = TimestampToDateTimeOffset(finished);
+            var startTime = started.ToDateTimeOffset();
+            var finishTime = finished.ToDateTimeOffset();
             return finishTime - startTime;
         }
         return null;
@@ -210,8 +210,8 @@ public class Query
         // Java: if (testRunStarted == null || testRunFinished == null) return Optional.empty();
         if (_testRunStarted == null || _testRunFinished == null)
             return null;
-        var start = TimestampToDateTimeOffset(_testRunStarted.Timestamp);
-        var finish = TimestampToDateTimeOffset(_testRunFinished.Timestamp);
+        var start = _testRunStarted.Timestamp.ToDateTimeOffset();
+        var finish = _testRunFinished.Timestamp.ToDateTimeOffset();
         return finish - start;
     }
 
@@ -267,14 +267,6 @@ public class Query
             .OrderBy(f => f.TestStepResult.Status)
             .LastOrDefault();
         return mostSevere?.TestStepResult;
-    }
-
-    private static DateTimeOffset TimestampToDateTimeOffset(Timestamp timestamp)
-    {
-        // Java: Convertor.toInstant(timestamp)
-        // C#: Timestamp has Seconds and Nanos
-        var dateTime = DateTimeOffset.FromUnixTimeSeconds(timestamp.Seconds);
-        return dateTime.AddTicks(timestamp.Nanos / 100);
     }
 
     // Update methods for each message type (ported from Java)

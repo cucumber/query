@@ -12,7 +12,7 @@ namespace Io.Cucumber.Query;
 /// <remarks>
 /// See <see cref="LineageReducer"/>.
 /// </remarks>
-public sealed class Lineage
+public class Lineage : IEquatable<Lineage>
 {
     private readonly GherkinDocument _document;
     private readonly Feature? _feature;
@@ -69,10 +69,10 @@ public sealed class Lineage
     public int? ExamplesIndex => _examplesIndex;
     public int? ExampleIndex => _exampleIndex;
 
-    public override bool Equals(object? obj)
+    public bool Equals(Lineage? other)
     {
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj is not Lineage other) return false;
+        if (ReferenceEquals(this, other)) return true;
+        if (other is null) return false;
         return Equals(_document, other._document)
             && Equals(_feature, other._feature)
             && Equals(_rule, other._rule)
@@ -83,7 +83,7 @@ public sealed class Lineage
             && Equals(_exampleIndex, other._exampleIndex);
     }
 
-    // Rest of the code remains unchanged
+    public override bool Equals(object? obj) => Equals(obj as Lineage);
 
     public override int GetHashCode()
     {

@@ -105,7 +105,7 @@ namespace QueryTest
                 ["findAllTestCaseStartedGroupedByFeature"] = query.FindAllTestCaseStartedGroupedByFeature()
                     .Select(entry => new object[]
                     {
-                        entry.Key?.Name,
+                        entry.Key?.Name ?? String.Empty,
                         entry.Value.Select(tcs => tcs.Id).ToList()
                     }).ToList(),
                 ["findAttachmentsBy"] = query.FindAllTestCaseStarted()
