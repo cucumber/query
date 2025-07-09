@@ -13,21 +13,6 @@
   "findAllPickleSteps" : 12,
   "findAllTestCaseStarted" : 3,
   "findAllTestSteps" : 12,
-  "findAllTestCaseStartedGroupedByFeature" : [
-    [
-      "Usage of a `Rule`",
-      [
-        "55",
-        "56",
-        "57"
-      ]
-    ]
-  ],
-  "findFeatureBy" : [
-    "Usage of a `Rule`",
-    "Usage of a `Rule`",
-    "Usage of a `Rule`"
-  ],
   "findLocationOf" : [
     {
       "line" : 9,
@@ -48,33 +33,6 @@
     "PASSED",
     "PASSED"
   ],
-  "findNameOf" : {
-    "long" : [
-      "Usage of a `Rule` - A sale cannot happen if the customer does not have enough money - Not enough money",
-      "Usage of a `Rule` - A sale cannot happen if the customer does not have enough money - Enough money",
-      "Usage of a `Rule` - a sale cannot happen if there is no stock - No chocolates left"
-    ],
-    "excludeFeatureName" : [
-      "A sale cannot happen if the customer does not have enough money - Not enough money",
-      "A sale cannot happen if the customer does not have enough money - Enough money",
-      "a sale cannot happen if there is no stock - No chocolates left"
-    ],
-    "longPickleName" : [
-      "Usage of a `Rule` - A sale cannot happen if the customer does not have enough money - Not enough money",
-      "Usage of a `Rule` - A sale cannot happen if the customer does not have enough money - Enough money",
-      "Usage of a `Rule` - a sale cannot happen if there is no stock - No chocolates left"
-    ],
-    "short" : [
-      "Not enough money",
-      "Enough money",
-      "No chocolates left"
-    ],
-    "shortPickleName" : [
-      "Not enough money",
-      "Enough money",
-      "No chocolates left"
-    ]
-  },
   "findPickleBy" : [
     "Not enough money",
     "Enough money",

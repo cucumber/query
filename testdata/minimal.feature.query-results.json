@@ -13,17 +13,6 @@
   "findAllPickleSteps" : 1,
   "findAllTestCaseStarted" : 1,
   "findAllTestSteps" : 1,
-  "findAllTestCaseStartedGroupedByFeature" : [
-    [
-      "minimal",
-      [
-        "8"
-      ]
-    ]
-  ],
-  "findFeatureBy" : [
-    "minimal"
-  ],
   "findLocationOf" : [
     {
       "line" : 9,
@@ -34,23 +23,6 @@
   "findMostSevereTestStepResultBy" : [
     "PASSED"
   ],
-  "findNameOf" : {
-    "long" : [
-      "minimal - cukes"
-    ],
-    "excludeFeatureName" : [
-      "cukes"
-    ],
-    "longPickleName" : [
-      "minimal - cukes"
-    ],
-    "short" : [
-      "cukes"
-    ],
-    "shortPickleName" : [
-      "cukes"
-    ]
-  },
   "findPickleBy" : [
     "cukes"
   ],

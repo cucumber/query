@@ -13,21 +13,6 @@
   "findAllPickleSteps" : 3,
   "findAllTestCaseStarted" : 3,
   "findAllTestSteps" : 9,
-  "findAllTestCaseStartedGroupedByFeature" : [
-    [
-      "Hooks",
-      [
-        "29",
-        "30",
-        "31"
-      ]
-    ]
-  ],
-  "findFeatureBy" : [
-    "Hooks",
-    "Hooks",
-    "Hooks"
-  ],
   "findHookBy" : [
     "0",
     "3",
@@ -56,33 +41,6 @@
     "FAILED",
     "UNDEFINED"
   ],
-  "findNameOf" : {
-    "long" : [
-      "Hooks - No tags and a passed step",
-      "Hooks - No tags and a failed step",
-      "Hooks - No tags and a undefined step"
-    ],
-    "excludeFeatureName" : [
-      "No tags and a passed step",
-      "No tags and a failed step",
-      "No tags and a undefined step"
-    ],
-    "longPickleName" : [
-      "Hooks - No tags and a passed step",
-      "Hooks - No tags and a failed step",
-      "Hooks - No tags and a undefined step"
-    ],
-    "short" : [
-      "No tags and a passed step",
-      "No tags and a failed step",
-      "No tags and a undefined step"
-    ],
-    "shortPickleName" : [
-      "No tags and a passed step",
-      "No tags and a failed step",
-      "No tags and a undefined step"
-    ]
-  },
   "findPickleBy" : [
     "No tags and a passed step",
     "No tags and a failed step",
