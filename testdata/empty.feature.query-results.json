@@ -13,17 +13,6 @@
   "findAllPickleSteps" : 0,
   "findAllTestCaseStarted" : 1,
   "findAllTestSteps" : 0,
-  "findAllTestCaseStartedGroupedByFeature" : [
-    [
-      "Empty Scenarios",
-      [
-        "4"
-      ]
-    ]
-  ],
-  "findFeatureBy" : [
-    "Empty Scenarios"
-  ],
   "findLocationOf" : [
     {
       "line" : 7,
@@ -34,23 +23,6 @@
   "findMostSevereTestStepResultBy" : [
     null
   ],
-  "findNameOf" : {
-    "long" : [
-      "Empty Scenarios - Blank Scenario"
-    ],
-    "excludeFeatureName" : [
-      "Blank Scenario"
-    ],
-    "longPickleName" : [
-      "Empty Scenarios - Blank Scenario"
-    ],
-    "short" : [
-      "Blank Scenario"
-    ],
-    "shortPickleName" : [
-      "Blank Scenario"
-    ]
-  },
   "findPickleBy" : [
     "Blank Scenario"
   ],

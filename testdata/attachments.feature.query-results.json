@@ -13,22 +13,6 @@
   "findAllPickleSteps" : 9,
   "findAllTestCaseStarted" : 9,
   "findAllTestSteps" : 9,
-  "findAllTestCaseStartedGroupedByFeature" : [
-    [
-      "Attachments",
-      [
-        "64",
-        "65",
-        "66",
-        "67",
-        "68",
-        "69",
-        "70",
-        "71",
-        "72"
-      ]
-    ]
-  ],
   "findAttachmentsBy" : [
     [
       "46",
@@ -85,17 +69,6 @@
       "IDENTITY"
     ]
   ],
-  "findFeatureBy" : [
-    "Attachments",
-    "Attachments",
-    "Attachments",
-    "Attachments",
-    "Attachments",
-    "Attachments",
-    "Attachments",
-    "Attachments",
-    "Attachments"
-  ],
   "findLocationOf" : [
     {
       "line" : 12,
@@ -146,63 +119,6 @@
     "PASSED",
     "PASSED"
   ],
-  "findNameOf" : {
-    "long" : [
-      "Attachments - Strings can be attached with a media type",
-      "Attachments - Log text",
-      "Attachments - Log ANSI coloured text",
-      "Attachments - Log JSON",
-      "Attachments - Byte arrays are base64-encoded regardless of media type",
-      "Attachments - Attaching JPEG images",
-      "Attachments - Attaching PNG images",
-      "Attachments - Attaching PDFs with a different filename",
-      "Attachments - Attaching URIs"
-    ],
-    "excludeFeatureName" : [
-      "Strings can be attached with a media type",
-      "Log text",
-      "Log ANSI coloured text",
-      "Log JSON",
-      "Byte arrays are base64-encoded regardless of media type",
-      "Attaching JPEG images",
-      "Attaching PNG images",
-      "Attaching PDFs with a different filename",
-      "Attaching URIs"
-    ],
-    "longPickleName" : [
-      "Attachments - Strings can be attached with a media type",
-      "Attachments - Log text",
-      "Attachments - Log ANSI coloured text",
-      "Attachments - Log JSON",
-      "Attachments - Byte arrays are base64-encoded regardless of media type",
-      "Attachments - Attaching JPEG images",
-      "Attachments - Attaching PNG images",
-      "Attachments - Attaching PDFs with a different filename",
-      "Attachments - Attaching URIs"
-    ],
-    "short" : [
-      "Strings can be attached with a media type",
-      "Log text",
-      "Log ANSI coloured text",
-      "Log JSON",
-      "Byte arrays are base64-encoded regardless of media type",
-      "Attaching JPEG images",
-      "Attaching PNG images",
-      "Attaching PDFs with a different filename",
-      "Attaching URIs"
-    ],
-    "shortPickleName" : [
-      "Strings can be attached with a media type",
-      "Log text",
-      "Log ANSI coloured text",
-      "Log JSON",
-      "Byte arrays are base64-encoded regardless of media type",
-      "Attaching JPEG images",
-      "Attaching PNG images",
-      "Attaching PDFs with a different filename",
-      "Attaching URIs"
-    ]
-  },
   "findPickleBy" : [
     "Strings can be attached with a media type",
     "Log text",

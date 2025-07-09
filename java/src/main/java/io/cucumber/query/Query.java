@@ -28,9 +28,16 @@ import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.Timestamp;
 
 import java.time.Duration;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -118,6 +125,10 @@ public final class Query {
                 .collect(toList());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
@@ -159,6 +170,10 @@ public final class Query {
                 .collect(toList());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
     }
@@ -181,6 +196,10 @@ public final class Query {
                 .max(testStepResultComparator);
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -189,6 +208,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Feature element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -197,6 +220,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Rule element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -205,6 +232,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Scenario element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -213,6 +244,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Examples element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -221,6 +256,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(TableRow element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -229,6 +268,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Pickle element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
