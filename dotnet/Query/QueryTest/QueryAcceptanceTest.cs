@@ -204,11 +204,14 @@ namespace QueryTest
 
         private static Stream ReadResourceAsStream(string resourceName)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var fullName = assembly.GetManifestResourceNames().FirstOrDefault(n => n.EndsWith(resourceName));
-            if (fullName == null)
-                throw new FileNotFoundException($"Resource {resourceName} not found.");
-            return assembly.GetManifestResourceStream(fullName)!;
+            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (assemblyLocation == null)
+                throw new InvalidOperationException("Assembly location could not be determined.");
+
+            var fullName = Path.Combine(assemblyLocation, "testdata", resourceName);
+            if (!File.Exists(fullName))
+                throw new FileNotFoundException($"Resource {fullName} not found.");
+            return File.OpenRead(fullName);
         }
 
         private static string ReadResourceAsString(string resourceName)
@@ -227,8 +230,8 @@ namespace QueryTest
             public TestCase(string ndjsonFile)
             {
                 Name = ndjsonFile.Substring(0, ndjsonFile.LastIndexOf(".ndjson", StringComparison.Ordinal));
-                SourceResourceName = $"QueryTest.Resources.{ndjsonFile}";
-                ExpectedResourceName = $"QueryTest.Resources.{Name}.query-results.json";
+                SourceResourceName = ndjsonFile;
+                ExpectedResourceName = $"{Name}.query-results.json";
             }
 
             public override string ToString() => Name;

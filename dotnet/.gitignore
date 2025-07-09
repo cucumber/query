@@ -174,3 +174,7 @@ Gherkin.NuGetPackages/bin/
 .tested
 .fixprotoc
 .vs/
+
+# ========================
+# Query project specific ignore settings
+Query/QueryTest/testdata/

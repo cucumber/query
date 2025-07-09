@@ -15,12 +15,6 @@
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
   </PropertyGroup>
 
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\*.ndjson" />
-    <EmbeddedResource Include="Resources\*.json" />
-  </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
     <ProjectReference Include="..\Query\Query.csproj" />
@@ -32,6 +26,15 @@
 
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="testdata\*.ndjson">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="testdata\*.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
