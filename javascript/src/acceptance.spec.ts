@@ -157,6 +157,16 @@ describe('Acceptance Tests', async () => {
             .findAllPickleSteps()
             .map((pickleStep) => query.findStepBy(pickleStep))
             .map((step) => step?.text),
+          findStepDefinitionsBy: query
+            .findAllTestSteps()
+            .map((pickleStep) =>
+              query.findStepDefinitionsBy(pickleStep).map((stepDefinition) => stepDefinition?.id)
+            ),
+          findUnambiguousStepDefinitionBy: query
+            .findAllTestSteps()
+            .map((pickleStep) => query.findUnambiguousStepDefinitionBy(pickleStep))
+            .filter((stepDefinition) => !!stepDefinition)
+            .map((stepDefinition) => stepDefinition.id),
           findTestCaseBy: query
             .findAllTestCaseStarted()
             .map((testCaseStarted) => query.findTestCaseBy(testCaseStarted))
@@ -223,6 +233,8 @@ interface ResultsFixture {
   findPickleBy: Array<string>
   findPickleStepBy: Array<string>
   findStepBy: Array<string>
+  findStepDefinitionsBy: Array<Array<string>>
+  findUnambiguousStepDefinitionBy: Array<string>
   findTestCaseBy: Array<string>
   findTestCaseDurationBy: Array<Duration>
   findTestCaseFinishedBy: Array<string>
@@ -251,6 +263,8 @@ const defaults: Partial<ResultsFixture> = {
   findPickleBy: [],
   findPickleStepBy: [],
   findStepBy: [],
+  findStepDefinitionsBy: [],
+  findUnambiguousStepDefinitionBy: [],
   findTestCaseBy: [],
   findTestCaseDurationBy: [],
   findTestCaseFinishedBy: [],

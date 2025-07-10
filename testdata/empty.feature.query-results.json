@@ -54,6 +54,7 @@
   "findPickleBy" : [
     "Blank Scenario"
   ],
+  "findUnambiguousStepDefinitionBy" : [ ],
   "findTestCaseBy" : [
     "3"
   ],

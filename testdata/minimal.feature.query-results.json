@@ -60,6 +60,14 @@
   "findStepBy" : [
     "I have 42 cukes in my belly"
   ],
+  "findStepDefinitionsBy" : [
+    [
+      "0"
+    ]
+  ],
+  "findUnambiguousStepDefinitionBy" : [
+    "0"
+  ],
   "findTestCaseBy" : [
     "7"
   ],

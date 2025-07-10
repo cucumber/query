@@ -9,6 +9,7 @@ import io.cucumber.messages.types.Hook;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
 import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.StepDefinition;
 import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
 import io.cucumber.messages.types.TestStep;
@@ -179,6 +180,16 @@ public class QueryAcceptanceTest {
                 .map(query::findStepBy)
                 .map(step -> step.map(Step::getText))
                 .collect(toList()));
+        results.put("findStepDefinitionsBy", query.findAllTestSteps().stream()
+                .map(query::findStepDefinitionsBy)
+                .map(stepDefinitions -> stepDefinitions.stream().map(StepDefinition::getId)
+                        .collect(toList()))
+                .collect(toList()));
+        results.put("findUnambiguousStepDefinitionBy", query.findAllTestSteps().stream()
+                .map(query::findUnambiguousStepDefinitionBy)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(StepDefinition::getId));
         results.put("findTestCaseBy", query.findAllTestCaseStarted().stream()
                 .map(query::findTestCaseBy)
                 .map(testCase -> testCase.map(io.cucumber.messages.types.TestCase::getId))
