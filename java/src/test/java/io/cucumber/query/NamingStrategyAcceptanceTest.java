@@ -123,18 +123,6 @@ public class NamingStrategyAcceptanceTest {
             return name + " -> " + strategyName;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            TestCase testCase = (TestCase) o;
-            return source.equals(testCase.source);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(source);
-        }
     }
 
 }
