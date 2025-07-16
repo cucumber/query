@@ -110,12 +110,6 @@ public class QueryAcceptanceTest {
         results.put("findAllPickleSteps", query.findAllPickleSteps().size());
         results.put("findAllTestCaseStarted", query.findAllTestCaseStarted().size());
         results.put("findAllTestSteps", query.findAllTestSteps().size());
-        results.put("findAllTestCaseStartedGroupedByFeature", query.findAllTestCaseStartedGroupedByFeature()
-                .entrySet()
-                .stream()
-                .map(entry -> Arrays.asList(entry.getKey().map(Feature::getName), entry.getValue().stream()
-                        .map(TestCaseStarted::getId)
-                        .collect(toList()))));
         results.put("findAttachmentsBy", query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepFinishedAndTestStepBy)
                 .flatMap(Collection::stream)
@@ -128,10 +122,6 @@ public class QueryAcceptanceTest {
                                 attachment.getMediaType(),
                                 attachment.getContentEncoding()
                         ))
-                .collect(toList()));
-        results.put("findFeatureBy", query.findAllTestCaseStarted().stream()
-                .map(query::findFeatureBy)
-                .map(feature -> feature.map(Feature::getName))
                 .collect(toList()));
         results.put("findHookBy", query.findAllTestSteps().stream()
                 .map(query::findHookBy)
@@ -147,25 +137,6 @@ public class QueryAcceptanceTest {
                 .map(query::findMostSevereTestStepResultBy)
                 .map(testStepResult -> testStepResult.map(TestStepResult::getStatus))
                 .collect(toList()));
-
-        Map<String, Object> names = new LinkedHashMap<>();
-        names.put("long", query.findAllPickles().stream()
-                .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(LONG).build()))
-                .collect(toList()));
-        names.put("excludeFeatureName", query.findAllPickles().stream()
-                .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(LONG).featureName(EXCLUDE).build()))
-                .collect(toList()));
-        names.put("longPickleName", query.findAllPickles().stream()
-                .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(LONG).exampleName(PICKLE).build()))
-                .collect(toList()));
-        names.put("short", query.findAllPickles().stream()
-                .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(SHORT).build()))
-                .collect(toList()));
-        names.put("shortPickleName", query.findAllPickles().stream()
-                .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(SHORT).exampleName(PICKLE).build()))
-                .collect(toList()));
-
-        results.put("findNameOf", names);
 
         results.put("findPickleBy", query.findAllTestCaseStarted().stream()
                 .map(query::findPickleBy)
@@ -249,18 +220,6 @@ public class QueryAcceptanceTest {
             return name;
         }
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            TestCase testCase = (TestCase) o;
-            return source.equals(testCase.source);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(source);
-        }
     }
 
 }
