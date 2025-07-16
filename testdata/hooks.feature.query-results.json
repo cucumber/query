@@ -56,6 +56,25 @@
     "a step fails",
     "a step does not exist"
   ],
+  "findStepDefinitionsBy" : [
+    [ ],
+    [
+      "1"
+    ],
+    [ ],
+    [ ],
+    [
+      "2"
+    ],
+    [ ],
+    [ ],
+    [ ],
+    [ ]
+  ],
+  "findUnambiguousStepDefinitionBy" : [
+    "1",
+    "2"
+  ],
   "findTestCaseBy" : [
     "20",
     "24",

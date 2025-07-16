@@ -13,6 +13,7 @@ import {
   Rule,
   Scenario,
   Step,
+  StepDefinition,
   TestCase,
   TestCaseFinished,
   TestCaseStarted,
@@ -60,6 +61,7 @@ export default class Query {
   private readonly stepById: Map<string, Step> = new Map()
   private readonly pickleById: Map<string, Pickle> = new Map()
   private readonly pickleStepById: Map<string, PickleStep> = new Map()
+  private readonly stepDefinitionById: Map<string, StepDefinition> = new Map()
   private readonly testCaseById: Map<string, TestCase> = new Map()
   private readonly testStepById: Map<string, TestStep> = new Map()
   private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
@@ -82,6 +84,9 @@ export default class Query {
     }
     if (envelope.hook) {
       this.hooksById.set(envelope.hook.id, envelope.hook)
+    }
+    if (envelope.stepDefinition) {
+      this.stepDefinitionById.set(envelope.stepDefinition.id, envelope.stepDefinition)
     }
     if (envelope.testRunStarted) {
       this.testRunStarted = envelope.testRunStarted
@@ -530,6 +535,17 @@ export default class Query {
     const [astNodeId] = pickleStep.astNodeIds
     assert.ok(astNodeId, 'Expected PickleStep to have an astNodeId')
     return this.stepById.get(astNodeId)
+  }
+
+  public findStepDefinitionsBy(testStep: TestStep): ReadonlyArray<StepDefinition> {
+    return (testStep.stepDefinitionIds ?? []).map((id) => this.stepDefinitionById.get(id))
+  }
+
+  public findUnambiguousStepDefinitionBy(testStep: TestStep): StepDefinition | undefined {
+    if (testStep.stepDefinitionIds?.length === 1) {
+      return this.stepDefinitionById.get(testStep.stepDefinitionIds[0])
+    }
+    return undefined
   }
 
   public findTestCaseBy(element: TestCaseStarted | TestStepStarted): TestCase | undefined {

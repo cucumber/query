@@ -152,6 +152,46 @@
     "a PDF document is attached and renamed",
     "a link to \"https://cucumber.io\" is attached"
   ],
+  "findStepDefinitionsBy" : [
+    [
+      "0"
+    ],
+    [
+      "1"
+    ],
+    [
+      "2"
+    ],
+    [
+      "3"
+    ],
+    [
+      "4"
+    ],
+    [
+      "5"
+    ],
+    [
+      "6"
+    ],
+    [
+      "7"
+    ],
+    [
+      "8"
+    ]
+  ],
+  "findUnambiguousStepDefinitionBy" : [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
   "findTestCaseBy" : [
     "47",
     "49",
