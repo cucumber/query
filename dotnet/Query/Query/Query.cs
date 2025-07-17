@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Io.Cucumber.Messages.Types;
 using System.Collections.Concurrent;
+using Cucumber.Messages;
 
 namespace Io.Cucumber.Query;
 
@@ -192,8 +193,8 @@ public class Query
         var finished = FindTestCaseFinishedBy(testCaseStarted)?.Timestamp;
         if (finished != null)
         {
-            var startTime = started.ToDateTimeOffset();
-            var finishTime = finished.ToDateTimeOffset();
+            var startTime = Converters.ToDateTime(started);
+            var finishTime = Converters.ToDateTime(finished);
             return finishTime - startTime;
         }
         return null;
@@ -210,8 +211,8 @@ public class Query
         // Java: if (testRunStarted == null || testRunFinished == null) return Optional.empty();
         if (_testRunStarted == null || _testRunFinished == null)
             return null;
-        var start = _testRunStarted.Timestamp.ToDateTimeOffset();
-        var finish = _testRunFinished.Timestamp.ToDateTimeOffset();
+        var start = Converters.ToDateTime(_testRunStarted.Timestamp);
+        var finish = Converters.ToDateTime(_testRunFinished.Timestamp);
         return finish - start;
     }
 
