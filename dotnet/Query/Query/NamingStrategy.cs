@@ -6,26 +6,27 @@ namespace Io.Cucumber.Query
     /// <summary>
     /// Names Pickles and other elements in a GherkinDocument.
     /// </summary>
-    public enum Strategy
-    {
-        LONG,
-        SHORT
-    }
-
-    public enum ExampleName
-    {
-        NUMBER,
-        PICKLE,
-        NUMBER_AND_PICKLE_IF_PARAMETERIZED
-    }
-
-    public enum FeatureName
-    {
-        INCLUDE,
-        EXCLUDE
-    }
     public abstract class NamingStrategy : ILineageReducer<string>
     {
+        public enum Strategy
+        {
+            LONG,
+            SHORT
+        }
+
+        public enum ExampleName
+        {
+            NUMBER,
+            PICKLE,
+            NUMBER_AND_PICKLE_IF_PARAMETERIZED
+        }
+
+
+        public enum FeatureName
+        {
+            INCLUDE,
+            EXCLUDE
+        }
 
         public static Builder Create(Strategy strategy)
         {
@@ -40,8 +41,8 @@ namespace Io.Cucumber.Query
         public class Builder
         {
             private readonly Strategy _strategy;
-            private FeatureName _featureName = Io.Cucumber.Query.FeatureName.INCLUDE;
-            private ExampleName _exampleName = Io.Cucumber.Query.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
+            private FeatureName _featureName = NamingStrategy.FeatureName.INCLUDE;
+            private ExampleName _exampleName = NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
 
             public Builder(Strategy strategy)
             {

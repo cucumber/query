@@ -71,14 +71,6 @@ public class Query
 
     public IList<TestStep> FindAllTestSteps() => _testStepById.Values.OrderBy(ts => ts.Id).ToList();
 
-    public IDictionary<Feature?, List<TestCaseStarted>> FindAllTestCaseStartedGroupedByFeature()
-    {
-        // Group TestCaseStarted by Feature (null if not found)
-        return FindAllTestCaseStarted()
-            .GroupBy(tcs => FindFeatureBy(tcs))
-            .ToDictionary(g => g.Key, g => g.ToList());
-    }
-
     public Meta? FindMeta() => _meta;
     public TestRunStarted? FindTestRunStarted() => _testRunStarted;
     public TestRunFinished? FindTestRunFinished() => _testRunFinished;
@@ -88,14 +80,8 @@ public class Query
             ? attachments.Where(a => a.TestStepId == testStepFinished.TestStepId).ToList()
             : new List<Attachment>();
 
-    public Feature? FindFeatureBy(TestCaseStarted testCaseStarted)
-    {
-        return FindLineageBy(testCaseStarted)?.Feature;
-    }
-
     public Hook? FindHookBy(TestStep testStep)
     {
-        // Java: testStep.getHookId().map(hookById::get)
         if (!string.IsNullOrEmpty(testStep.HookId) && _hookById.TryGetValue(testStep.HookId, out var hook))
         {
             return hook;
@@ -105,7 +91,6 @@ public class Query
 
     public Pickle? FindPickleBy(TestCaseStarted testCaseStarted)
     {
-        // Java: findTestCaseBy(testCaseStarted).map(TestCase::getPickleId).map(pickleById::get)
         var testCase = FindTestCaseBy(testCaseStarted);
         if (testCase != null && _pickleById.TryGetValue(testCase.PickleId, out var pickle))
         {
@@ -116,7 +101,6 @@ public class Query
 
     public Pickle? FindPickleBy(TestStepStarted testStepStarted)
     {
-        // Java: findTestCaseBy(testStepStarted).map(TestCase::getPickleId).map(pickleById::get)
         var testCaseStarted = FindTestCaseStartedBy(testStepStarted);
         if (testCaseStarted != null)
         {
@@ -127,7 +111,6 @@ public class Query
 
     public TestCase? FindTestCaseBy(TestCaseStarted testCaseStarted)
     {
-        // Java: testCaseById.get(testCaseStarted.getTestCaseId())
         if (_testCaseById.TryGetValue(testCaseStarted.TestCaseId, out var testCase))
         {
             return testCase;
@@ -137,32 +120,27 @@ public class Query
 
     public TestCaseStarted? FindTestCaseStartedBy(TestStepStarted testStepStarted)
     {
-        // Java: testCaseStartedById.get(testStepStarted.getTestCaseStartedId())
         return _testCaseStartedById.TryGetValue(testStepStarted.TestCaseStartedId, out var tcs) ? tcs : null;
     }
 
     public TestCase? FindTestCaseBy(TestStepStarted testStepStarted)
     {
-        // Java: findTestCaseStartedBy(testStepStarted).flatMap(this::findTestCaseBy)
         var testCaseStarted = FindTestCaseStartedBy(testStepStarted);
         return testCaseStarted != null ? FindTestCaseBy(testCaseStarted) : null;
     }
 
     public TestStep? FindTestStepBy(TestStepStarted testStepStarted)
     {
-        // Java: testStepById.get(testStepStarted.getTestStepId())
         return _testStepById.TryGetValue(testStepStarted.TestStepId, out var testStep) ? testStep : null;
     }
 
     public TestStep? FindTestStepBy(TestStepFinished testStepFinished)
     {
-        // Java: testStepById.get(testStepFinished.getTestStepId())
         return _testStepById.TryGetValue(testStepFinished.TestStepId, out var testStep) ? testStep : null;
     }
 
     public PickleStep? FindPickleStepBy(TestStep testStep)
     {
-        // Java: testStep.getPickleStepId().map(pickleStepById::get)
         if (!string.IsNullOrEmpty(testStep.PickleStepId))
         {
             if (_pickleStepById.TryGetValue(testStep.PickleStepId, out var pickleStep))
@@ -175,7 +153,6 @@ public class Query
 
     public Step? FindStepBy(PickleStep pickleStep)
     {
-        // Java: String stepId = pickleStep.getAstNodeIds().get(0); stepById.get(stepId)
         if (pickleStep.AstNodeIds != null && pickleStep.AstNodeIds.Count > 0)
         {
             var stepId = pickleStep.AstNodeIds[0];
@@ -202,13 +179,11 @@ public class Query
 
     public TestCaseFinished? FindTestCaseFinishedBy(TestCaseStarted testCaseStarted)
     {
-        // Java: testCaseFinishedByTestCaseStartedId.get(testCaseStarted.getId())
         return _testCaseFinishedByTestCaseStartedId.TryGetValue(testCaseStarted.Id, out var finished) ? finished : null;
     }
 
     public System.TimeSpan? FindTestRunDuration()
     {
-        // Java: if (testRunStarted == null || testRunFinished == null) return Optional.empty();
         if (_testRunStarted == null || _testRunFinished == null)
             return null;
         var start = Converters.ToDateTime(_testRunStarted.Timestamp);
@@ -218,10 +193,8 @@ public class Query
 
     public IList<TestStepStarted> FindTestStepsStartedBy(TestCaseStarted testCaseStarted)
     {
-        // Java: testStepsStartedByTestCaseStartedId.getOrDefault(testCaseStarted.getId(), emptyList())
         if (_testStepsStartedByTestCaseStartedId.TryGetValue(testCaseStarted.Id, out var steps))
         {
-            // Return a copy for concurrency safety
             return new List<TestStepStarted>(steps);
         }
         return new List<TestStepStarted>();
@@ -229,7 +202,6 @@ public class Query
 
     public IList<TestStepFinished> FindTestStepsFinishedBy(TestCaseStarted testCaseStarted)
     {
-        // Java: testStepsFinishedByTestCaseStartedId.getOrDefault(testCaseStarted.getId(), emptyList())
         if (_testStepsFinishedByTestCaseStartedId.TryGetValue(testCaseStarted.Id, out var steps))
         {
             // Return a copy for concurrency safety
@@ -240,11 +212,6 @@ public class Query
 
     public IList<(TestStepFinished, TestStep)> FindTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted)
     {
-        // Java: findTestStepsFinishedBy(testCaseStarted).stream()
-        //   .map(testStepFinished -> findTestStepBy(testStepFinished).map(testStep -> new SimpleEntry<>(testStepFinished, testStep)))
-        //   .filter(Optional::isPresent)
-        //   .map(Optional::get)
-        //   .collect(toList());
         var finishedSteps = FindTestStepsFinishedBy(testCaseStarted);
         var result = new List<(TestStepFinished, TestStep)>();
         foreach (var testStepFinished in finishedSteps)
@@ -470,62 +437,6 @@ public class Query
         }
         return FindLineageBy(pickle);
     }
-
-    public string FindNameOf(GherkinDocument element, NamingStrategy namingStrategy)
-    {
-        if (element == null) return string.Empty;
-        var lineage = FindLineageBy(element);
-        return GetNameFromStrategy(element, lineage, namingStrategy);
-    }
-
-    public string FindNameOf(Feature element, NamingStrategy namingStrategy)
-    {
-        if (element == null) return string.Empty;
-        var lineage = FindLineageBy(element);
-        return GetNameFromStrategy(element, lineage, namingStrategy);
-    }
-
-    public string FindNameOf(Rule element, NamingStrategy namingStrategy)
-    {
-        if (element == null) return string.Empty;
-        var lineage = FindLineageBy(element);
-        return GetNameFromStrategy(element, lineage, namingStrategy);
-    }
-
-    public string FindNameOf(Scenario element, NamingStrategy namingStrategy)
-    {
-        if (element == null) return string.Empty;
-        var lineage = FindLineageBy(element);
-        return GetNameFromStrategy(element, lineage, namingStrategy);
-    }
-
-    public string FindNameOf(Examples element, NamingStrategy namingStrategy)
-    {
-        if (element == null) return string.Empty;
-        var lineage = FindLineageBy(element);
-        return GetNameFromStrategy(element, lineage, namingStrategy);
-    }
-
-    public string FindNameOf(TableRow element, NamingStrategy namingStrategy)
-    {
-        if (element == null) return string.Empty;
-        var lineage = FindLineageBy(element);
-        return GetNameFromStrategy(element, lineage, namingStrategy);
-    }
-
-    public string FindNameOf(Pickle element, NamingStrategy namingStrategy)
-    {
-        if (element == null) return string.Empty;
-        var lineage = FindLineageBy(element);
-        var result = namingStrategy.Reduce(lineage, element);
-        if (result == null)
-        {
-            throw new ArgumentException("Element was not part of this query object");
-        }
-        return result;
-
-    }
-
     public Location? FindLocationOf(Pickle pickle)
     {
         var lineage = FindLineageBy(pickle);
@@ -536,16 +447,5 @@ public class Query
         if (lineage.Scenario != null)
             return lineage.Scenario.Location;
         return null;
-    }
-
-    // Placeholder for actual naming strategy logic
-    private string GetNameFromStrategy(object element, Lineage? lineage, NamingStrategy namingStrategy)
-    {
-        var result = namingStrategy.Reduce(lineage);
-        if (result == null)
-        {
-            throw new ArgumentException("Element was not part of this query object");
-        }
-        return result;
     }
 }

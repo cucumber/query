@@ -102,12 +102,6 @@ namespace QueryTest
                 ["findAllPickleSteps"] = query.FindAllPickleSteps().Count,
                 ["findAllTestCaseStarted"] = query.FindAllTestCaseStarted().Count,
                 ["findAllTestSteps"] = query.FindAllTestSteps().Count,
-                ["findAllTestCaseStartedGroupedByFeature"] = query.FindAllTestCaseStartedGroupedByFeature()
-                    .Select(entry => new object[]
-                    {
-                        entry.Key?.Name ?? String.Empty,
-                        entry.Value.Select(tcs => tcs.Id).ToList()
-                    }).ToList(),
                 ["findAttachmentsBy"] = query.FindAllTestCaseStarted()
                     .SelectMany(tcs => query.FindTestStepFinishedAndTestStepBy(tcs))
                     .Select(pair => pair.Item1)
@@ -119,9 +113,6 @@ namespace QueryTest
                         att.MediaType,
                         att.ContentEncoding
                     }).ToList(),
-                ["findFeatureBy"] = query.FindAllTestCaseStarted()
-                    .Select(tcs => query.FindFeatureBy(tcs)?.Name)
-                    .ToList(),
                 ["findHookBy"] = query.FindAllTestSteps()
                     .Select(ts => query.FindHookBy(ts)?.Id)
                     .Where(id => id != null)
@@ -134,14 +125,6 @@ namespace QueryTest
                 ["findMostSevereTestStepResultBy"] = query.FindAllTestCaseStarted()
                     .Select(tcs => query.FindMostSevereTestStepResultBy(tcs)?.Status.ToString())
                     .ToList(),
-                ["findNameOf"] = new Dictionary<string, object?>
-                {
-                    ["long"] = query.FindAllPickles().Select(p => query.FindNameOf(p, NamingStrategy.Create(Strategy.LONG).Build())).ToList(),
-                    ["excludeFeatureName"] = query.FindAllPickles().Select(p => query.FindNameOf(p, NamingStrategy.Create(Strategy.LONG).FeatureName(FeatureName.EXCLUDE).Build())).ToList(),
-                    ["longPickleName"] = query.FindAllPickles().Select(p => query.FindNameOf(p, NamingStrategy.Create(Strategy.LONG).ExampleName(ExampleName.PICKLE).Build())).ToList(),
-                    ["short"] = query.FindAllPickles().Select(p => query.FindNameOf(p, NamingStrategy.Create(Strategy.SHORT).Build())).ToList(),
-                    ["shortPickleName"] = query.FindAllPickles().Select(p => query.FindNameOf(p, NamingStrategy.Create(Strategy.SHORT).ExampleName(ExampleName.PICKLE).Build())).ToList(),
-                },
                 ["findPickleBy"] = query.FindAllTestCaseStarted()
                     .Select(tcs => query.FindPickleBy(tcs)?.Name)
                     .ToList(),

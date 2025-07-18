@@ -13,20 +13,20 @@ namespace Io.Cucumber.Query
         // There are at most 5 levels to a feature file.
         private readonly List<string> parts = new List<string>(5);
         private readonly string delimiter = " - ";
-        private readonly Strategy strategy;
-        private readonly FeatureName featureName;
-        private readonly ExampleName exampleName;
+        private readonly NamingStrategy.Strategy strategy;
+        private readonly NamingStrategy.FeatureName featureName;
+        private readonly NamingStrategy.ExampleName exampleName;
 
         private string scenarioName;
         private bool isExample;
         private int examplesIndex;
 
-        public static Func<NamingCollector> Of(Strategy strategy, FeatureName featureName, ExampleName exampleName)
+        public static Func<NamingCollector> Of(NamingStrategy.Strategy strategy, NamingStrategy.FeatureName featureName, NamingStrategy.ExampleName exampleName)
         {
             return () => new NamingCollector(strategy, featureName, exampleName);
         }
 
-        public NamingCollector(Strategy strategy, FeatureName featureName, ExampleName exampleName)
+        public NamingCollector(NamingStrategy.Strategy strategy, NamingStrategy.FeatureName featureName, NamingStrategy.ExampleName exampleName)
         {
             this.strategy = strategy;
             this.featureName = featureName;
@@ -36,7 +36,7 @@ namespace Io.Cucumber.Query
         public void Add(GherkinDocument document) { }
         public void Add(Feature feature)
         {
-            if (featureName == FeatureName.INCLUDE || strategy == Strategy.SHORT)
+            if (featureName == NamingStrategy.FeatureName.INCLUDE || strategy == NamingStrategy.Strategy.SHORT)
             {
                 parts.Add(feature.Name);
             }
@@ -76,9 +76,9 @@ namespace Io.Cucumber.Query
             {
                 switch (exampleName)
                 {
-                    case ExampleName.NUMBER:
+                    case NamingStrategy.ExampleName.NUMBER:
                         break;
-                    case ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED:
+                    case NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED:
                         bool parameterized = !scenarioName.Equals(pickleName);
                         if (parameterized)
                         {
@@ -87,7 +87,7 @@ namespace Io.Cucumber.Query
                             parts.Add(exampleNumber + ": " + pickleName);
                         }
                         break;
-                    case ExampleName.PICKLE:
+                    case NamingStrategy.ExampleName.PICKLE:
                         parts.RemoveAt(parts.Count - 1); // Remove example number
                         parts.Add(pickleName);
                         break;
@@ -99,7 +99,7 @@ namespace Io.Cucumber.Query
 
         public string Finish()
         {
-            if (strategy == Strategy.SHORT)
+            if (strategy == NamingStrategy.Strategy.SHORT)
             {
                 return parts.Count > 0 ? parts[parts.Count - 1] : string.Empty;
             }
