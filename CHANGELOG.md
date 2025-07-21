@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Changed
-- Java increase dependency messages to at least v28.1 ([#87](https://github.com/cucumber/query/pull/87))
+- [Java] increase dependency messages to at least v28.1 ([#87](https://github.com/cucumber/query/pull/87))
 
 
 ## [13.6.0] - 2025-08-11
