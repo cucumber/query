@@ -173,6 +173,14 @@ public final class Query {
                 .stream()
                 .map(TestStepFinished::getTestStepResult)
                 .max(testStepResultComparator);
+    }   
+    
+    public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestStepsFinishedBy(testCaseFinished)
+                .stream()
+                .map(TestStepFinished::getTestStepResult)
+                .max(testStepResultComparator);
     }
 
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
@@ -247,6 +255,12 @@ public final class Query {
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestCaseBy(testCaseStarted)
+                .flatMap(this::findPickleBy);
+    }
+    
+    public Optional<Pickle> findPickleBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseBy(testCaseFinished)
                 .flatMap(this::findPickleBy);
     }
 
@@ -399,6 +413,14 @@ public final class Query {
         requireNonNull(testCaseStarted);
         List<TestStepFinished> testStepsFinished = testStepsFinishedByTestCaseStartedId.
                 getOrDefault(testCaseStarted.getId(), emptyList());
+        // Concurrency
+        return new ArrayList<>(testStepsFinished);
+    }
+
+    public List<TestStepFinished> findTestStepsFinishedBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        List<TestStepFinished> testStepsFinished = testStepsFinishedByTestCaseStartedId.
+                getOrDefault(testCaseFinished.getTestCaseStartedId(), emptyList());
         // Concurrency
         return new ArrayList<>(testStepsFinished);
     }
