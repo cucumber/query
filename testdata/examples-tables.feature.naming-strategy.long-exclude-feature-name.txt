@@ -1,0 +1,9 @@
+Eating cucumbers - These are passing - #1.1
+Eating cucumbers - These are passing - #1.2
+Eating cucumbers - These are failing - #2.1
+Eating cucumbers - These are failing - #2.2
+Eating cucumbers - These are undefined because the value is not an {int} - #3.1
+Eating cucumbers - These are undefined because the value is not an {int} - #3.2
+Eating cucumbers with <friends> friends - #1.1: Eating cucumbers with 11 friends
+Eating cucumbers with <friends> friends - #1.2: Eating cucumbers with 1 friends
+Eating cucumbers with <friends> friends - #1.3: Eating cucumbers with 0 friends
