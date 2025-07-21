@@ -1,6 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
+import io.cucumber.messages.TestStepResultStatusComparator;
 import io.cucumber.messages.types.Attachment;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
@@ -48,7 +49,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
-import static java.util.Comparator.nullsFirst;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -72,7 +72,7 @@ import static java.util.stream.Collectors.toList;
 public final class Query {
     private static final Map<TestStepResultStatus, Long> ZEROES_BY_TEST_STEP_RESULT_STATUSES = Arrays.stream(TestStepResultStatus.values())
             .collect(Collectors.toMap(identity(), (s) -> 0L));
-    private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
+    private static final Comparator<TestStepResult> testStepResultComparator = comparing(TestStepResult::getStatus, new TestStepResultStatusComparator());
     private final Map<String, TestCaseStarted> testCaseStartedById = new LinkedHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new HashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new HashMap<>();
