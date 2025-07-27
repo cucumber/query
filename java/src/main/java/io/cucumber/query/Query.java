@@ -1,6 +1,8 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
+import io.cucumber.messages.TestStepResultStatusComparator;
+import io.cucumber.messages.TimestampComparator;
 import io.cucumber.messages.types.Attachment;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
@@ -73,7 +75,7 @@ import static java.util.stream.Collectors.toList;
 public final class Query {
     private static final Map<TestStepResultStatus, Long> ZEROES_BY_TEST_STEP_RESULT_STATUSES = Arrays.stream(TestStepResultStatus.values())
             .collect(Collectors.toMap(identity(), (s) -> 0L));
-    private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
+    private static final Comparator<TestStepResult> testStepResultComparator = comparing(TestStepResult::getStatus, new TestStepResultStatusComparator());
     private final Map<String, TestCaseStarted> testCaseStartedById = new ConcurrentHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new ConcurrentHashMap<>();
@@ -107,6 +109,7 @@ public final class Query {
     }
 
     public List<Pickle> findAllPickles() {
+        // TODO: This should sort by URI and location
         return pickleById.values().stream()
                 .sorted(comparing(Pickle::getId))
                 .collect(toList());
