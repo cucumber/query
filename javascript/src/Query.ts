@@ -428,13 +428,11 @@ export default class Query {
   }
 
   public findAllPickles(): ReadonlyArray<Pickle> {
-    const pickles = [...this.pickleById.values()]
-    return sortBy(pickles, ['id'])
+    return [...this.pickleById.values()]
   }
 
   public findAllPickleSteps(): ReadonlyArray<PickleStep> {
-    const pickleSteps = [...this.pickleStepById.values()]
-    return sortBy(pickleSteps, ['id'])
+    return [...this.pickleStepById.values()]
   }
 
   public findAllTestCaseStarted(): ReadonlyArray<TestCaseStarted> {
@@ -469,8 +467,7 @@ export default class Query {
   }
 
   public findAllTestSteps(): ReadonlyArray<TestStep> {
-    const testSteps = [...this.testStepById.values()]
-    return sortBy(testSteps, ['id'])
+    return [...this.testStepById.values()]
   }
 
   public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
