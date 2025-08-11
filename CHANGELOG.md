@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Changed
-- [Java] Replace redundant concurrent hashmap with regular hashmap
+- [Java] Replace redundant concurrent hashmap with regular hashmap ([#89](https://github.com/cucumber/query/pull/89))
 
 ## [13.5.0] - 2025-07-10
 ### Added
