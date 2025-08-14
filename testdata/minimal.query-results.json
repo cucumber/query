@@ -62,14 +62,14 @@
   ],
   "findStepDefinitionsBy" : [
     [
-      "0"
+      "4"
     ]
   ],
   "findUnambiguousStepDefinitionBy" : [
-    "0"
+    "4"
   ],
   "findTestCaseBy" : [
-    "7"
+    "6"
   ],
   "findTestCaseDurationBy" : [
     {
@@ -100,20 +100,20 @@
     "id" : "5"
   },
   "findTestStepByTestStepStarted" : [
-    "6"
+    "7"
   ],
   "findTestStepByTestStepFinished" : [
-    "6"
+    "7"
   ],
   "findTestStepsFinishedBy" : [
     [
-      "6"
+      "7"
     ]
   ],
   "findTestStepFinishedAndTestStepBy" : [
     [
-      "6",
-      "6"
+      "7",
+      "7"
     ]
   ]
 }
