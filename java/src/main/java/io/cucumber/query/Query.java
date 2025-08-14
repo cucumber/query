@@ -32,9 +32,7 @@ import io.cucumber.messages.types.Timestamp;
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -45,7 +43,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
@@ -70,9 +67,6 @@ import static java.util.stream.Collectors.toList;
  * @see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
  */
 public final class Query {
-    private static final Map<TestStepResultStatus, Long> ZEROES_BY_TEST_STEP_RESULT_STATUSES = Arrays.stream(TestStepResultStatus.values())
-            .collect(Collectors.toMap(identity(), (s) -> 0L));
-    private static final Comparator<TestStepResult> testStepResultComparator = comparing(TestStepResult::getStatus, new TestStepResultStatusComparator());
     private final Map<String, TestCaseStarted> testCaseStartedById = new LinkedHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new HashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new HashMap<>();
@@ -91,7 +85,10 @@ public final class Query {
     private TestRunFinished testRunFinished;
 
     public Map<TestStepResultStatus, Long> countMostSevereTestStepResultStatus() {
-        EnumMap<TestStepResultStatus, Long> results = new EnumMap<>(ZEROES_BY_TEST_STEP_RESULT_STATUSES);
+        EnumMap<TestStepResultStatus, Long> results = new EnumMap<>(TestStepResultStatus.class);
+        for (TestStepResultStatus value : TestStepResultStatus.values()) {
+            results.put(value, 0L);
+        }
         results.putAll(findAllTestCaseStarted().stream()
                 .map(this::findMostSevereTestStepResultBy)
                 .filter(Optional::isPresent)
@@ -172,7 +169,7 @@ public final class Query {
         return findTestStepsFinishedBy(testCaseStarted)
                 .stream()
                 .map(TestStepFinished::getTestStepResult)
-                .max(testStepResultComparator);
+                .max(comparing(TestStepResult::getStatus, new TestStepResultStatusComparator()));
     }
 
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
