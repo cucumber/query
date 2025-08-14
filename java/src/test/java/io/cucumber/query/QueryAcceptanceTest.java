@@ -53,12 +53,12 @@ public class QueryAcceptanceTest {
     static List<TestCase> acceptance() {
 
         return Stream.of(
-                        Paths.get("../testdata/attachments.feature.ndjson"),
-                        Paths.get("../testdata/empty.feature.ndjson"),
-                        Paths.get("../testdata/hooks.feature.ndjson"),
-                        Paths.get("../testdata/minimal.feature.ndjson"),
-                        Paths.get("../testdata/rules.feature.ndjson"),
-                        Paths.get("../testdata/examples-tables.feature.ndjson")
+                        Paths.get("../testdata/attachments.ndjson"),
+                        Paths.get("../testdata/empty.ndjson"),
+                        Paths.get("../testdata/hooks.ndjson"),
+                        Paths.get("../testdata/minimal.ndjson"),
+                        Paths.get("../testdata/rules.ndjson"),
+                        Paths.get("../testdata/examples-tables.ndjson")
                 )
                 .map(TestCase::new)
                 .sorted(Comparator.comparing(testCase -> testCase.source))
