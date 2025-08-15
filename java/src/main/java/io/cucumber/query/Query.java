@@ -32,6 +32,7 @@ import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -74,11 +75,11 @@ public final class Query {
             .collect(Collectors.toMap(identity(), (s) -> 0L));
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
     private final Map<String, TestCaseStarted> testCaseStartedById = new LinkedHashMap<>();
-    private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new HashMap<>();
-    private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new HashMap<>();
-    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new HashMap<>();
+    private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new LinkedHashMap<>();
+    private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new LinkedHashMap<>();
+    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new LinkedHashMap<>();
     private final Map<String, Pickle> pickleById = new LinkedHashMap<>();
-    private final Map<String, TestCase> testCaseById = new HashMap<>();
+    private final Map<String, TestCase> testCaseById = new LinkedHashMap<>();
     private final Map<String, Step> stepById = new LinkedHashMap<>();
     private final Map<String, TestStep> testStepById = new LinkedHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new LinkedHashMap<>();
@@ -121,6 +122,12 @@ public final class Query {
                 .collect(toList());
     }
 
+    public List<TestCaseFinished> findAllTestCaseFinished() {
+        return this.testCaseFinishedByTestCaseStartedId.values().stream()
+                        .filter(TestCaseFinished::getWillBeRetried)
+                        .collect(toList());
+    }
+
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
@@ -142,6 +149,22 @@ public final class Query {
 
     public List<TestStep> findAllTestSteps() {
         return new ArrayList<>(testStepById.values());
+    }
+
+    public List<TestCase> findAllTestCases() {
+        return new ArrayList<>(testCaseById.values());
+    }
+
+    public List<TestStepStarted> findAllTestStepsStarted() {
+        return testStepsStartedByTestCaseStartedId.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
+    }
+
+    public List<TestStepFinished> findAllTestStepsFinished() {
+        return testStepsFinishedByTestCaseStartedId.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
     }
 
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
