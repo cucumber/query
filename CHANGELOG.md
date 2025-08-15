@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [13.6.0] - 2025-08-11
+### Changed
+- [Java] Replace redundant concurrent hashmap with regular hashmap ([#89](https://github.com/cucumber/query/pull/89))
+
 ## [13.5.0] - 2025-07-10
 ### Added
 - Add `findStepDefinitionsBy` and `findUnambiguousStepDefinitionBy` ([#80](https://github.com/cucumber/query/pull/80))
@@ -202,7 +206,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.5.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...HEAD
+[13.6.0]: https://github.com/cucumber/cucumber/compare/query/v13.5.0...v13.6.0
 [13.5.0]: https://github.com/cucumber/cucumber/compare/query/v13.4.0...v13.5.0
 [13.4.0]: https://github.com/cucumber/cucumber/compare/query/v13.3.0...v13.4.0
 [13.3.0]: https://github.com/cucumber/cucumber/compare/query/v13.2.0...v13.3.0
