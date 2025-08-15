@@ -177,10 +177,8 @@ public final class Query {
     
     public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseFinished testCaseFinished) {
         requireNonNull(testCaseFinished);
-        return findTestStepsFinishedBy(testCaseFinished)
-                .stream()
-                .map(TestStepFinished::getTestStepResult)
-                .max(testStepResultComparator);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findMostSevereTestStepResultBy);
     }
 
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
@@ -260,7 +258,7 @@ public final class Query {
     
     public Optional<Pickle> findPickleBy(TestCaseFinished testCaseFinished) {
         requireNonNull(testCaseFinished);
-        return findTestCaseBy(testCaseFinished)
+        return findTestCaseStartedBy(testCaseFinished)
                 .flatMap(this::findPickleBy);
     }
 
@@ -340,13 +338,8 @@ public final class Query {
     
     public Optional<Duration> findTestCaseDurationBy(TestCaseFinished testCaseFinished) {
         requireNonNull(testCaseFinished);
-        Timestamp finished = testCaseFinished.getTimestamp();
         return findTestCaseStartedBy(testCaseFinished)
-                .map(TestCaseStarted::getTimestamp)
-                .map(started -> Duration.between(
-                        Convertor.toInstant(started),
-                        Convertor.toInstant(finished)
-                ));
+                .flatMap(this::findTestCaseDurationBy);
     }
 
     public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepStarted testStepStarted) {
@@ -419,10 +412,9 @@ public final class Query {
 
     public List<TestStepFinished> findTestStepsFinishedBy(TestCaseFinished testCaseFinished) {
         requireNonNull(testCaseFinished);
-        List<TestStepFinished> testStepsFinished = testStepsFinishedByTestCaseStartedId.
-                getOrDefault(testCaseFinished.getTestCaseStartedId(), emptyList());
-        // Concurrency
-        return new ArrayList<>(testStepsFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .map(this::findTestStepsFinishedBy)
+                .orElseGet(ArrayList::new);
     }
 
     public List<Entry<TestStepFinished, TestStep>> findTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted) {
