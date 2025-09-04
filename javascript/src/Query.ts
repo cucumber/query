@@ -580,8 +580,11 @@ export default class Query {
     return this.testCaseById.get(testCaseStarted.testCaseId)
   }
 
-  public findTestCaseDurationBy(testCaseStarted: TestCaseStarted): Duration | undefined {
-    const testCaseFinished = this.findTestCaseFinishedBy(testCaseStarted)
+  public findTestCaseDurationBy(element: TestCaseStarted | TestCaseFinished): Duration | undefined {
+    const testCaseStarted =
+      element instanceof TestCaseStarted ? element : this.findTestCaseStartedBy(element)
+    const testCaseFinished =
+      element instanceof TestCaseFinished ? element : this.findTestCaseFinishedBy(element)
     if (!testCaseFinished) {
       return undefined
     }

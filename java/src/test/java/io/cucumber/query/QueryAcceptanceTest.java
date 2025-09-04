@@ -261,10 +261,19 @@ public class QueryAcceptanceTest {
             return results;
         });
         
-        queries.put("findTestCaseDurationBy", (query) -> query.findAllTestCaseStarted().stream()
-                .map(query::findTestCaseDurationBy)
-                .map(duration -> duration.map(Convertor::toMessage))
-                .collect(toList()));
+        queries.put("findTestCaseDurationBy", (query) -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
+                    .map(query::findTestCaseDurationBy)
+                    .map(duration -> duration.map(Convertor::toMessage))
+                    .collect(toList()));
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+                    .map(query::findTestCaseDurationBy)
+                    .map(duration -> duration.map(Convertor::toMessage))
+                    .collect(toList()));
+            return results;
+        });
+        
         queries.put("findTestCaseFinishedBy", (query) -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestCaseFinishedBy)
                 .map(testCaseFinished -> testCaseFinished.map(TestCaseFinished::getTestCaseStartedId))

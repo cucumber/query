@@ -181,10 +181,16 @@ describe('Acceptance Tests', async () => {
           .map((testCase) => testCase?.id),
       }
     },
-    findTestCaseDurationBy: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .map((testCaseStarted) => query.findTestCaseDurationBy(testCaseStarted)),
+    findTestCaseDurationBy: (query: Query) => {
+      return {
+        testCaseStarted: query
+          .findAllTestCaseStarted()
+          .map((testCaseStarted) => query.findTestCaseDurationBy(testCaseStarted)),
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .map((testCaseFinished) => query.findTestCaseDurationBy(testCaseFinished)),
+      }
+    },
     findTestCaseFinishedBy: (query: Query) =>
       query
         .findAllTestCaseStarted()

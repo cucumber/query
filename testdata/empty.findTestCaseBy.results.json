@@ -4,5 +4,7 @@
   ],
   "testCaseFinished" : [
     "3"
-  ]
+  ],
+  "testStepStarted" : [ ],
+  "testStepFinished" : [ ]
 }

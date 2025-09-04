@@ -359,7 +359,6 @@ public final class Query {
                 ));
     }
     
-    // TODO: Test
     public Optional<Duration> findTestCaseDurationBy(TestCaseFinished testCaseFinished) {
         requireNonNull(testCaseFinished);
         return findTestCaseStartedBy(testCaseFinished)
