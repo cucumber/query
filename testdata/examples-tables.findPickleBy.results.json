@@ -1,11 +1,24 @@
-[
-  "Eating cucumbers",
-  "Eating cucumbers",
-  "Eating cucumbers",
-  "Eating cucumbers",
-  "Eating cucumbers",
-  "Eating cucumbers",
-  "Eating cucumbers with 11 friends",
-  "Eating cucumbers with 1 friends",
-  "Eating cucumbers with 0 friends"
-]
+{
+  "testCaseStarted" : [
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers with 11 friends",
+    "Eating cucumbers with 1 friends",
+    "Eating cucumbers with 0 friends"
+  ],
+  "testCaseFinished" : [
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers",
+    "Eating cucumbers with 11 friends",
+    "Eating cucumbers with 1 friends",
+    "Eating cucumbers with 0 friends"
+  ]
+}

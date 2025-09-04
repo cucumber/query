@@ -1,5 +1,12 @@
-[
-  "PASSED",
-  "FAILED",
-  "UNDEFINED"
-]
+{
+  "testCaseStarted" : [
+    "PASSED",
+    "FAILED",
+    "UNDEFINED"
+  ],
+  "testCaseFinished" : [
+    "PASSED",
+    "FAILED",
+    "UNDEFINED"
+  ]
+}

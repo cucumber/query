@@ -450,6 +450,20 @@ export default class Query {
     )
   }
 
+  public findAllTestCaseFinished(): ReadonlyArray<TestCaseFinished> {
+    return sortBy(
+      [...this.testCaseFinishedByTestCaseStartedId.values()].filter((testCaseFinished) => {
+        // only include if not yet finished OR won't be retried
+        return !testCaseFinished?.willBeRetried
+      }),
+      [
+        (testCaseFinished) =>
+          TimeConversion.timestampToMillisecondsSinceEpoch(testCaseFinished.timestamp),
+        'id',
+      ]
+    )
+  }
+
   public findAllTestCaseStartedGroupedByFeature(): Map<
     Feature | undefined,
     ReadonlyArray<TestCaseStarted>
@@ -468,6 +482,14 @@ export default class Query {
 
   public findAllTestSteps(): ReadonlyArray<TestStep> {
     return [...this.testStepById.values()]
+  }
+
+  public findAllTestStepStarted(): ReadonlyArray<TestStepStarted> {
+    return [...this.testStepStartedByTestCaseStartedId.values()]
+  }
+
+  public findAllTestStepFinished(): ReadonlyArray<TestStepFinished> {
+    return [...this.testStepFinishedByTestCaseStartedId.values()]
   }
 
   public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
@@ -492,8 +514,10 @@ export default class Query {
   }
 
   public findMostSevereTestStepResultBy(
-    testCaseStarted: TestCaseStarted
+    element: TestCaseStarted | TestCaseFinished
   ): TestStepResult | undefined {
+    const testCaseStarted =
+      element instanceof TestCaseStarted ? element : this.findTestCaseStartedBy(element)
     return sortBy(
       this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
         ([testStepFinished]) => testStepFinished.testStepResult
@@ -515,7 +539,9 @@ export default class Query {
     return lineage?.scenario?.location
   }
 
-  public findPickleBy(element: TestCaseStarted | TestStepStarted): Pickle | undefined {
+  public findPickleBy(
+    element: TestCaseStarted | TestCaseFinished | TestStepStarted
+  ): Pickle | undefined {
     const testCase = this.findTestCaseBy(element)
     assert.ok(testCase, 'Expected to find TestCase from TestCaseStarted')
     return this.pickleById.get(testCase.pickleId)
@@ -545,7 +571,9 @@ export default class Query {
     return undefined
   }
 
-  public findTestCaseBy(element: TestCaseStarted | TestStepStarted): TestCase | undefined {
+  public findTestCaseBy(
+    element: TestCaseStarted | TestCaseFinished | TestStepStarted | TestStepFinished
+  ): TestCase | undefined {
     const testCaseStarted =
       'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
     assert.ok(testCaseStarted, 'Expected to find TestCaseStarted by TestStepStarted')
@@ -563,8 +591,10 @@ export default class Query {
     )
   }
 
-  public findTestCaseStartedBy(testStepStarted: TestStepStarted): TestCaseStarted | undefined {
-    return this.testCaseStartedById.get(testStepStarted.testCaseStartedId)
+  public findTestCaseStartedBy(
+    element: TestCaseFinished | TestStepStarted | TestStepFinished
+  ): TestCaseStarted | undefined {
+    return this.testCaseStartedById.get(element.testCaseStartedId)
   }
 
   public findTestCaseFinishedBy(testCaseStarted: TestCaseStarted): TestCaseFinished | undefined {
@@ -599,8 +629,10 @@ export default class Query {
   }
 
   public findTestStepsFinishedBy(
-    testCaseStarted: TestCaseStarted
+    element: TestCaseStarted | TestCaseFinished
   ): ReadonlyArray<TestStepFinished> {
+    const testCaseStarted =
+      element instanceof TestCaseStarted ? element : this.findTestCaseStartedBy(element)
     // multimaps `get` implements `getOrDefault([])` behaviour internally
     return [...this.testStepFinishedByTestCaseStartedId.get(testCaseStarted.id)]
   }

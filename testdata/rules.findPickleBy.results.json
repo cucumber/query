@@ -1,5 +1,12 @@
-[
-  "Not enough money",
-  "Enough money",
-  "No chocolates left"
-]
+{
+  "testCaseStarted" : [
+    "Not enough money",
+    "Enough money",
+    "No chocolates left"
+  ],
+  "testCaseFinished" : [
+    "Not enough money",
+    "Enough money",
+    "No chocolates left"
+  ]
+}

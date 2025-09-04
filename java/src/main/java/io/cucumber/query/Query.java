@@ -124,7 +124,7 @@ public final class Query {
 
     public List<TestCaseFinished> findAllTestCaseFinished() {
         return this.testCaseFinishedByTestCaseStartedId.values().stream()
-                        .filter(TestCaseFinished::getWillBeRetried)
+                        .filter(testCaseFinished -> !testCaseFinished.getWillBeRetried())
                         .collect(toList());
     }
 
@@ -359,6 +359,7 @@ public final class Query {
                 ));
     }
     
+    // TODO: Test
     public Optional<Duration> findTestCaseDurationBy(TestCaseFinished testCaseFinished) {
         requireNonNull(testCaseFinished);
         return findTestCaseStartedBy(testCaseFinished)

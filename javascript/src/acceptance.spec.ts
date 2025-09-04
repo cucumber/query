@@ -68,11 +68,20 @@ describe('Acceptance Tests', async () => {
         .map((hook) => hook?.id)
         .filter((value) => !!value),
     findMeta: (query: Query) => query.findMeta()?.implementation?.name,
-    findMostSevereTestStepResultBy: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .map((testCaseStarted) => query.findMostSevereTestStepResultBy(testCaseStarted))
-        .map((testStepResult) => testStepResult?.status),
+    findMostSevereTestStepResultBy: (query: Query) => {
+      return {
+        testCaseStarted: query
+          .findAllTestCaseStarted()
+          .map((testCaseStarted) => query.findMostSevereTestStepResultBy(testCaseStarted))
+          .map((testStepResult) => testStepResult?.status)
+          .filter((value) => value),
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .map((testCaseStarted) => query.findMostSevereTestStepResultBy(testCaseStarted))
+          .map((testStepResult) => testStepResult?.status)
+          .filter((value) => value),
+      }
+    },
     findNameOf: (query: Query) => {
       return {
         long: query
@@ -117,11 +126,18 @@ describe('Acceptance Tests', async () => {
     },
     findLocationOf: (query: Query) =>
       query.findAllPickles().map((pickle) => query.findLocationOf(pickle)),
-    findPickleBy: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
-        .map((pickle) => pickle?.name),
+    findPickleBy: (query: Query) => {
+      return {
+        testCaseStarted: query
+          .findAllTestCaseStarted()
+          .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
+          .map((pickle) => pickle?.name),
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .map((testCaseFinished) => query.findPickleBy(testCaseFinished))
+          .map((pickle) => pickle?.name),
+      }
+    },
     findPickleStepBy: (query: Query) =>
       query
         .findAllTestSteps()
@@ -145,11 +161,26 @@ describe('Acceptance Tests', async () => {
         .map((pickleStep) => query.findUnambiguousStepDefinitionBy(pickleStep))
         .filter((stepDefinition) => !!stepDefinition)
         .map((stepDefinition) => stepDefinition.id),
-    findTestCaseBy: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .map((testCaseStarted) => query.findTestCaseBy(testCaseStarted))
-        .map((testCase) => testCase?.id),
+    findTestCaseBy: (query: Query) => {
+      return {
+        testCaseStarted: query
+          .findAllTestCaseStarted()
+          .map((testCaseStarted) => query.findTestCaseBy(testCaseStarted))
+          .map((testCase) => testCase?.id),
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .map((testCaseFinished) => query.findTestCaseBy(testCaseFinished))
+          .map((testCase) => testCase?.id),
+        testStepStarted: query
+          .findAllTestStepStarted()
+          .map((testStepStarted) => query.findTestCaseBy(testStepStarted))
+          .map((testCase) => testCase?.id),
+        testStepFinished: query
+          .findAllTestStepFinished()
+          .map((testStepFinished) => query.findTestCaseBy(testStepFinished))
+          .map((testCase) => testCase?.id),
+      }
+    },
     findTestCaseDurationBy: (query: Query) =>
       query
         .findAllTestCaseStarted()
@@ -168,12 +199,20 @@ describe('Acceptance Tests', async () => {
         .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
         .map((testStepStarted) => query.findTestStepBy(testStepStarted))
         .map((testStep) => testStep?.id),
-    findTestStepByTestStepFinished: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .flatMap((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
-        .map((testStepFinished) => query.findTestStepBy(testStepFinished))
-        .map((testStep) => testStep?.id),
+    findTestStepByTestStepFinished: (query: Query) => {
+      return {
+        testCaseStarted: query
+          .findAllTestCaseStarted()
+          .flatMap((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
+          .map((testStepFinished) => query.findTestStepBy(testStepFinished))
+          .map((testStep) => testStep?.id),
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .flatMap((testCaseFinished) => query.findTestStepsFinishedBy(testCaseFinished))
+          .map((testStepFinished) => query.findTestStepBy(testStepFinished))
+          .map((testStep) => testStep?.id),
+      }
+    },
     findTestStepsFinishedBy: (query: Query) =>
       query
         .findAllTestCaseStarted()
