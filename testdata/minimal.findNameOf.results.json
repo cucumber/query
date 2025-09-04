@@ -1,0 +1,17 @@
+{
+  "long" : [
+    "minimal - cukes"
+  ],
+  "excludeFeatureName" : [
+    "cukes"
+  ],
+  "longPickleName" : [
+    "minimal - cukes"
+  ],
+  "short" : [
+    "cukes"
+  ],
+  "shortPickleName" : [
+    "cukes"
+  ]
+}

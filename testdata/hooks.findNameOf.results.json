@@ -1,0 +1,27 @@
+{
+  "long" : [
+    "Hooks - No tags and a passed step",
+    "Hooks - No tags and a failed step",
+    "Hooks - No tags and a undefined step"
+  ],
+  "excludeFeatureName" : [
+    "No tags and a passed step",
+    "No tags and a failed step",
+    "No tags and a undefined step"
+  ],
+  "longPickleName" : [
+    "Hooks - No tags and a passed step",
+    "Hooks - No tags and a failed step",
+    "Hooks - No tags and a undefined step"
+  ],
+  "short" : [
+    "No tags and a passed step",
+    "No tags and a failed step",
+    "No tags and a undefined step"
+  ],
+  "shortPickleName" : [
+    "No tags and a passed step",
+    "No tags and a failed step",
+    "No tags and a undefined step"
+  ]
+}
