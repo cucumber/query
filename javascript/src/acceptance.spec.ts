@@ -6,14 +6,7 @@ import util from 'node:util'
 
 // eslint-disable-next-line n/no-extraneous-import
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
-import {
-  Duration,
-  Envelope,
-  TestRunFinished,
-  TestRunStarted,
-  TestStepResultStatus,
-} from '@cucumber/messages'
-import { glob } from 'glob'
+import { Envelope } from '@cucumber/messages'
 
 import {
   namingStrategy,
@@ -24,252 +17,215 @@ import {
 import Query from './Query'
 
 const asyncPipeline = util.promisify(pipeline)
-const TESTDATA_PATH = path.join(__dirname, '..', '..', 'testdata')
 
 describe('Acceptance Tests', async () => {
-  const fixtureFiles = glob.sync(`*.query-results.json`, {
-    cwd: TESTDATA_PATH,
-    absolute: true,
-  })
-
-  for (const fixtureFile of fixtureFiles) {
-    const [suiteName] = path.basename(fixtureFile).split('.')
-    const ndjsonFile = fixtureFile.replace('.query-results.json', '.ndjson')
-
-    it(suiteName, async () => {
-      const query = new Query()
-
-      await asyncPipeline(
-        fs.createReadStream(ndjsonFile, { encoding: 'utf-8' }),
-        new NdjsonToMessageStream(),
-        new Writable({
-          objectMode: true,
-          write(envelope: Envelope, _: BufferEncoding, callback) {
-            query.update(envelope)
-            callback()
-          },
-        })
-      )
-
-      const expectedResults: ResultsFixture = {
-        ...defaults,
-        ...JSON.parse(
-          fs.readFileSync(fixtureFile, {
-            encoding: 'utf-8',
-          })
-        ),
-      }
-
-      const actualResults: ResultsFixture = JSON.parse(
-        JSON.stringify({
-          countMostSevereTestStepResultStatus: query.countMostSevereTestStepResultStatus(),
-          countTestCasesStarted: query.countTestCasesStarted(),
-          findAllPickles: query.findAllPickles().length,
-          findAllPickleSteps: query.findAllPickleSteps().length,
-          findAllTestCaseStarted: query.findAllTestCaseStarted().length,
-          findAllTestSteps: query.findAllTestSteps().length,
-          findAllTestCaseStartedGroupedByFeature: [
-            ...query.findAllTestCaseStartedGroupedByFeature().entries(),
-          ].map(([feature, testCaseStarteds]) => [
-            feature.name,
-            testCaseStarteds.map((testCaseStarted) => testCaseStarted.id),
-          ]),
-          findAttachmentsBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
-            .map((testStepFinisheds) =>
-              testStepFinisheds.map((testStepFinished) => query.findAttachmentsBy(testStepFinished))
+  const sources = [
+    path.join(__dirname, '../../testdata/attachments.ndjson'),
+    path.join(__dirname, '../../testdata/empty.ndjson'),
+    path.join(__dirname, '../../testdata/hooks.ndjson'),
+    path.join(__dirname, '../../testdata/minimal.ndjson'),
+    path.join(__dirname, '../../testdata/rules.ndjson'),
+    path.join(__dirname, '../../testdata/examples-tables.ndjson'),
+  ]
+  const queries: Queries = {
+    countMostSevereTestStepResultStatus: (query: Query) =>
+      query.countMostSevereTestStepResultStatus(),
+    countTestCasesStarted: (query: Query) => query.countTestCasesStarted(),
+    findAllPickles: (query: Query) => query.findAllPickles().length,
+    findAllPickleSteps: (query: Query) => query.findAllPickleSteps().length,
+    findAllTestCaseStarted: (query: Query) => query.findAllTestCaseStarted().length,
+    findAllTestSteps: (query: Query) => query.findAllTestSteps().length,
+    findAllTestCaseStartedGroupedByFeature: (query: Query) =>
+      [...query.findAllTestCaseStartedGroupedByFeature().entries()].map(
+        ([feature, testCaseStarteds]) => [
+          feature.name,
+          testCaseStarteds.map((testCaseStarted) => testCaseStarted.id),
+        ]
+      ),
+    findAttachmentsBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
+        .map((testStepFinisheds) =>
+          testStepFinisheds.map((testStepFinished) => query.findAttachmentsBy(testStepFinished))
+        )
+        .flat(2)
+        .map((attachment) => [
+          attachment.testStepId,
+          attachment.testCaseStartedId,
+          attachment.mediaType,
+          attachment.contentEncoding,
+        ]),
+    findFeatureBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findFeatureBy(testCaseStarted))
+        .map((feature) => feature?.name),
+    findHookBy: (query: Query) =>
+      query
+        .findAllTestSteps()
+        .map((testStep) => query.findHookBy(testStep))
+        .map((hook) => hook?.id)
+        .filter((value) => !!value),
+    findMeta: (query: Query) => query.findMeta()?.implementation?.name,
+    findMostSevereTestStepResultBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findMostSevereTestStepResultBy(testCaseStarted))
+        .map((testStepResult) => testStepResult?.status),
+    findNameOf: (query: Query) => {
+      return {
+        long: query
+          .findAllPickles()
+          .map((pickle) => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.LONG))),
+        excludeFeatureName: query
+          .findAllPickles()
+          .map((pickle) =>
+            query.findNameOf(
+              pickle,
+              namingStrategy(NamingStrategyLength.LONG, NamingStrategyFeatureName.EXCLUDE)
             )
-            .flat(2)
-            .map((attachment) => [
-              attachment.testStepId,
-              attachment.testCaseStartedId,
-              attachment.mediaType,
-              attachment.contentEncoding,
-            ]),
-          findFeatureBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findFeatureBy(testCaseStarted))
-            .map((feature) => feature?.name),
-          findHookBy: query
-            .findAllTestSteps()
-            .map((testStep) => query.findHookBy(testStep))
-            .map((hook) => hook?.id)
-            .filter((value) => !!value),
-          findMeta: query.findMeta()?.implementation?.name,
-          findMostSevereTestStepResultBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findMostSevereTestStepResultBy(testCaseStarted))
-            .map((testStepResult) => testStepResult?.status),
-          findNameOf: {
-            long: query
-              .findAllPickles()
-              .map((pickle) => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.LONG))),
-            excludeFeatureName: query
-              .findAllPickles()
-              .map((pickle) =>
-                query.findNameOf(
-                  pickle,
-                  namingStrategy(NamingStrategyLength.LONG, NamingStrategyFeatureName.EXCLUDE)
-                )
-              ),
-            longPickleName: query
-              .findAllPickles()
-              .map((pickle) =>
-                query.findNameOf(
-                  pickle,
-                  namingStrategy(
-                    NamingStrategyLength.LONG,
-                    NamingStrategyFeatureName.INCLUDE,
-                    NamingStrategyExampleName.PICKLE
-                  )
-                )
-              ),
-            short: query
-              .findAllPickles()
-              .map((pickle) =>
-                query.findNameOf(pickle, namingStrategy(NamingStrategyLength.SHORT))
-              ),
-            shortPickleName: query
-              .findAllPickles()
-              .map((pickle) =>
-                query.findNameOf(
-                  pickle,
-                  namingStrategy(
-                    NamingStrategyLength.SHORT,
-                    NamingStrategyFeatureName.INCLUDE,
-                    NamingStrategyExampleName.PICKLE
-                  )
-                )
-              ),
-          },
-          findLocationOf: query.findAllPickles().map((pickle) => query.findLocationOf(pickle)),
-          findPickleBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
-            .map((pickle) => pickle?.name),
-          findPickleStepBy: query
-            .findAllTestSteps()
-            .map((testStep) => query.findPickleStepBy(testStep))
-            .map((pickleStep) => pickleStep?.text)
-            .filter((value) => !!value),
-          findStepBy: query
-            .findAllPickleSteps()
-            .map((pickleStep) => query.findStepBy(pickleStep))
-            .map((step) => step?.text),
-          findStepDefinitionsBy: query
-            .findAllTestSteps()
-            .map((pickleStep) =>
-              query.findStepDefinitionsBy(pickleStep).map((stepDefinition) => stepDefinition?.id)
-            ),
-          findUnambiguousStepDefinitionBy: query
-            .findAllTestSteps()
-            .map((pickleStep) => query.findUnambiguousStepDefinitionBy(pickleStep))
-            .filter((stepDefinition) => !!stepDefinition)
-            .map((stepDefinition) => stepDefinition.id),
-          findTestCaseBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findTestCaseBy(testCaseStarted))
-            .map((testCase) => testCase?.id),
-          findTestCaseDurationBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findTestCaseDurationBy(testCaseStarted)),
-          findTestCaseFinishedBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findTestCaseFinishedBy(testCaseStarted))
-            .map((testCaseFinished) => testCaseFinished?.testCaseStartedId),
-          findTestRunDuration: query.findTestRunDuration(),
-          findTestRunFinished: query.findTestRunFinished(),
-          findTestRunStarted: query.findTestRunStarted(),
-          findTestStepByTestStepStarted: query
-            .findAllTestCaseStarted()
-            .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
-            .map((testStepStarted) => query.findTestStepBy(testStepStarted))
-            .map((testStep) => testStep?.id),
-          findTestStepByTestStepFinished: query
-            .findAllTestCaseStarted()
-            .flatMap((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
-            .map((testStepFinished) => query.findTestStepBy(testStepFinished))
-            .map((testStep) => testStep?.id),
-          findTestStepsFinishedBy: query
-            .findAllTestCaseStarted()
-            .map((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
-            .map((testStepFinisheds) =>
-              testStepFinisheds.map((testStepFinished) => testStepFinished?.testStepId)
-            ),
-          findTestStepFinishedAndTestStepBy: query
-            .findAllTestCaseStarted()
-            .flatMap((testCaseStarted) => query.findTestStepFinishedAndTestStepBy(testCaseStarted))
-            .map(([testStepFinished, testStep]) => [testStepFinished.testStepId, testStep.id]),
-        })
-      )
+          ),
+        longPickleName: query
+          .findAllPickles()
+          .map((pickle) =>
+            query.findNameOf(
+              pickle,
+              namingStrategy(
+                NamingStrategyLength.LONG,
+                NamingStrategyFeatureName.INCLUDE,
+                NamingStrategyExampleName.PICKLE
+              )
+            )
+          ),
+        short: query
+          .findAllPickles()
+          .map((pickle) => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.SHORT))),
+        shortPickleName: query
+          .findAllPickles()
+          .map((pickle) =>
+            query.findNameOf(
+              pickle,
+              namingStrategy(
+                NamingStrategyLength.SHORT,
+                NamingStrategyFeatureName.INCLUDE,
+                NamingStrategyExampleName.PICKLE
+              )
+            )
+          ),
+      }
+    },
+    findLocationOf: (query: Query) =>
+      query.findAllPickles().map((pickle) => query.findLocationOf(pickle)),
+    findPickleBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
+        .map((pickle) => pickle?.name),
+    findPickleStepBy: (query: Query) =>
+      query
+        .findAllTestSteps()
+        .map((testStep) => query.findPickleStepBy(testStep))
+        .map((pickleStep) => pickleStep?.text)
+        .filter((value) => !!value),
+    findStepBy: (query: Query) =>
+      query
+        .findAllPickleSteps()
+        .map((pickleStep) => query.findStepBy(pickleStep))
+        .map((step) => step?.text),
+    findStepDefinitionsBy: (query: Query) =>
+      query
+        .findAllTestSteps()
+        .map((pickleStep) =>
+          query.findStepDefinitionsBy(pickleStep).map((stepDefinition) => stepDefinition?.id)
+        ),
+    findUnambiguousStepDefinitionBy: (query: Query) =>
+      query
+        .findAllTestSteps()
+        .map((pickleStep) => query.findUnambiguousStepDefinitionBy(pickleStep))
+        .filter((stepDefinition) => !!stepDefinition)
+        .map((stepDefinition) => stepDefinition.id),
+    findTestCaseBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findTestCaseBy(testCaseStarted))
+        .map((testCase) => testCase?.id),
+    findTestCaseDurationBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findTestCaseDurationBy(testCaseStarted)),
+    findTestCaseFinishedBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findTestCaseFinishedBy(testCaseStarted))
+        .map((testCaseFinished) => testCaseFinished?.testCaseStartedId),
+    findTestRunDuration: (query: Query) => query.findTestRunDuration(),
+    findTestRunFinished: (query: Query) => query.findTestRunFinished(),
+    findTestRunStarted: (query: Query) => query.findTestRunStarted(),
+    findTestStepByTestStepStarted: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
+        .map((testStepStarted) => query.findTestStepBy(testStepStarted))
+        .map((testStep) => testStep?.id),
+    findTestStepByTestStepFinished: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .flatMap((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
+        .map((testStepFinished) => query.findTestStepBy(testStepFinished))
+        .map((testStep) => testStep?.id),
+    findTestStepsFinishedBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .map((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
+        .map((testStepFinisheds) =>
+          testStepFinisheds.map((testStepFinished) => testStepFinished?.testStepId)
+        ),
+    findTestStepFinishedAndTestStepBy: (query: Query) =>
+      query
+        .findAllTestCaseStarted()
+        .flatMap((testCaseStarted) => query.findTestStepFinishedAndTestStepBy(testCaseStarted))
+        .map(([testStepFinished, testStep]) => [testStepFinished.testStepId, testStep.id]),
+  }
 
-      assert.deepStrictEqual(actualResults, expectedResults)
-    })
+  for (const source of sources) {
+    for (const methodName in queries) {
+      const [suiteName] = path.basename(source).split('.')
+
+      it(suiteName + ' -> ' + methodName, async () => {
+        const query = new Query()
+
+        await asyncPipeline(
+          fs.createReadStream(source, { encoding: 'utf-8' }),
+          new NdjsonToMessageStream(),
+          new Writable({
+            objectMode: true,
+            write(envelope: Envelope, _: BufferEncoding, callback) {
+              query.update(envelope)
+              callback()
+            },
+          })
+        )
+
+        const expectedResults = JSON.parse(
+          fs.readFileSync(
+            path.join(
+              __dirname,
+              '../../testdata/' + suiteName + '.' + methodName + '.results.json'
+            ),
+            {
+              encoding: 'utf-8',
+            }
+          )
+        )
+        const actualResults = JSON.parse(JSON.stringify(queries[methodName](query)))
+        assert.deepStrictEqual(actualResults, expectedResults)
+      })
+    }
   }
 })
 
-interface ResultsFixture {
-  countMostSevereTestStepResultStatus: Record<TestStepResultStatus, number>
-  countTestCasesStarted: number
-  findAllPickles: number
-  findAllPickleSteps: number
-  findAllTestCaseStarted: number
-  findAllTestSteps: number
-  findAllTestCaseStartedGroupedByFeature: Array<[string, string[]]>
-  findAttachmentsBy: Array<[string, string, string, string]>
-  findFeatureBy: Array<string>
-  findMeta: string
-  findMostSevereTestStepResultBy: Array<TestStepResultStatus>
-  findNameOf: {
-    long: Array<string>
-    excludeFeatureName: Array<string>
-    longPickleName: Array<string>
-    short: Array<string>
-    shortPickleName: Array<string>
-  }
-  findLocationOf: Array<Location>
-  findHookBy: Array<string>
-  findPickleBy: Array<string>
-  findPickleStepBy: Array<string>
-  findStepBy: Array<string>
-  findStepDefinitionsBy: Array<Array<string>>
-  findUnambiguousStepDefinitionBy: Array<string>
-  findTestCaseBy: Array<string>
-  findTestCaseDurationBy: Array<Duration>
-  findTestCaseFinishedBy: Array<string>
-  findTestRunDuration: Duration
-  findTestRunFinished: TestRunFinished
-  findTestRunStarted: TestRunStarted
-  findTestStepByTestStepStarted: Array<string>
-  findTestStepByTestStepFinished: Array<string>
-  findTestStepsFinishedBy: Array<Array<string>>
-  findTestStepFinishedAndTestStepBy: Array<[string, string]>
-}
-
-const defaults: Partial<ResultsFixture> = {
-  findAllTestCaseStartedGroupedByFeature: [],
-  findAttachmentsBy: [],
-  findFeatureBy: [],
-  findMostSevereTestStepResultBy: [],
-  findNameOf: {
-    long: [],
-    excludeFeatureName: [],
-    longPickleName: [],
-    short: [],
-    shortPickleName: [],
-  },
-  findHookBy: [],
-  findPickleBy: [],
-  findPickleStepBy: [],
-  findStepBy: [],
-  findStepDefinitionsBy: [],
-  findUnambiguousStepDefinitionBy: [],
-  findTestCaseBy: [],
-  findTestCaseDurationBy: [],
-  findTestCaseFinishedBy: [],
-  findTestStepByTestStepStarted: [],
-  findTestStepByTestStepFinished: [],
-  findTestStepsFinishedBy: [],
-  findTestStepFinishedAndTestStepBy: [],
+type Queries = {
+  // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+  [key: string]: (query: Query) => Object
 }

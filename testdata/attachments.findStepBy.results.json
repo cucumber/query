@@ -1,0 +1,9 @@
+[
+  "the string \"hello\" is attached as \"application/octet-stream\"",
+  "the string \"hello\" is logged",
+  "text with ANSI escapes is logged",
+  "the following string is attached as \"application/json\":",
+  "an array with 10 bytes is attached as \"text/plain\"",
+  "a PDF document is attached and renamed",
+  "a link to \"https://cucumber.io\" is attached"
+]
