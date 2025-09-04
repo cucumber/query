@@ -1,3 +1,10 @@
-[
-  "3"
-]
+{
+  "testCaseStarted" : [
+    "3"
+  ],
+  "testCaseFinished" : [
+    "3"
+  ],
+  "testStepStarted" : [ ],
+  "testStepFinished" : [ ]
+}

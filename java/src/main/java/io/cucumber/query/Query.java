@@ -32,6 +32,7 @@ import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -74,11 +75,11 @@ public final class Query {
             .collect(Collectors.toMap(identity(), (s) -> 0L));
     private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
     private final Map<String, TestCaseStarted> testCaseStartedById = new LinkedHashMap<>();
-    private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new HashMap<>();
-    private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new HashMap<>();
-    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new HashMap<>();
+    private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new LinkedHashMap<>();
+    private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new LinkedHashMap<>();
+    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new LinkedHashMap<>();
     private final Map<String, Pickle> pickleById = new LinkedHashMap<>();
-    private final Map<String, TestCase> testCaseById = new HashMap<>();
+    private final Map<String, TestCase> testCaseById = new LinkedHashMap<>();
     private final Map<String, Step> stepById = new LinkedHashMap<>();
     private final Map<String, TestStep> testStepById = new LinkedHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new LinkedHashMap<>();
@@ -121,6 +122,12 @@ public final class Query {
                 .collect(toList());
     }
 
+    public List<TestCaseFinished> findAllTestCaseFinished() {
+        return this.testCaseFinishedByTestCaseStartedId.values().stream()
+                        .filter(testCaseFinished -> !testCaseFinished.getWillBeRetried())
+                        .collect(toList());
+    }
+
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
@@ -142,6 +149,22 @@ public final class Query {
 
     public List<TestStep> findAllTestSteps() {
         return new ArrayList<>(testStepById.values());
+    }
+
+    public List<TestCase> findAllTestCases() {
+        return new ArrayList<>(testCaseById.values());
+    }
+
+    public List<TestStepStarted> findAllTestStepsStarted() {
+        return testStepsStartedByTestCaseStartedId.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
+    }
+
+    public List<TestStepFinished> findAllTestStepsFinished() {
+        return testStepsFinishedByTestCaseStartedId.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
     }
 
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
@@ -173,6 +196,12 @@ public final class Query {
                 .stream()
                 .map(TestStepFinished::getTestStepResult)
                 .max(testStepResultComparator);
+    }   
+    
+    public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findMostSevereTestStepResultBy);
     }
 
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
@@ -247,8 +276,18 @@ public final class Query {
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestCaseBy(testCaseStarted)
-                .map(TestCase::getPickleId)
-                .map(pickleById::get);
+                .flatMap(this::findPickleBy);
+    }
+    
+    public Optional<Pickle> findPickleBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findPickleBy);
+    }
+
+    public Optional<Pickle> findPickleBy(TestCase testCase) {
+        requireNonNull(testCase);
+        return ofNullable(pickleById.get(testCase.getPickleId()));
     }
 
     public Optional<Pickle> findPickleBy(TestStepStarted testStepStarted) {
@@ -290,10 +329,22 @@ public final class Query {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseById.get(testCaseStarted.getTestCaseId()));
     }
+    
+    public Optional<TestCase> findTestCaseBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findTestCaseBy);
+    }
 
     public Optional<TestCase> findTestCaseBy(TestStepStarted testStepStarted) {
         requireNonNull(testStepStarted);
         return findTestCaseStartedBy(testStepStarted)
+                .flatMap(this::findTestCaseBy);
+    }
+
+    public Optional<TestCase> findTestCaseBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        return findTestCaseStartedBy(testStepFinished)
                 .flatMap(this::findTestCaseBy);
     }
 
@@ -307,6 +358,12 @@ public final class Query {
                         Convertor.toInstant(finished)
                 ));
     }
+    
+    public Optional<Duration> findTestCaseDurationBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findTestCaseDurationBy);
+    }
 
     public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepStarted testStepStarted) {
         requireNonNull(testStepStarted);
@@ -314,6 +371,18 @@ public final class Query {
         return ofNullable(testCaseStartedById.get(testCaseStartedId));
     }
 
+    private Optional<TestCaseStarted> findTestCaseStartedBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        String testCaseStartedId = testCaseFinished.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
+    }
+    
+    public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        String testCaseStartedId = testStepFinished.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
+    }
+    
     public Optional<TestCaseFinished> findTestCaseFinishedBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseFinishedByTestCaseStartedId.get(testCaseStarted.getId()));
@@ -362,6 +431,13 @@ public final class Query {
                 getOrDefault(testCaseStarted.getId(), emptyList());
         // Concurrency
         return new ArrayList<>(testStepsFinished);
+    }
+
+    public List<TestStepFinished> findTestStepsFinishedBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .map(this::findTestStepsFinishedBy)
+                .orElseGet(ArrayList::new);
     }
 
     public List<Entry<TestStepFinished, TestStep>> findTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted) {

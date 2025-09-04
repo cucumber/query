@@ -1,11 +1,24 @@
-[
-  "PASSED",
-  "PASSED",
-  "FAILED",
-  "FAILED",
-  "UNDEFINED",
-  "UNDEFINED",
-  "PASSED",
-  "PASSED",
-  "PASSED"
-]
+{
+  "testCaseStarted" : [
+    "PASSED",
+    "PASSED",
+    "FAILED",
+    "FAILED",
+    "UNDEFINED",
+    "UNDEFINED",
+    "PASSED",
+    "PASSED",
+    "PASSED"
+  ],
+  "testCaseFinished" : [
+    "PASSED",
+    "PASSED",
+    "FAILED",
+    "FAILED",
+    "UNDEFINED",
+    "UNDEFINED",
+    "PASSED",
+    "PASSED",
+    "PASSED"
+  ]
+}

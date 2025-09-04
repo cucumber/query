@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Added more queries to find messages by `TestCaseFinished` and `TestStepFinished` ([#77](https://github.com/cucumber/query/pull/77))
 
 ## [13.6.0] - 2025-08-11
 ### Changed
