@@ -53,11 +53,11 @@ public class QueryAcceptanceTest {
         List<TestCase> testCases = new ArrayList<>();
 
         List<Path> sources = getSources();
-        Map<String, Function<Query, Object>> queries = createQueryResults();
+        Map<String, Function<Query, Object>> queries = createQueries();
 
-        sources.forEach(path ->
+        sources.forEach(source ->
                 queries.forEach((methodName, query) ->
-                        testCases.add(new TestCase(methodName, path, query))));
+                        testCases.add(new TestCase(methodName, source, query))));
 
         return testCases;
     }
@@ -107,7 +107,7 @@ public class QueryAcceptanceTest {
         return out;
     }
 
-    static Map<String, Function<Query, Object>> createQueryResults() {
+    static Map<String, Function<Query, Object>> createQueries() {
 
         Map<String, Function<Query, Object>> results = new LinkedHashMap<>();
 
