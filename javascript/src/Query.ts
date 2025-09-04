@@ -517,7 +517,7 @@ export default class Query {
     element: TestCaseStarted | TestCaseFinished
   ): TestStepResult | undefined {
     const testCaseStarted =
-      element instanceof TestCaseStarted ? element : this.findTestCaseStartedBy(element)
+      'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
     return sortBy(
       this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
         ([testStepFinished]) => testStepFinished.testStepResult
@@ -581,10 +581,15 @@ export default class Query {
   }
 
   public findTestCaseDurationBy(element: TestCaseStarted | TestCaseFinished): Duration | undefined {
-    const testCaseStarted =
-      element instanceof TestCaseStarted ? element : this.findTestCaseStartedBy(element)
-    const testCaseFinished =
-      element instanceof TestCaseFinished ? element : this.findTestCaseFinishedBy(element)
+    let testCaseStarted: TestCaseStarted
+    let testCaseFinished: TestCaseFinished
+    if ('testCaseStartedId' in element) {
+      testCaseStarted = this.findTestCaseStartedBy(element)
+      testCaseFinished = element
+    } else {
+      testCaseStarted = element
+      testCaseFinished = this.findTestCaseFinishedBy(element)
+    }
     if (!testCaseFinished) {
       return undefined
     }
@@ -635,7 +640,7 @@ export default class Query {
     element: TestCaseStarted | TestCaseFinished
   ): ReadonlyArray<TestStepFinished> {
     const testCaseStarted =
-      element instanceof TestCaseStarted ? element : this.findTestCaseStartedBy(element)
+      'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
     // multimaps `get` implements `getOrDefault([])` behaviour internally
     return [...this.testStepFinishedByTestCaseStartedId.get(testCaseStarted.id)]
   }
