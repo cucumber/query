@@ -1,3 +1,5 @@
+# TODO: This file is adapted / duplicated from SpecHelperDSL and SpecHelper in cucumber-ruby
+
 module RunnerHelper
 
   include Cucumber::Core
@@ -15,7 +17,6 @@ module RunnerHelper
   end
 
   def filters
-    # TODO: Remove duplication with runtime.rb#filters
     [
       Cucumber::Filters::ActivateSteps.new(
         Cucumber::StepMatchSearch.new(actual_runtime.support_code.registry.method(:step_matches), actual_runtime.configuration),
