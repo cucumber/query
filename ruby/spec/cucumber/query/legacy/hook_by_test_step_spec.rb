@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/query/hook_by_test_step'
+require 'cucumber/query/legacy/hook_by_test_step'
 
-describe Cucumber::Query::HookByTestStep do
+describe Cucumber::Query::Legacy::HookByTestStep do
   before do
     @test_cases = []
     @hook_ids = []
@@ -57,7 +57,7 @@ describe Cucumber::Query::HookByTestStep do
           test_step = double
           allow(test_step).to receive(:id).and_return('whatever-id')
 
-          expect { formatter.hook_id(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
+          expect { formatter.hook_id(test_step) }.to raise_error(Cucumber::Query::Legacy::TestStepUnknownError)
         end
       end
     end
