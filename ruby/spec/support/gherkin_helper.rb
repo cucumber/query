@@ -1,7 +1,7 @@
 # TODO: This file is adapted / duplicated from SpecHelperDSL and SpecHelper in cucumber-ruby
 
 module GherkinHelper
-  attr_reader :feature_content, :step_defs, :feature_filename
+  attr_reader :feature_content, :step_definitions, :feature_filename
 
   def define_feature(string, feature_file = 'spec.feature')
     @feature_content = string
@@ -9,6 +9,6 @@ module GherkinHelper
   end
 
   def define_steps(&block)
-    @step_defs = block
+    @step_definitions = block
   end
 end
