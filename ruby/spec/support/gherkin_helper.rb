@@ -1,3 +1,4 @@
+# TODO: This file is adapted / duplicated from SpecHelperDSL and SpecHelper in cucumber-ruby
 
 module GherkinHelper
   attr_reader :feature_content, :step_defs, :feature_filename
