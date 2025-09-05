@@ -61,7 +61,7 @@ describe Cucumber::Query::HookByTestStep do
           test_step = double
           allow(test_step).to receive(:id).and_return('whatever-id')
 
-          expect { @formatter.hook_id(test_step) }.to raise_error(Cucumber::Formatter::TestStepUnknownError)
+          expect { @formatter.hook_id(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
         end
       end
     end
