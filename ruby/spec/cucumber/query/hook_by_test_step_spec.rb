@@ -1,13 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/formatter/spec_helper'
-
 require 'cucumber/query/hook_by_test_step'
 
 describe Cucumber::Query::HookByTestStep do
-  extend Cucumber::Formatter::SpecHelperDsl
-  include Cucumber::Formatter::SpecHelper
-
   before do
     Cucumber::Term::ANSIColor.coloring = false
     @test_cases = []
