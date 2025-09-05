@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/formatter/spec_helper'
 require 'cucumber/query/pickle_by_test'
 
 describe Cucumber::Query::PickleByTest do
-  extend Cucumber::Formatter::SpecHelperDsl
-  include Cucumber::Formatter::SpecHelper
-
   before do
     Cucumber::Term::ANSIColor.coloring = false
     @test_cases = []
@@ -49,7 +45,7 @@ describe Cucumber::Query::PickleByTest do
           test_case = double
           allow(test_case).to receive(:id).and_return('whatever-id')
 
-          expect { @formatter.pickle_id(test_case) }.to raise_error(Cucumber::Formatter::TestCaseUnknownError)
+          expect { @formatter.pickle_id(test_case) }.to raise_error(Cucumber::Query::TestCaseUnknownError)
         end
       end
     end

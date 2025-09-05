@@ -1,13 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/formatter/spec_helper'
-require 'cucumber/formatter/query/test_case_started_by_test_case'
-
+require 'cucumber/query/test_case_started_by_test_case'
 
 describe Cucumber::Query::TestCaseStartedByTestCase do
-  extend Cucumber::Formatter::SpecHelperDsl
-  include Cucumber::Formatter::SpecHelper
-
   before(:each) do
     Cucumber::Term::ANSIColor.coloring = false
 
@@ -23,8 +18,8 @@ describe Cucumber::Query::TestCaseStartedByTestCase do
   end
 
   describe '#attempt_by_test_case' do
-    it 'raises an exception when the TestCase is unknown' do
-      expect { @formatter.attempt_by_test_case(unknown_test_case) }.to raise_exception(TestCaseUnknownError)
+    it 'raises an error when the TestCase is unknown' do
+      expect { @formatter.attempt_by_test_case(unknown_test_case) }.to raise_error(Cucumber::Query::TestCaseUnknownError)
     end
 
     context 'when the test case has been declared' do
@@ -50,8 +45,8 @@ describe Cucumber::Query::TestCaseStartedByTestCase do
   end
 
   describe '#test_case_started_id_by_test_case' do
-    it 'raises an exception when the TestCase is unknown' do
-      expect { @formatter.test_case_started_id_by_test_case(unknown_test_case) }.to raise_exception(TestCaseUnknownError)
+    it 'raises an error when the TestCase is unknown' do
+      expect { @formatter.test_case_started_id_by_test_case(unknown_test_case) }.to raise_error(Cucumber::Query::TestCaseUnknownError)
     end
 
     context 'when the test case has been declared' do
