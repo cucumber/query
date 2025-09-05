@@ -1,7 +1,5 @@
 require_relative 'helpers'
 
-require_relative 'foo/bar'
-
 module Cucumber
   class Query
     def initialize
