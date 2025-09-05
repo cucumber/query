@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/query/pickle_by_test'
+require 'cucumber/query/legacy/pickle_by_test'
 
-describe Cucumber::Query::PickleByTest do
+describe Cucumber::Query::Legacy::PickleByTest do
   before do
     @test_cases = []
     @pickle_ids = []
@@ -43,7 +43,7 @@ describe Cucumber::Query::PickleByTest do
           test_case = double
           allow(test_case).to receive(:id).and_return('whatever-id')
 
-          expect { formatter.pickle_id(test_case) }.to raise_error(Cucumber::Query::TestCaseUnknownError)
+          expect { formatter.pickle_id(test_case) }.to raise_error(Cucumber::Query::Legacy::TestCaseUnknownError)
         end
       end
     end

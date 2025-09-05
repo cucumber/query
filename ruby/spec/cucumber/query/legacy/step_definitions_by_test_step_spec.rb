@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/query/step_definitions_by_test_step'
+require 'cucumber/query/legacy/step_definitions_by_test_step'
 
-describe Cucumber::Query::StepDefinitionsByTestStep do
+describe Cucumber::Query::Legacy::StepDefinitionsByTestStep do
   before do
     @test_cases = []
     @step_definition_ids = []
@@ -91,7 +91,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
           test_step = double
           allow(test_step).to receive(:id).and_return('whatever-id')
 
-          expect { formatter.step_definition_ids(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
+          expect { formatter.step_definition_ids(test_step) }.to raise_error(Cucumber::Query::Legacy::TestStepUnknownError)
         end
       end
     end
@@ -145,7 +145,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
           test_step = double
           allow(test_step).to receive(:id).and_return('whatever-id')
 
-          expect { formatter.step_match_arguments(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
+          expect { formatter.step_match_arguments(test_step) }.to raise_error(Cucumber::Query::Legacy::TestStepUnknownError)
         end
       end
     end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/query/pickle_step_by_test_step'
+require 'cucumber/query/legacy/pickle_step_by_test_step'
 
-describe Cucumber::Query::PickleStepByTestStep do
+describe Cucumber::Query::Legacy::PickleStepByTestStep do
   before do
     @test_cases = []
     @pickle_step_ids = []
@@ -48,7 +48,7 @@ describe Cucumber::Query::PickleStepByTestStep do
           test_step = double
           allow(test_step).to receive(:id).and_return('whatever-id')
 
-          expect { formatter.pickle_step_id(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
+          expect { formatter.pickle_step_id(test_step) }.to raise_error(Cucumber::Query::Legacy::TestStepUnknownError)
         end
       end
     end

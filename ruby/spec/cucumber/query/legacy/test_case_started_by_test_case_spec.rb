@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'cucumber/query/test_case_started_by_test_case'
+require 'cucumber/query/legacy/test_case_started_by_test_case'
 
-describe Cucumber::Query::TestCaseStartedByTestCase do
+describe Cucumber::Query::Legacy::TestCaseStartedByTestCase do
   let(:config) { actual_runtime.configuration.with_options(out_stream: StringIO.new) }
   let(:formatter) { described_class.new(config) }
   let(:unknown_test_case) do
@@ -13,7 +13,7 @@ describe Cucumber::Query::TestCaseStartedByTestCase do
 
   describe '#attempt_by_test_case' do
     it 'raises an error when the TestCase is unknown' do
-      expect { formatter.attempt_by_test_case(unknown_test_case) }.to raise_error(Cucumber::Query::TestCaseUnknownError)
+      expect { formatter.attempt_by_test_case(unknown_test_case) }.to raise_error(Cucumber::Query::Legacy::TestCaseUnknownError)
     end
 
     context 'when the test case has been declared' do
@@ -39,7 +39,7 @@ describe Cucumber::Query::TestCaseStartedByTestCase do
 
   describe '#test_case_started_id_by_test_case' do
     it 'raises an error when the TestCase is unknown' do
-      expect { formatter.test_case_started_id_by_test_case(unknown_test_case) }.to raise_error(Cucumber::Query::TestCaseUnknownError)
+      expect { formatter.test_case_started_id_by_test_case(unknown_test_case) }.to raise_error(Cucumber::Query::Legacy::TestCaseUnknownError)
     end
 
     context 'when the test case has been declared' do
