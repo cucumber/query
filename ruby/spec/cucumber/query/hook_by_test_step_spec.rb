@@ -4,7 +4,6 @@ require 'cucumber/query/hook_by_test_step'
 
 describe Cucumber::Query::HookByTestStep do
   before do
-    Cucumber::Term::ANSIColor.coloring = false
     @test_cases = []
     @config = actual_runtime.configuration.with_options(out_stream: StringIO.new)
     @formatter = described_class.new(@config)
@@ -20,6 +19,8 @@ describe Cucumber::Query::HookByTestStep do
       @hook_ids << event.envelope.hook.id
     end
   end
+
+  let(:first_test_case) { @test_cases.first }
 
   context 'given a single feature' do
     before do
@@ -41,18 +42,15 @@ describe Cucumber::Query::HookByTestStep do
         end
 
         it 'provides the ID of the Before Hook used to generate the Test::Step' do
-          test_case = @test_cases.first
-          expect(@formatter.hook_id(test_case.test_steps.first)).to eq(@hook_ids.first)
+          expect(@formatter.hook_id(first_test_case.test_steps.first)).to eq(@hook_ids.first)
         end
 
         it 'provides the ID of the After Hook used to generate the Test::Step' do
-          test_case = @test_cases.first
-          expect(@formatter.hook_id(test_case.test_steps.last)).to eq(@hook_ids.last)
+          expect(@formatter.hook_id(first_test_case.test_steps.last)).to eq(@hook_ids.last)
         end
 
         it 'returns nil if the step was not generated from a hook' do
-          test_case = @test_cases.first
-          expect(@formatter.hook_id(test_case.test_steps[1])).to be_nil
+          expect(@formatter.hook_id(first_test_case.test_steps[1])).to be_nil
         end
 
         it 'raises an exception when the test_step is unknown' do
@@ -78,8 +76,7 @@ describe Cucumber::Query::HookByTestStep do
         end
 
         it 'provides the ID of the AfterStepHook used to generate the Test::Step' do
-          test_case = @test_cases.first
-          expect(@formatter.hook_id(test_case.test_steps.last)).to eq(@hook_ids.first)
+          expect(@formatter.hook_id(first_test_case.test_steps.last)).to eq(@hook_ids.first)
         end
       end
     end

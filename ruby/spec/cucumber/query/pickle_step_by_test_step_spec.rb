@@ -4,7 +4,6 @@ require 'cucumber/query/pickle_step_by_test_step'
 
 describe Cucumber::Query::PickleStepByTestStep do
   before do
-    Cucumber::Term::ANSIColor.coloring = false
     @test_cases = []
     @config = actual_runtime.configuration.with_options(out_stream: StringIO.new)
     @formatter = described_class.new(@config)
@@ -23,6 +22,8 @@ describe Cucumber::Query::PickleStepByTestStep do
     end
   end
 
+  let(:first_test_case) { @test_cases.first }
+
   describe 'given a single feature' do
     before do
       run_defined_feature
@@ -38,8 +39,7 @@ describe Cucumber::Query::PickleStepByTestStep do
         FEATURE
 
         it 'provides the ID of the PickleStep used to generate the Test::Step' do
-          test_case = @test_cases.first
-          test_step = test_case.test_steps.first
+          test_step = first_test_case.test_steps.first
 
           expect(@formatter.pickle_step_id(test_step)).to eq(@pickle_step_ids.first)
         end
