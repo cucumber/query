@@ -4,7 +4,6 @@ require 'cucumber/query/pickle_by_test'
 
 describe Cucumber::Query::PickleByTest do
   before do
-    Cucumber::Term::ANSIColor.coloring = false
     @test_cases = []
     @config = actual_runtime.configuration.with_options(out_stream: StringIO.new)
     @formatter = described_class.new(@config)
