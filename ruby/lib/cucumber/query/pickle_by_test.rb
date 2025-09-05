@@ -7,7 +7,8 @@ module Cucumber
     class PickleByTest
       def initialize(config)
         @pickle_id_by_test_case_id = {}
-        config.on_event :test_case_created, &method(:on_test_case_created)
+
+        config.on_event(:test_case_created, &method(:on_test_case_created))
       end
 
       def pickle_id(test_case)

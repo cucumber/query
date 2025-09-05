@@ -9,8 +9,8 @@ module Cucumber
         @step_definition_ids_by_test_step_id = {}
         @step_match_arguments_by_test_step_id = {}
 
-        config.on_event :test_step_created, &method(:on_test_step_created)
-        config.on_event :step_activated, &method(:on_step_activated)
+        config.on_event(:test_step_created, &method(:on_test_step_created))
+        config.on_event(:step_activated, &method(:on_step_activated))
       end
 
       def step_definition_ids(test_step)
