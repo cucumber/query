@@ -8,8 +8,8 @@ module Cucumber
       def initialize(config)
         @hook_id_by_test_step_id = {}
 
-        config.on_event :test_step_created, &method(:on_test_step_created)
-        config.on_event :hook_test_step_created, &method(:on_hook_test_step_created)
+        config.on_event(:test_step_created, &method(:on_test_step_created))
+        config.on_event(:hook_test_step_created, &method(:on_hook_test_step_created))
       end
 
       def hook_id(test_step)

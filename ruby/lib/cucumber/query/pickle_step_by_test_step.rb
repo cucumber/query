@@ -7,7 +7,8 @@ module Cucumber
     class PickleStepByTestStep
       def initialize(config)
         @pickle_id_step_by_test_step_id = {}
-        config.on_event :test_step_created, &method(:on_test_step_created)
+
+        config.on_event(:test_step_created, &method(:on_test_step_created))
       end
 
       def pickle_step_id(test_step)

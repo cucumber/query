@@ -5,22 +5,22 @@ require 'cucumber/query/step_definitions_by_test_step'
 describe Cucumber::Query::StepDefinitionsByTestStep do
   before do
     @test_cases = []
-    @config = actual_runtime.configuration.with_options(out_stream: StringIO.new)
-    @formatter = described_class.new(@config)
+    @step_definition_ids = []
 
-    @config.on_event(:test_case_created) do |event|
+    config.on_event(:test_case_created) do |event|
       @test_cases << event.test_case
     end
-
-    @step_definition_ids = []
-    @config.on_event(:envelope) do |event|
+    
+    config.on_event(:envelope) do |event|
       next unless event.envelope.step_definition
 
       @step_definition_ids << event.envelope.step_definition.id
     end
   end
 
+  let(:config) { actual_runtime.configuration.with_options(out_stream: StringIO.new) }
   let(:first_test_case) { @test_cases.first }
+  let(:formatter) { described_class.new(config) }
 
   describe 'given a single feature' do
     before do
@@ -43,7 +43,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
         it 'provides the ID of the StepDefinition that matches Test::Step' do
           test_step = first_test_case.test_steps.first
 
-          expect(@formatter.step_definition_ids(test_step)).to eq([@step_definition_ids.first])
+          expect(formatter.step_definition_ids(test_step)).to eq([@step_definition_ids.first])
         end
       end
 
@@ -59,7 +59,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
           it 'returns an empty array' do
             test_step = first_test_case.test_steps.first
 
-            expect(@formatter.step_definition_ids(test_step)).to be_empty
+            expect(formatter.step_definition_ids(test_step)).to be_empty
           end
         end
 
@@ -79,7 +79,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
           it 'returns an empty array as the step is not activated' do
             test_step = first_test_case.test_steps.first
 
-            expect(@formatter.step_definition_ids(test_step)).to be_empty
+            expect(formatter.step_definition_ids(test_step)).to be_empty
           end
         end
       end
@@ -91,7 +91,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
           test_step = double
           allow(test_step).to receive(:id).and_return('whatever-id')
 
-          expect { @formatter.step_definition_ids(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
+          expect { formatter.step_definition_ids(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
         end
       end
     end
@@ -112,7 +112,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
         it 'returns an empty list' do
           test_step = first_test_case.test_steps.first
 
-          expect(@formatter.step_match_arguments(test_step)).to be_empty
+          expect(formatter.step_match_arguments(test_step)).to be_empty
         end
       end
 
@@ -130,7 +130,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
 
         it 'returns an empty list' do
           test_step = first_test_case.test_steps.first
-          matches = @formatter.step_match_arguments(test_step)
+          matches = formatter.step_match_arguments(test_step)
 
           expect(matches.count).to eq(1)
           expect(matches.first).to be_a(Cucumber::CucumberExpressions::Argument)
@@ -145,7 +145,7 @@ describe Cucumber::Query::StepDefinitionsByTestStep do
           test_step = double
           allow(test_step).to receive(:id).and_return('whatever-id')
 
-          expect { @formatter.step_match_arguments(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
+          expect { formatter.step_match_arguments(test_step) }.to raise_error(Cucumber::Query::TestStepUnknownError)
         end
       end
     end
