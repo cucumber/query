@@ -6,17 +6,15 @@ describe Cucumber::Query::PickleByTest do
   before do
     Cucumber::Term::ANSIColor.coloring = false
     @test_cases = []
-
-    @out = StringIO.new
-    @config = actual_runtime.configuration.with_options(out_stream: @out)
+    @config = actual_runtime.configuration.with_options(out_stream: StringIO.new)
     @formatter = described_class.new(@config)
 
-    @config.on_event :test_case_created do |event|
+    @config.on_event(:test_case_created) do |event|
       @test_cases << event.test_case
     end
 
     @pickle_ids = []
-    @config.on_event :envelope do |event|
+    @config.on_event(:envelope) do |event|
       next unless event.envelope.pickle
 
       @pickle_ids << event.envelope.pickle.id

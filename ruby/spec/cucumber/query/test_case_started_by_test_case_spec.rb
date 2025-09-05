@@ -5,9 +5,7 @@ require 'cucumber/query/test_case_started_by_test_case'
 describe Cucumber::Query::TestCaseStartedByTestCase do
   before(:each) do
     Cucumber::Term::ANSIColor.coloring = false
-
-    @out = StringIO.new
-    @config = actual_runtime.configuration.with_options(out_stream: @out)
+    @config = actual_runtime.configuration.with_options(out_stream: StringIO.new)
     @formatter = described_class.new(@config)
   end
 

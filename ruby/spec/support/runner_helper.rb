@@ -41,7 +41,7 @@ module RunnerHelper
   end
 
   def actual_runtime
-    @actual_runtime ||= Cucumber::Runtime.new(options)
+    @actual_runtime ||= Cucumber::Runtime.new({})
   end
 
   def event_bus
@@ -49,16 +49,12 @@ module RunnerHelper
   end
 
   def define_steps
-    step_defs = self.class.step_defs
+    step_definitions = self.class.step_definitions
 
-    return unless step_defs
+    return unless step_definitions
 
     dsl = Object.new
     dsl.extend Cucumber::Glue::Dsl
-    dsl.instance_exec(&step_defs)
-  end
-
-  def options
-    {}
+    dsl.instance_exec(&step_definitions)
   end
 end

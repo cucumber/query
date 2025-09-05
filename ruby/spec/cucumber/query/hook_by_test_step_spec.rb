@@ -6,17 +6,15 @@ describe Cucumber::Query::HookByTestStep do
   before do
     Cucumber::Term::ANSIColor.coloring = false
     @test_cases = []
-
-    @out = StringIO.new
-    @config = actual_runtime.configuration.with_options(out_stream: @out)
+    @config = actual_runtime.configuration.with_options(out_stream: StringIO.new)
     @formatter = described_class.new(@config)
 
-    @config.on_event :test_case_started do |event|
+    @config.on_event(:test_case_started) do |event|
       @test_cases << event.test_case
     end
 
     @hook_ids = []
-    @config.on_event :envelope do |event|
+    @config.on_event(:envelope) do |event|
       next unless event.envelope.hook
 
       @hook_ids << event.envelope.hook.id
