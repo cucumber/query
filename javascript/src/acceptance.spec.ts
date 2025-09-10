@@ -8,12 +8,6 @@ import util from 'node:util'
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
 import { Envelope } from '@cucumber/messages'
 
-import {
-  namingStrategy,
-  NamingStrategyExampleName,
-  NamingStrategyFeatureName,
-  NamingStrategyLength,
-} from './Lineage'
 import Query from './Query'
 
 const asyncPipeline = util.promisify(pipeline)
@@ -35,13 +29,6 @@ describe('Acceptance Tests', async () => {
     findAllPickleSteps: (query: Query) => query.findAllPickleSteps().length,
     findAllTestCaseStarted: (query: Query) => query.findAllTestCaseStarted().length,
     findAllTestSteps: (query: Query) => query.findAllTestSteps().length,
-    findAllTestCaseStartedGroupedByFeature: (query: Query) =>
-      [...query.findAllTestCaseStartedGroupedByFeature().entries()].map(
-        ([feature, testCaseStarteds]) => [
-          feature.name,
-          testCaseStarteds.map((testCaseStarted) => testCaseStarted.id),
-        ]
-      ),
     findAttachmentsBy: (query: Query) =>
       query
         .findAllTestCaseStarted()
@@ -56,11 +43,6 @@ describe('Acceptance Tests', async () => {
           attachment.mediaType,
           attachment.contentEncoding,
         ]),
-    findFeatureBy: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .map((testCaseStarted) => query.findFeatureBy(testCaseStarted))
-        .map((feature) => feature?.name),
     findHookBy: (query: Query) =>
       query
         .findAllTestSteps()
@@ -80,48 +62,6 @@ describe('Acceptance Tests', async () => {
           .map((testCaseStarted) => query.findMostSevereTestStepResultBy(testCaseStarted))
           .map((testStepResult) => testStepResult?.status)
           .filter((value) => value),
-      }
-    },
-    findNameOf: (query: Query) => {
-      return {
-        long: query
-          .findAllPickles()
-          .map((pickle) => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.LONG))),
-        excludeFeatureName: query
-          .findAllPickles()
-          .map((pickle) =>
-            query.findNameOf(
-              pickle,
-              namingStrategy(NamingStrategyLength.LONG, NamingStrategyFeatureName.EXCLUDE)
-            )
-          ),
-        longPickleName: query
-          .findAllPickles()
-          .map((pickle) =>
-            query.findNameOf(
-              pickle,
-              namingStrategy(
-                NamingStrategyLength.LONG,
-                NamingStrategyFeatureName.INCLUDE,
-                NamingStrategyExampleName.PICKLE
-              )
-            )
-          ),
-        short: query
-          .findAllPickles()
-          .map((pickle) => query.findNameOf(pickle, namingStrategy(NamingStrategyLength.SHORT))),
-        shortPickleName: query
-          .findAllPickles()
-          .map((pickle) =>
-            query.findNameOf(
-              pickle,
-              namingStrategy(
-                NamingStrategyLength.SHORT,
-                NamingStrategyFeatureName.INCLUDE,
-                NamingStrategyExampleName.PICKLE
-              )
-            )
-          ),
       }
     },
     findLocationOf: (query: Query) =>
