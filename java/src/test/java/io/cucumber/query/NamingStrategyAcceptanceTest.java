@@ -46,9 +46,9 @@ public class NamingStrategyAcceptanceTest {
         strategies.put("short", NamingStrategy.strategy(SHORT).build());
                 
         List<Path> sources = Arrays.asList(
-                        Paths.get("../testdata/minimal.feature.ndjson"),
-                        Paths.get("../testdata/rules.feature.ndjson"),
-                        Paths.get("../testdata/examples-tables.feature.ndjson")
+                        Paths.get("../testdata/src/minimal.ndjson"),
+                        Paths.get("../testdata/src/rules.ndjson"),
+                        Paths.get("../testdata/src/examples-tables.ndjson")
                 );
         
         List<TestCase> testCases = new ArrayList<>();

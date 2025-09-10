@@ -1,0 +1,9 @@
+Examples Tables - Eating cucumbers - These are passing - Eating cucumbers
+Examples Tables - Eating cucumbers - These are passing - Eating cucumbers
+Examples Tables - Eating cucumbers - These are failing - Eating cucumbers
+Examples Tables - Eating cucumbers - These are failing - Eating cucumbers
+Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Eating cucumbers
+Examples Tables - Eating cucumbers - These are undefined because the value is not an {int} - Eating cucumbers
+Examples Tables - Eating cucumbers with <friends> friends - Eating cucumbers with 11 friends
+Examples Tables - Eating cucumbers with <friends> friends - Eating cucumbers with 1 friends
+Examples Tables - Eating cucumbers with <friends> friends - Eating cucumbers with 0 friends
