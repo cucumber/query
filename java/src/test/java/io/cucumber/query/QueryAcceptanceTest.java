@@ -65,12 +65,12 @@ public class QueryAcceptanceTest {
 
     private static List<Path> getSources() {
         return Arrays.asList(
-                Paths.get("../testdata/attachments.ndjson"),
-                Paths.get("../testdata/empty.ndjson"),
-                Paths.get("../testdata/hooks.ndjson"),
-                Paths.get("../testdata/minimal.ndjson"),
-                Paths.get("../testdata/rules.ndjson"),
-                Paths.get("../testdata/examples-tables.ndjson")
+                Paths.get("../testdata/src/attachments.ndjson"),
+                Paths.get("../testdata/src/empty.ndjson"),
+                Paths.get("../testdata/src/hooks.ndjson"),
+                Paths.get("../testdata/src/minimal.ndjson"),
+                Paths.get("../testdata/src/rules.ndjson"),
+                Paths.get("../testdata/src/examples-tables.ndjson")
         );
     }
 
