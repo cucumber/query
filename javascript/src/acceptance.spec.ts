@@ -20,12 +20,12 @@ const asyncPipeline = util.promisify(pipeline)
 
 describe('Acceptance Tests', async () => {
   const sources = [
-    path.join(__dirname, '../../testdata/attachments.ndjson'),
-    path.join(__dirname, '../../testdata/empty.ndjson'),
-    path.join(__dirname, '../../testdata/hooks.ndjson'),
-    path.join(__dirname, '../../testdata/minimal.ndjson'),
-    path.join(__dirname, '../../testdata/rules.ndjson'),
-    path.join(__dirname, '../../testdata/examples-tables.ndjson'),
+    path.join(__dirname, '../../testdata/src/attachments.ndjson'),
+    path.join(__dirname, '../../testdata/src/empty.ndjson'),
+    path.join(__dirname, '../../testdata/src/hooks.ndjson'),
+    path.join(__dirname, '../../testdata/src/minimal.ndjson'),
+    path.join(__dirname, '../../testdata/src/rules.ndjson'),
+    path.join(__dirname, '../../testdata/src/examples-tables.ndjson'),
   ]
   const queries: Queries = {
     countMostSevereTestStepResultStatus: (query: Query) =>
@@ -256,7 +256,7 @@ describe('Acceptance Tests', async () => {
           fs.readFileSync(
             path.join(
               __dirname,
-              '../../testdata/' + suiteName + '.' + methodName + '.results.json'
+              '../../testdata/src/' + suiteName + '.' + methodName + '.results.json'
             ),
             {
               encoding: 'utf-8',
