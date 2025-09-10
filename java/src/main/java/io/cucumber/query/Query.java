@@ -15,6 +15,7 @@ import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.Step;
 import io.cucumber.messages.types.StepDefinition;
+import io.cucumber.messages.types.Suggestion;
 import io.cucumber.messages.types.TableRow;
 import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
@@ -87,6 +88,7 @@ public final class Query {
     private final Map<String, List<Attachment>> attachmentsByTestCaseStartedId = new LinkedHashMap<>();
     private final Map<Object, Lineage> lineageById = new HashMap<>();
     private final Map<String, StepDefinition> stepDefinitionById = new LinkedHashMap<>();
+    private final Map<String, List<Suggestion>> suggestionsByPickleStepId = new LinkedHashMap<>();
     private Meta meta;
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
@@ -333,12 +335,34 @@ public final class Query {
                 .map(pickleById::get);
     }
 
+    public Optional<Pickle> findPickleBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        return findTestCaseBy(testStepFinished)
+                .map(TestCase::getPickleId)
+                .map(pickleById::get);
+    }
+
     public Optional<PickleStep> findPickleStepBy(TestStep testStep) {
         requireNonNull(testStep);
         return testStep.getPickleStepId()
                 .map(pickleStepById::get);
     }
 
+    // TODO: Test
+    public List<Suggestion> findSuggestionsBy(PickleStep pickleStep){
+        requireNonNull(pickleStep);
+        List<Suggestion> suggestions = suggestionsByPickleStepId.getOrDefault(pickleStep.getId(), emptyList());
+        return new ArrayList<>(suggestions);
+    }
+
+    public List<Suggestion> findSuggestionsBy(Pickle pickle){
+        requireNonNull(pickle);
+        return pickle.getSteps().stream()
+                .map(this::findSuggestionsBy)
+                .flatMap(Collection::stream)
+                .collect(toList());
+    }
+    
     public Optional<Step> findStepBy(PickleStep pickleStep) {
         requireNonNull(pickleStep);
         String stepId = pickleStep.getAstNodeIds().get(0);
@@ -498,6 +522,7 @@ public final class Query {
         envelope.getTestCase().ifPresent(this::updateTestCase);
         envelope.getHook().ifPresent(this::updateHook);
         envelope.getAttachment().ifPresent(this::updateAttachment);
+        envelope.getSuggestion().ifPresent(this::updateSuggestions);
     }
 
     public Optional<Lineage> findLineageBy(GherkinDocument element) {
@@ -612,6 +637,10 @@ public final class Query {
     
     private void updateSteps(List<Step> steps) {
         steps.forEach(step -> stepById.put(step.getId(), step));
+    }
+
+    private void updateSuggestions(Suggestion event) {
+        this.suggestionsByPickleStepId.compute(event.getPickleStepId(), updateList(event));
     }
 
     private void updateMeta(Meta event) {

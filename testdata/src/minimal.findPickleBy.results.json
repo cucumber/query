@@ -4,5 +4,11 @@
   ],
   "testCaseFinished" : [
     "cukes"
+  ],
+  "testStepStarted" : [
+    "cukes"
+  ],
+  "alTestStepsFinished" : [
+    "cukes"
   ]
 }

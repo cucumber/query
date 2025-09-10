@@ -168,6 +168,14 @@ public class QueryAcceptanceTest {
                     .map(query::findPickleBy)
                     .map(pickle -> pickle.map(Pickle::getName))
                     .collect(toList()));
+            results.put("testStepStarted",  query.findAllTestStepsStarted().stream()
+                    .map(query::findPickleBy)
+                    .map(pickle -> pickle.map(Pickle::getName))
+                    .collect(toList()));
+            results.put("alTestStepsFinished",  query.findAllTestStepsFinished().stream()
+                    .map(query::findPickleBy)
+                    .map(pickle -> pickle.map(Pickle::getName))
+                    .collect(toList()));
             return results;
         });
         

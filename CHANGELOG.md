@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Update dependency `io.cucumber:messages` up to v29 ([#101](https://github.com/cucumber/query/pull/101))
+- Update dependency `messages` up to v29 ([#101](https://github.com/cucumber/query/pull/101))
 - Added more queries to find messages by `TestCaseFinished` and `TestStepFinished` ([#77](https://github.com/cucumber/query/pull/77))
 
 ### Deprecated
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 - [JavaScript] Remove Node.js 18 support ([#84](https://github.com/cucumber/query/pull/84))
+- Removed support for `messages` below v29
 
 ## [13.6.0] - 2025-08-11
 ### Changed
