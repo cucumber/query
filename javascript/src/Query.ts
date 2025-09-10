@@ -464,6 +464,9 @@ export default class Query {
     )
   }
 
+  /**
+   * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+   */
   public findAllTestCaseStartedGroupedByFeature(): Map<
     Feature | undefined,
     ReadonlyArray<TestCaseStarted>
@@ -498,6 +501,9 @@ export default class Query {
       .filter((attachment) => attachment.testStepId === testStepFinished.testStepId)
   }
 
+  /**
+   * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+   */
   public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {
     return this.findLineageBy(testCaseStarted)?.feature
   }
@@ -526,6 +532,9 @@ export default class Query {
     ).at(-1)
   }
 
+  /**
+   * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+   */
   public findNameOf(pickle: Pickle, namingStrategy: NamingStrategy): string {
     const lineage = this.findLineageBy(pickle)
     return lineage ? namingStrategy.reduce(lineage, pickle) : pickle.name

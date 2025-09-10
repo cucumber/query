@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.NdjsonToMessageIterable;
 import io.cucumber.messages.types.Envelope;
-import io.cucumber.messages.types.Feature;
 import io.cucumber.messages.types.Hook;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
@@ -38,10 +37,6 @@ import java.util.function.Function;
 
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
 import static io.cucumber.query.Jackson.OBJECT_MAPPER;
-import static io.cucumber.query.NamingStrategy.ExampleName.PICKLE;
-import static io.cucumber.query.NamingStrategy.FeatureName.EXCLUDE;
-import static io.cucumber.query.NamingStrategy.Strategy.LONG;
-import static io.cucumber.query.NamingStrategy.Strategy.SHORT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -121,12 +116,6 @@ public class QueryAcceptanceTest {
         queries.put("findAllTestSteps", (query) -> query.findAllTestSteps().size());
         queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepsStarted().size());
         queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepsFinished().size());
-        queries.put("findAllTestCaseStartedGroupedByFeature", (query) -> query.findAllTestCaseStartedGroupedByFeature()
-                .entrySet()
-                .stream()
-                .map(entry -> Arrays.asList(entry.getKey().map(Feature::getName), entry.getValue().stream()
-                        .map(TestCaseStarted::getId)
-                        .collect(toList()))));
         queries.put("findAllTestCases", (query) -> query.findAllTestCases().size());        
         queries.put("findAttachmentsBy", (query) -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepFinishedAndTestStepBy)
@@ -140,10 +129,6 @@ public class QueryAcceptanceTest {
                         attachment.getMediaType(),
                         attachment.getContentEncoding()
                 ))
-                .collect(toList()));
-        queries.put("findFeatureBy", (query) -> query.findAllTestCaseStarted().stream()
-                .map(query::findFeatureBy)
-                .map(feature -> feature.map(Feature::getName))
                 .collect(toList()));
         queries.put("findHookBy", (query) -> query.findAllTestSteps().stream()
                 .map(query::findHookBy)
@@ -170,27 +155,6 @@ public class QueryAcceptanceTest {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .collect(toList()));
-            return results;
-        });
-
-        queries.put("findNameOf", (query) -> {
-            Map<String, Object> results = new LinkedHashMap<>();
-            results.put("long", query.findAllPickles().stream()
-                    .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(LONG).build()))
-                    .collect(toList()));
-            results.put("excludeFeatureName", query.findAllPickles().stream()
-                    .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(LONG).featureName(EXCLUDE).build()))
-                    .collect(toList()));
-            results.put("longPickleName", query.findAllPickles().stream()
-                    .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(LONG).exampleName(PICKLE).build()))
-                    .collect(toList()));
-            results.put("short", query.findAllPickles().stream()
-                    .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(SHORT).build()))
-                    .collect(toList()));
-            results.put("shortPickleName", query.findAllPickles().stream()
-                    .map(pickle -> query.findNameOf(pickle, NamingStrategy.strategy(SHORT).exampleName(PICKLE).build()))
-                    .collect(toList()));
-            
             return results;
         });
 

@@ -41,8 +41,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -128,6 +128,10 @@ public final class Query {
                         .collect(toList());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
@@ -176,6 +180,10 @@ public final class Query {
                 .collect(toList());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
     }
@@ -204,6 +212,10 @@ public final class Query {
                 .flatMap(this::findMostSevereTestStepResultBy);
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -212,6 +224,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Feature element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -220,6 +236,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Rule element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -228,6 +248,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Scenario element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -236,6 +260,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Examples element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -244,6 +272,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(TableRow element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -252,6 +284,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Pickle element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
