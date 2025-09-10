@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Update dependency io.cucumber:messages to v29 ([#101](https://github.com/cucumber/query/pull/101))
+- Update dependency `io.cucumber:messages` up to v29 ([#101](https://github.com/cucumber/query/pull/101))
 - Added more queries to find messages by `TestCaseFinished` and `TestStepFinished` ([#77](https://github.com/cucumber/query/pull/77))
+
+### Deprecated
+- Deprecated various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84))
 
 ## [13.6.0] - 2025-08-11
 ### Changed
