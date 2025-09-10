@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Deprecated
 - Deprecated various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84))
 
+### Removed
+- [JavaScript] Remove Node.js 18 support ([#84](https://github.com/cucumber/query/pull/84))
+
 ## [13.6.0] - 2025-08-11
 ### Changed
 - [Java] Replace redundant concurrent hashmap with regular hashmap ([#89](https://github.com/cucumber/query/pull/89))
