@@ -1,0 +1,14 @@
+[
+  "the customer has 100 cents",
+  "there are chocolate bars in stock",
+  "the customer tries to buy a 125 cent chocolate bar",
+  "the sale should not happen",
+  "the customer has 100 cents",
+  "there are chocolate bars in stock",
+  "the customer tries to buy a 75 cent chocolate bar",
+  "the sale should happen",
+  "the customer has 100 cents",
+  "there are no chocolate bars in stock",
+  "the customer tries to buy a 1 cent chocolate bar",
+  "the sale should not happen"
+]

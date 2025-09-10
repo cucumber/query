@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>query</artifactId>
-    <version>13.5.1-SNAPSHOT</version>
+    <version>13.6.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Cucumber Query</name>
     <description>Query messages</description>
@@ -17,7 +17,7 @@
 
     <properties>
         <project.Automatic-Module-Name>io.cucumber.query</project.Automatic-Module-Name>
-        <project.build.outputTimestamp>1752148819</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1754913064</project.build.outputTimestamp>
     </properties>
 
     <scm>
@@ -32,7 +32,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.13.3</version>
+                <version>5.13.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -40,7 +40,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>2.19.1</version>
+                <version>2.20.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>messages</artifactId>
-            <version>[24.0.0,29.0.0)</version>
+            <version>[24.0.0,30.0.0)</version>
         </dependency>
 
         <dependency>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.27.3</version>
+            <version>3.27.4</version>
             <scope>test</scope>
         </dependency>
 
