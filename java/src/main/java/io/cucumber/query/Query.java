@@ -16,6 +16,7 @@ import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.Step;
 import io.cucumber.messages.types.StepDefinition;
+import io.cucumber.messages.types.Suggestion;
 import io.cucumber.messages.types.TableRow;
 import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
@@ -32,6 +33,8 @@ import io.cucumber.messages.types.Timestamp;
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -39,8 +42,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -68,11 +71,11 @@ import static java.util.stream.Collectors.toList;
  */
 public final class Query {
     private final Map<String, TestCaseStarted> testCaseStartedById = new LinkedHashMap<>();
-    private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new HashMap<>();
-    private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new HashMap<>();
-    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new HashMap<>();
+    private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new LinkedHashMap<>();
+    private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new LinkedHashMap<>();
+    private final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new LinkedHashMap<>();
     private final Map<String, Pickle> pickleById = new LinkedHashMap<>();
-    private final Map<String, TestCase> testCaseById = new HashMap<>();
+    private final Map<String, TestCase> testCaseById = new LinkedHashMap<>();
     private final Map<String, Step> stepById = new LinkedHashMap<>();
     private final Map<String, TestStep> testStepById = new LinkedHashMap<>();
     private final Map<String, PickleStep> pickleStepById = new LinkedHashMap<>();
@@ -80,6 +83,7 @@ public final class Query {
     private final Map<String, List<Attachment>> attachmentsByTestCaseStartedId = new LinkedHashMap<>();
     private final Map<Object, Lineage> lineageById = new HashMap<>();
     private final Map<String, StepDefinition> stepDefinitionById = new LinkedHashMap<>();
+    private final Map<String, List<Suggestion>> suggestionsByPickleStepId = new LinkedHashMap<>();
     private Meta meta;
     private TestRunStarted testRunStarted;
     private TestRunFinished testRunFinished;
@@ -118,6 +122,16 @@ public final class Query {
                 .collect(toList());
     }
 
+    public List<TestCaseFinished> findAllTestCaseFinished() {
+        return this.testCaseFinishedByTestCaseStartedId.values().stream()
+                        .filter(testCaseFinished -> !testCaseFinished.getWillBeRetried())
+                        .collect(toList());
+    }
+
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
         return findAllTestCaseStarted()
                 .stream()
@@ -141,6 +155,22 @@ public final class Query {
         return new ArrayList<>(testStepById.values());
     }
 
+    public List<TestCase> findAllTestCases() {
+        return new ArrayList<>(testCaseById.values());
+    }
+
+    public List<TestStepStarted> findAllTestStepStarted() {
+        return testStepsStartedByTestCaseStartedId.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
+    }
+
+    public List<TestStepFinished> findAllTestStepFinished() {
+        return testStepsFinishedByTestCaseStartedId.values().stream()
+                .flatMap(Collection::stream)
+                .collect(toList());
+    }
+
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
         return attachmentsByTestCaseStartedId.getOrDefault(testStepFinished.getTestCaseStartedId(), emptyList()).stream()
@@ -150,6 +180,10 @@ public final class Query {
                 .collect(toList());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
         return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
     }
@@ -170,8 +204,18 @@ public final class Query {
                 .stream()
                 .map(TestStepFinished::getTestStepResult)
                 .max(comparing(TestStepResult::getStatus, new TestStepResultStatusComparator()));
+    }   
+    
+    public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findMostSevereTestStepResultBy);
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -180,6 +224,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Feature element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -188,6 +236,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Rule element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -196,6 +248,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Scenario element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -204,6 +260,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Examples element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -212,6 +272,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(TableRow element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -220,6 +284,10 @@ public final class Query {
                 .orElseThrow(createElementWasNotPartOfThisQueryObject());
     }
 
+    /**
+     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
+     */
+    @Deprecated
     public String findNameOf(Pickle element, NamingStrategy namingStrategy) {
         requireNonNull(element);
         requireNonNull(namingStrategy);
@@ -244,13 +312,30 @@ public final class Query {
     public Optional<Pickle> findPickleBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return findTestCaseBy(testCaseStarted)
-                .map(TestCase::getPickleId)
-                .map(pickleById::get);
+                .flatMap(this::findPickleBy);
+    }
+    
+    public Optional<Pickle> findPickleBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findPickleBy);
+    }
+
+    public Optional<Pickle> findPickleBy(TestCase testCase) {
+        requireNonNull(testCase);
+        return ofNullable(pickleById.get(testCase.getPickleId()));
     }
 
     public Optional<Pickle> findPickleBy(TestStepStarted testStepStarted) {
         requireNonNull(testStepStarted);
         return findTestCaseBy(testStepStarted)
+                .map(TestCase::getPickleId)
+                .map(pickleById::get);
+    }
+
+    public Optional<Pickle> findPickleBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        return findTestCaseBy(testStepFinished)
                 .map(TestCase::getPickleId)
                 .map(pickleById::get);
     }
@@ -261,6 +346,20 @@ public final class Query {
                 .map(pickleStepById::get);
     }
 
+    public List<Suggestion> findSuggestionsBy(PickleStep pickleStep){
+        requireNonNull(pickleStep);
+        List<Suggestion> suggestions = suggestionsByPickleStepId.getOrDefault(pickleStep.getId(), emptyList());
+        return new ArrayList<>(suggestions);
+    }
+
+    public List<Suggestion> findSuggestionsBy(Pickle pickle){
+        requireNonNull(pickle);
+        return pickle.getSteps().stream()
+                .map(this::findSuggestionsBy)
+                .flatMap(Collection::stream)
+                .collect(toList());
+    }
+    
     public Optional<Step> findStepBy(PickleStep pickleStep) {
         requireNonNull(pickleStep);
         String stepId = pickleStep.getAstNodeIds().get(0);
@@ -287,10 +386,22 @@ public final class Query {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseById.get(testCaseStarted.getTestCaseId()));
     }
+    
+    public Optional<TestCase> findTestCaseBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findTestCaseBy);
+    }
 
     public Optional<TestCase> findTestCaseBy(TestStepStarted testStepStarted) {
         requireNonNull(testStepStarted);
         return findTestCaseStartedBy(testStepStarted)
+                .flatMap(this::findTestCaseBy);
+    }
+
+    public Optional<TestCase> findTestCaseBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        return findTestCaseStartedBy(testStepFinished)
                 .flatMap(this::findTestCaseBy);
     }
 
@@ -304,6 +415,12 @@ public final class Query {
                         Convertor.toInstant(finished)
                 ));
     }
+    
+    public Optional<Duration> findTestCaseDurationBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .flatMap(this::findTestCaseDurationBy);
+    }
 
     public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepStarted testStepStarted) {
         requireNonNull(testStepStarted);
@@ -311,6 +428,18 @@ public final class Query {
         return ofNullable(testCaseStartedById.get(testCaseStartedId));
     }
 
+    private Optional<TestCaseStarted> findTestCaseStartedBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        String testCaseStartedId = testCaseFinished.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
+    }
+    
+    public Optional<TestCaseStarted> findTestCaseStartedBy(TestStepFinished testStepFinished) {
+        requireNonNull(testStepFinished);
+        String testCaseStartedId = testStepFinished.getTestCaseStartedId();
+        return ofNullable(testCaseStartedById.get(testCaseStartedId));
+    }
+    
     public Optional<TestCaseFinished> findTestCaseFinishedBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return ofNullable(testCaseFinishedByTestCaseStartedId.get(testCaseStarted.getId()));
@@ -361,6 +490,13 @@ public final class Query {
         return new ArrayList<>(testStepsFinished);
     }
 
+    public List<TestStepFinished> findTestStepsFinishedBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        return findTestCaseStartedBy(testCaseFinished)
+                .map(this::findTestStepsFinishedBy)
+                .orElseGet(ArrayList::new);
+    }
+
     public List<Entry<TestStepFinished, TestStep>> findTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted) {
         return findTestStepsFinishedBy(testCaseStarted).stream()
                 .map(testStepFinished -> findTestStepBy(testStepFinished).map(testStep -> new SimpleEntry<>(testStepFinished, testStep)))
@@ -383,6 +519,7 @@ public final class Query {
         envelope.getTestCase().ifPresent(this::updateTestCase);
         envelope.getHook().ifPresent(this::updateHook);
         envelope.getAttachment().ifPresent(this::updateAttachment);
+        envelope.getSuggestion().ifPresent(this::updateSuggestions);
     }
 
     public Optional<Lineage> findLineageBy(GherkinDocument element) {
@@ -497,6 +634,10 @@ public final class Query {
     
     private void updateSteps(List<Step> steps) {
         steps.forEach(step -> stepById.put(step.getId(), step));
+    }
+
+    private void updateSuggestions(Suggestion event) {
+        this.suggestionsByPickleStepId.compute(event.getPickleStepId(), updateList(event));
     }
 
     private void updateMeta(Meta event) {

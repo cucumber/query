@@ -1,0 +1,3 @@
+Usage of a `Rule` - A sale cannot happen if the customer does not have enough money - Not enough money
+Usage of a `Rule` - A sale cannot happen if the customer does not have enough money - Enough money
+Usage of a `Rule` - a sale cannot happen if there is no stock - No chocolates left
