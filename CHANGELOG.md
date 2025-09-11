@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Removed support for `messages` below v29
 - Remove various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84), [#103](https://github.com/cucumber/query/pull/103))
 
+### Changed
+- [Java] Split Query into a read only and write only components ([#104](https://github.com/cucumber/query/pull/104))
+
+
 ## [13.6.0] - 2025-08-11
 ### Changed
 - [Java] Replace redundant concurrent hashmap with regular hashmap ([#89](https://github.com/cucumber/query/pull/89))
