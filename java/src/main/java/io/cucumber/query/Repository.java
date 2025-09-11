@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.function.BiFunction;
 
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENT;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_SUGGESTIONS;
@@ -85,7 +85,7 @@ public final class Repository {
          * <p>
          * Disable to reduce memory usage.
          */
-        INCLUDE_GHERKIN_DOCUMENT,
+        INCLUDE_GHERKIN_DOCUMENTS,
 
         /**
          * Include {@link Hook} messages.
@@ -140,7 +140,7 @@ public final class Repository {
         envelope.getPickle().ifPresent(this::updatePickle);
         envelope.getTestCase().ifPresent(this::updateTestCase);
 
-        if (features.contains(INCLUDE_GHERKIN_DOCUMENT)) {
+        if (features.contains(INCLUDE_GHERKIN_DOCUMENTS)) {
             envelope.getGherkinDocument().ifPresent(this::updateGherkinDocument);
         }
         if (features.contains(INCLUDE_STEP_DEFINITIONS)) {

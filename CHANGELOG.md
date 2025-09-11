@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- [Java] Fix typo in `RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS`
 
 ## [14.0.0] - 2025-09-11
 ### Added

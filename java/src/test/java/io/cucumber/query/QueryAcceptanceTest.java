@@ -39,7 +39,7 @@ import java.util.function.Function;
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
 import static io.cucumber.query.Jackson.OBJECT_MAPPER;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENT;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -114,7 +114,7 @@ public class QueryAcceptanceTest {
                 .feature(INCLUDE_ATTACHMENTS, true)
                 .feature(INCLUDE_STEP_DEFINITIONS, true)
                 .feature(INCLUDE_HOOKS, true)
-                .feature(INCLUDE_GHERKIN_DOCUMENT, true)
+                .feature(INCLUDE_GHERKIN_DOCUMENTS, true)
                 .build();
     }
 
