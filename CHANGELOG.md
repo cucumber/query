@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [14.0.1] - 2025-09-11
 ### Fixed
 - [Java] Fix typo in `RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS`
 
@@ -222,7 +224,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.0.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.0.1...HEAD
+[14.0.1]: https://github.com/cucumber/cucumber/compare/query/v14.0.0...v14.0.1
 [14.0.0]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...v14.0.0
 [13.6.0]: https://github.com/cucumber/cucumber/compare/query/v13.5.0...v13.6.0
 [13.5.0]: https://github.com/cucumber/cucumber/compare/query/v13.4.0...v13.5.0
