@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - [JavaScript] Remove Node.js 18 support ([#84](https://github.com/cucumber/query/pull/84))
 - Removed support for `messages` below v29
-- Remove various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84))
+- Remove various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84), [#103](https://github.com/cucumber/query/pull/103))
 
 ## [13.6.0] - 2025-08-11
 ### Changed
