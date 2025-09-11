@@ -111,7 +111,10 @@ public final class Repository {
 
     public static class Builder {
         private final EnumSet<RepositoryFeature> features = EnumSet.noneOf(RepositoryFeature.class);
-
+        
+        private Builder(){
+            
+        }
         /**
          * Toggles a given feature.
          */

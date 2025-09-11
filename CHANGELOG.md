@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Fixed
+- [Java] Made `Repository.Builder` constructor private
 
 ## [14.0.1] - 2025-09-11
 ### Fixed
