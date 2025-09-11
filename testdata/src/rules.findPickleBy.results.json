@@ -8,5 +8,33 @@
     "Not enough money",
     "Enough money",
     "No chocolates left"
+  ],
+  "testStepStarted" : [
+    "Not enough money",
+    "Not enough money",
+    "Not enough money",
+    "Not enough money",
+    "Enough money",
+    "Enough money",
+    "Enough money",
+    "Enough money",
+    "No chocolates left",
+    "No chocolates left",
+    "No chocolates left",
+    "No chocolates left"
+  ],
+  "testStepFinished" : [
+    "Not enough money",
+    "Not enough money",
+    "Not enough money",
+    "Not enough money",
+    "Enough money",
+    "Enough money",
+    "Enough money",
+    "Enough money",
+    "No chocolates left",
+    "No chocolates left",
+    "No chocolates left",
+    "No chocolates left"
   ]
 }
