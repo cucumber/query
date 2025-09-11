@@ -31,7 +31,6 @@ import { ArrayMultimap } from '@teppeis/multimaps'
 import sortBy from 'lodash.sortby'
 
 import { assert, statusOrdinal } from './helpers'
-import { Lineage, NamingStrategy } from './Lineage'
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
@@ -475,25 +474,6 @@ export default class Query {
     )
   }
 
-  /**
-   * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-   */
-  public findAllTestCaseStartedGroupedByFeature(): Map<
-    Feature | undefined,
-    ReadonlyArray<TestCaseStarted>
-  > {
-    const results = new Map()
-    sortBy(
-      this.findAllTestCaseStarted().map(
-        (testCaseStarted) => [this.findLineageBy(testCaseStarted), testCaseStarted] as const
-      ),
-      [([lineage]) => lineage.gherkinDocument.uri]
-    ).forEach(([{ feature }, testCaseStarted]) => {
-      results.set(feature, [...(results.get(feature) ?? []), testCaseStarted])
-    })
-    return results
-  }
-
   public findAllTestSteps(): ReadonlyArray<TestStep> {
     return [...this.testStepById.values()]
   }
@@ -510,13 +490,6 @@ export default class Query {
     return this.attachmentsByTestCaseStartedId
       .get(testStepFinished.testCaseStartedId)
       .filter((attachment) => attachment.testStepId === testStepFinished.testStepId)
-  }
-
-  /**
-   * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-   */
-  public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {
-    return this.findLineageBy(testCaseStarted)?.feature
   }
 
   public findHookBy(testStep: TestStep): Hook | undefined {
@@ -541,14 +514,6 @@ export default class Query {
       ),
       [(testStepResult) => statusOrdinal(testStepResult.status)]
     ).at(-1)
-  }
-
-  /**
-   * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-   */
-  public findNameOf(pickle: Pickle, namingStrategy: NamingStrategy): string {
-    const lineage = this.findLineageBy(pickle)
-    return lineage ? namingStrategy.reduce(lineage, pickle) : pickle.name
   }
 
   public findLocationOf(pickle: Pickle): Location | undefined {

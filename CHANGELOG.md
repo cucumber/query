@@ -11,12 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Added more queries to find messages by `TestCaseFinished` and `TestStepFinished` ([#77](https://github.com/cucumber/query/pull/77))
 - Added queries to find suggestions by `Pickle` and `PickleStep` ([#102](https://github.com/cucumber/query/pull/102))
 
-### Deprecated
-- Deprecated various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84))
-
 ### Removed
 - [JavaScript] Remove Node.js 18 support ([#84](https://github.com/cucumber/query/pull/84))
 - Removed support for `messages` below v29
+- Remove various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84))
 
 ## [13.6.0] - 2025-08-11
 ### Changed

@@ -136,6 +136,25 @@ public class QueryAcceptanceTest {
                 .map(hook -> hook.map(Hook::getId))
                 .filter(Optional::isPresent)
                 .collect(toList()));
+
+        queries.put("findLineageBy", (query) -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+            NamingStrategy namingStrategy = NamingStrategy.strategy(NamingStrategy.Strategy.LONG).build();
+            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
+                    .map(query::findLineageBy)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(namingStrategy::reduce)
+                    .collect(toList()));
+            results.put("pickle", query.findAllPickles().stream()
+                    .map(query::findLineageBy)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(namingStrategy::reduce)
+                    .collect(toList()));
+            return results;
+        });
+        
         queries.put("findLocationOf", (query) -> query.findAllPickles().stream()
                 .map(query::findLocationOf)
                 .filter(Optional::isPresent)
@@ -146,15 +165,15 @@ public class QueryAcceptanceTest {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
                     .map(query::findMostSevereTestStepResultBy)
-                    .map(testStepResult -> testStepResult.map(TestStepResult::getStatus))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
+                    .map(TestStepResult::getStatus)
                     .collect(toList()));
             results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
                     .map(query::findMostSevereTestStepResultBy)
-                    .map(testStepResult -> testStepResult.map(TestStepResult::getStatus))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
+                    .map(TestStepResult::getStatus)
                     .collect(toList()));
             return results;
         });

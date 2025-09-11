@@ -33,7 +33,6 @@ import io.cucumber.messages.types.Timestamp;
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -45,14 +44,12 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -128,29 +125,6 @@ public final class Query {
                         .collect(toList());
     }
 
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public Map<Optional<Feature>, List<TestCaseStarted>> findAllTestCaseStartedGroupedByFeature() {
-        return findAllTestCaseStarted()
-                .stream()
-                .map(testCaseStarted -> {
-                    Optional<Lineage> astNodes = findLineageBy(testCaseStarted);
-                    return new SimpleEntry<>(astNodes, testCaseStarted);
-                })
-                .map(entry -> {
-                    // Unpack the now grouped entries
-                    Optional<Feature> feature = entry.getKey().flatMap(Lineage::feature);
-                    TestCaseStarted testcaseStarted = entry.getValue();
-                    return new SimpleEntry<>(feature, testcaseStarted);
-                })
-                // Group into a linked hashmap to preserve order
-                .collect(groupingBy(SimpleEntry::getKey, LinkedHashMap::new, collectingAndThen(toList(),
-                        entries -> entries.stream().map(SimpleEntry::getValue)
-                                .collect(toList()))));
-    }
-
     public List<TestStep> findAllTestSteps() {
         return new ArrayList<>(testStepById.values());
     }
@@ -180,14 +154,6 @@ public final class Query {
                 .collect(toList());
     }
 
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public Optional<Feature> findFeatureBy(TestCaseStarted testCaseStarted) {
-        return findLineageBy(testCaseStarted).flatMap(Lineage::feature);
-    }
-
     public Optional<Hook> findHookBy(TestStep testStep) {
         requireNonNull(testStep);
         return testStep.getHookId()
@@ -210,94 +176,6 @@ public final class Query {
         requireNonNull(testCaseFinished);
         return findTestCaseStartedBy(testCaseFinished)
                 .flatMap(this::findMostSevereTestStepResultBy);
-    }
-
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public String findNameOf(GherkinDocument element, NamingStrategy namingStrategy) {
-        requireNonNull(element);
-        requireNonNull(namingStrategy);
-        return findLineageBy(element)
-                .map(namingStrategy::reduce)
-                .orElseThrow(createElementWasNotPartOfThisQueryObject());
-    }
-
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public String findNameOf(Feature element, NamingStrategy namingStrategy) {
-        requireNonNull(element);
-        requireNonNull(namingStrategy);
-        return findLineageBy(element)
-                .map(namingStrategy::reduce)
-                .orElseThrow(createElementWasNotPartOfThisQueryObject());
-    }
-
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public String findNameOf(Rule element, NamingStrategy namingStrategy) {
-        requireNonNull(element);
-        requireNonNull(namingStrategy);
-        return findLineageBy(element)
-                .map(namingStrategy::reduce)
-                .orElseThrow(createElementWasNotPartOfThisQueryObject());
-    }
-
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public String findNameOf(Scenario element, NamingStrategy namingStrategy) {
-        requireNonNull(element);
-        requireNonNull(namingStrategy);
-        return findLineageBy(element)
-                .map(namingStrategy::reduce)
-                .orElseThrow(createElementWasNotPartOfThisQueryObject());
-    }
-
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public String findNameOf(Examples element, NamingStrategy namingStrategy) {
-        requireNonNull(element);
-        requireNonNull(namingStrategy);
-        return findLineageBy(element)
-                .map(namingStrategy::reduce)
-                .orElseThrow(createElementWasNotPartOfThisQueryObject());
-    }
-
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public String findNameOf(TableRow element, NamingStrategy namingStrategy) {
-        requireNonNull(element);
-        requireNonNull(namingStrategy);
-        return findLineageBy(element)
-                .map(namingStrategy::reduce)
-                .orElseThrow(createElementWasNotPartOfThisQueryObject());
-    }
-
-    /**
-     * @deprecated {@link #findLineageBy} is public, this method can be inlined.
-     */
-    @Deprecated
-    public String findNameOf(Pickle element, NamingStrategy namingStrategy) {
-        requireNonNull(element);
-        requireNonNull(namingStrategy);
-        return findLineageBy(element)
-                .map(lineage -> namingStrategy.reduce(lineage, element))
-                .orElseGet(element::getName);
-    }
-
-    private static Supplier<IllegalArgumentException> createElementWasNotPartOfThisQueryObject() {
-        return () -> new IllegalArgumentException("Element was not part of this query object");
     }
 
     public Optional<Location> findLocationOf(Pickle pickle) {
