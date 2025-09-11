@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>query</artifactId>
-    <version>13.6.1-SNAPSHOT</version>
+    <version>14.0.0</version>
     <packaging>jar</packaging>
     <name>Cucumber Query</name>
     <description>Query messages</description>
@@ -17,14 +17,14 @@
 
     <properties>
         <project.Automatic-Module-Name>io.cucumber.query</project.Automatic-Module-Name>
-        <project.build.outputTimestamp>1754913064</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1757598522</project.build.outputTimestamp>
     </properties>
 
     <scm>
         <connection>scm:git:git://github.com/cucumber/query.git</connection>
         <developerConnection>scm:git:git@github.com:cucumber/query.git</developerConnection>
         <url>git://github.com/cucumber/query.git</url>
-        <tag>HEAD</tag>
+        <tag>v14.0.0</tag>
     </scm>
 
     <dependencyManagement>

@@ -6,19 +6,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [14.0.0] - 2025-09-11
 ### Added
 - Update dependency `messages` up to v29 ([#101](https://github.com/cucumber/query/pull/101))
 - Added more queries to find messages by `TestCaseFinished` and `TestStepFinished` ([#77](https://github.com/cucumber/query/pull/77))
 - Added queries to find suggestions by `Pickle` and `PickleStep` ([#102](https://github.com/cucumber/query/pull/102))
 
+### Changed
+- [Java] Split Query into a read only and write only components ([#104](https://github.com/cucumber/query/pull/104))
+
 ### Removed
 - [JavaScript] Remove Node.js 18 support ([#84](https://github.com/cucumber/query/pull/84))
 - Removed support for `messages` below v29
 - Remove various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84), [#103](https://github.com/cucumber/query/pull/103))
-
-### Changed
-- [Java] Split Query into a read only and write only components ([#104](https://github.com/cucumber/query/pull/104))
-
 
 ## [13.6.0] - 2025-08-11
 ### Changed
@@ -219,7 +220,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.0.0...HEAD
+[14.0.0]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...v14.0.0
 [13.6.0]: https://github.com/cucumber/cucumber/compare/query/v13.5.0...v13.6.0
 [13.5.0]: https://github.com/cucumber/cucumber/compare/query/v13.4.0...v13.5.0
 [13.4.0]: https://github.com/cucumber/cucumber/compare/query/v13.3.0...v13.4.0
