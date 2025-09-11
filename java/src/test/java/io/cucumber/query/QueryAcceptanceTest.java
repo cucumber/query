@@ -38,6 +38,10 @@ import java.util.function.Function;
 
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
 import static io.cucumber.query.Jackson.OBJECT_MAPPER;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENT;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -91,10 +95,11 @@ public class QueryAcceptanceTest {
     private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out) throws IOException {
         try (InputStream in = Files.newInputStream(testCase.source)) {
             try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
-                Query query = new Query();
+                Repository repository = createRepository();
                 for (Envelope envelope : envelopes) {
-                    query.update(envelope);
+                    repository.update(envelope);
                 }
+                Query query = new Query(repository);
                 Object queryResults = testCase.query.apply(query);
                 DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter()
                         .withArrayIndenter(SYSTEM_LINEFEED_INSTANCE);
@@ -102,6 +107,15 @@ public class QueryAcceptanceTest {
             }
         }
         return out;
+    }
+
+    private static Repository createRepository() {
+        return Repository.builder()
+                .feature(INCLUDE_ATTACHMENTS, true)
+                .feature(INCLUDE_STEP_DEFINITIONS, true)
+                .feature(INCLUDE_HOOKS, true)
+                .feature(INCLUDE_GHERKIN_DOCUMENT, true)
+                .build();
     }
 
     static Map<String, Function<Query, Object>> createQueries() {

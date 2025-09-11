@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static io.cucumber.query.Jackson.OBJECT_MAPPER;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENT;
 import static io.cucumber.query.NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
 import static io.cucumber.query.NamingStrategy.ExampleName.PICKLE;
 import static io.cucumber.query.NamingStrategy.FeatureName.EXCLUDE;
@@ -44,18 +44,18 @@ public class NamingStrategyAcceptanceTest {
         strategies.put("long-with-pickle-name", NamingStrategy.strategy(LONG).exampleName(PICKLE).build());
         strategies.put("long-with-pickle-name-if-parameterized", NamingStrategy.strategy(LONG).exampleName(NUMBER_AND_PICKLE_IF_PARAMETERIZED).build());
         strategies.put("short", NamingStrategy.strategy(SHORT).build());
-                
+
         List<Path> sources = Arrays.asList(
-                        Paths.get("../testdata/src/minimal.ndjson"),
-                        Paths.get("../testdata/src/rules.ndjson"),
-                        Paths.get("../testdata/src/examples-tables.ndjson")
-                );
-        
+                Paths.get("../testdata/src/minimal.ndjson"),
+                Paths.get("../testdata/src/rules.ndjson"),
+                Paths.get("../testdata/src/examples-tables.ndjson")
+        );
+
         List<TestCase> testCases = new ArrayList<>();
         sources.forEach(path ->
-                strategies.forEach((strategyName, strategy) -> 
+                strategies.forEach((strategyName, strategy) ->
                         testCases.add(new TestCase(path, strategyName, strategy))));
-        
+
         return testCases;
     }
     
@@ -64,25 +64,32 @@ public class NamingStrategyAcceptanceTest {
         writeResults(strategy, testCase, out);
         return new String(out.toByteArray(), UTF_8);
     }
-    
+
     private static void writeResults(NamingStrategy strategy, TestCase testCase, OutputStream out) throws IOException {
         try (InputStream in = Files.newInputStream(testCase.source)) {
             try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
                 try (PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
-                    Query query = new Query();
+                    Repository repository = createRepository();
                     for (Envelope envelope : envelopes) {
-                        query.update(envelope);
+                        repository.update(envelope);
                     }
-                    query.findAllPickles().forEach(pickle -> {
-                        query.findLineageBy(pickle)
-                                .map(lineage -> strategy.reduce(lineage, pickle))
-                                .ifPresent(writer::println);
-                    });
+                    Query query = new Query(repository);
+                    query.findAllPickles().forEach(pickle ->
+                            query.findLineageBy(pickle)
+                                    .map(lineage -> strategy.reduce(lineage, pickle))
+                                    .ifPresent(writer::println));
                 }
 
             }
         }
     }
+
+    private static Repository createRepository() {
+        return Repository.builder()
+                .feature(INCLUDE_GHERKIN_DOCUMENT, true)
+                .build();
+    }
+
 
     @ParameterizedTest
     @MethodSource("acceptance")
@@ -115,7 +122,7 @@ public class NamingStrategyAcceptanceTest {
             this.strategyName = strategyName;
             String fileName = source.getFileName().toString();
             this.name = fileName.substring(0, fileName.lastIndexOf(".ndjson"));
-            this.expected = source.getParent().resolve(name  + ".naming-strategy." + strategyName + ".txt");
+            this.expected = source.getParent().resolve(name + ".naming-strategy." + strategyName + ".txt");
         }
 
         @Override
