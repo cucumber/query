@@ -1,6 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.Convertor;
+import io.cucumber.messages.TestStepResultStatusComparator;
 import io.cucumber.messages.types.Attachment;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
@@ -35,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -46,11 +46,9 @@ import java.util.Optional;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
-import static java.util.Comparator.nullsFirst;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.ofNullable;
 import static java.util.function.Function.identity;
@@ -72,9 +70,6 @@ import static java.util.stream.Collectors.toList;
  * @see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
  */
 public final class Query {
-    private static final Map<TestStepResultStatus, Long> ZEROES_BY_TEST_STEP_RESULT_STATUSES = Arrays.stream(TestStepResultStatus.values())
-            .collect(Collectors.toMap(identity(), (s) -> 0L));
-    private final Comparator<TestStepResult> testStepResultComparator = nullsFirst(comparing(o -> o.getStatus().ordinal()));
     private final Map<String, TestCaseStarted> testCaseStartedById = new LinkedHashMap<>();
     private final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new LinkedHashMap<>();
     private final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new LinkedHashMap<>();
@@ -94,7 +89,10 @@ public final class Query {
     private TestRunFinished testRunFinished;
 
     public Map<TestStepResultStatus, Long> countMostSevereTestStepResultStatus() {
-        EnumMap<TestStepResultStatus, Long> results = new EnumMap<>(ZEROES_BY_TEST_STEP_RESULT_STATUSES);
+        EnumMap<TestStepResultStatus, Long> results = new EnumMap<>(TestStepResultStatus.class);
+        for (TestStepResultStatus value : TestStepResultStatus.values()) {
+            results.put(value, 0L);
+        }
         results.putAll(findAllTestCaseStarted().stream()
                 .map(this::findMostSevereTestStepResultBy)
                 .filter(Optional::isPresent)
@@ -205,7 +203,7 @@ public final class Query {
         return findTestStepsFinishedBy(testCaseStarted)
                 .stream()
                 .map(TestStepFinished::getTestStepResult)
-                .max(testStepResultComparator);
+                .max(comparing(TestStepResult::getStatus, new TestStepResultStatusComparator()));
     }   
     
     public Optional<TestStepResult> findMostSevereTestStepResultBy(TestCaseFinished testCaseFinished) {
