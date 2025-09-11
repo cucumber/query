@@ -31,6 +31,7 @@ import { ArrayMultimap } from '@teppeis/multimaps'
 import sortBy from 'lodash.sortby'
 
 import { assert, statusOrdinal } from './helpers'
+import { Lineage } from './Lineage'
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
