@@ -13,7 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class QueryTest {
 
-    final Query query = new Query();
+    final Repository repository = Repository.builder().build();
+    final Query query = new Query(repository);
 
     @Test
     void retainsInsertionOrderForTestCaseStarted() {
@@ -23,7 +24,7 @@ class QueryTest {
 
         Stream.of(a, b, c)
                 .map(Envelope::of)
-                .forEach(query::update);
+                .forEach(repository::update);
 
         assertThat(query.findAllTestCaseStarted()).containsExactly(a, b, c);
     }
@@ -37,10 +38,10 @@ class QueryTest {
 
         Stream.of(a, c)
                 .map(Envelope::of)
-                .forEach(query::update);
+                .forEach(repository::update);
         Stream.of(b, d)
                 .map(Envelope::of)
-                .forEach(query::update);
+                .forEach(repository::update);
 
         assertThat(query.findAllTestCaseStarted()).containsExactly(c);
         assertThat(query.countTestCasesStarted()).isEqualTo(1);
