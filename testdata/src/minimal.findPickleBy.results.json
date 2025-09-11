@@ -8,7 +8,7 @@
   "testStepStarted" : [
     "cukes"
   ],
-  "alTestStepsFinished" : [
+  "testStepFinished" : [
     "cukes"
   ]
 }

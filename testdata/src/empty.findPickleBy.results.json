@@ -6,5 +6,5 @@
     "Blank Scenario"
   ],
   "testStepStarted" : [ ],
-  "alTestStepsFinished" : [ ]
+  "testStepFinished" : [ ]
 }

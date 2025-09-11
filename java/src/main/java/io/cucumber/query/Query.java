@@ -161,13 +161,13 @@ public final class Query {
         return new ArrayList<>(testCaseById.values());
     }
 
-    public List<TestStepStarted> findAllTestStepsStarted() {
+    public List<TestStepStarted> findAllTestStepStarted() {
         return testStepsStartedByTestCaseStartedId.values().stream()
                 .flatMap(Collection::stream)
                 .collect(toList());
     }
 
-    public List<TestStepFinished> findAllTestStepsFinished() {
+    public List<TestStepFinished> findAllTestStepFinished() {
         return testStepsFinishedByTestCaseStartedId.values().stream()
                 .flatMap(Collection::stream)
                 .collect(toList());
@@ -348,7 +348,6 @@ public final class Query {
                 .map(pickleStepById::get);
     }
 
-    // TODO: Test
     public List<Suggestion> findSuggestionsBy(PickleStep pickleStep){
         requireNonNull(pickleStep);
         List<Suggestion> suggestions = suggestionsByPickleStepId.getOrDefault(pickleStep.getId(), emptyList());

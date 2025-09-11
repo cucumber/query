@@ -20,7 +20,7 @@
     "No tags and a undefined step",
     "No tags and a undefined step"
   ],
-  "alTestStepsFinished" : [
+  "testStepFinished" : [
     "No tags and a passed step",
     "No tags and a passed step",
     "No tags and a passed step",

@@ -9,6 +9,7 @@ import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
 import io.cucumber.messages.types.Step;
 import io.cucumber.messages.types.StepDefinition;
+import io.cucumber.messages.types.Suggestion;
 import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
@@ -114,9 +115,9 @@ public class QueryAcceptanceTest {
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
         queries.put("findAllTestSteps", (query) -> query.findAllTestSteps().size());
-        queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepsStarted().size());
-        queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepsFinished().size());
-        queries.put("findAllTestCases", (query) -> query.findAllTestCases().size());        
+        queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepStarted().size());
+        queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepFinished().size());
+        queries.put("findAllTestCases", (query) -> query.findAllTestCases().size());
         queries.put("findAttachmentsBy", (query) -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepFinishedAndTestStepBy)
                 .flatMap(Collection::stream)
@@ -140,7 +141,7 @@ public class QueryAcceptanceTest {
                 .filter(Optional::isPresent)
                 .collect(toList()));
         queries.put("findMeta", (query) -> query.findMeta().map(meta -> meta.getImplementation().getName()));
-        
+
         queries.put("findMostSevereTestStepResultBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
@@ -160,25 +161,25 @@ public class QueryAcceptanceTest {
 
         queries.put("findPickleBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
-            results.put("testCaseStarted",  query.findAllTestCaseStarted().stream()
+            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
                     .map(query::findPickleBy)
                     .map(pickle -> pickle.map(Pickle::getName))
                     .collect(toList()));
-            results.put("testCaseFinished",  query.findAllTestCaseFinished().stream()
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
                     .map(query::findPickleBy)
                     .map(pickle -> pickle.map(Pickle::getName))
                     .collect(toList()));
-            results.put("testStepStarted",  query.findAllTestStepsStarted().stream()
+            results.put("testStepStarted", query.findAllTestStepStarted().stream()
                     .map(query::findPickleBy)
                     .map(pickle -> pickle.map(Pickle::getName))
                     .collect(toList()));
-            results.put("alTestStepsFinished",  query.findAllTestStepsFinished().stream()
+            results.put("testStepFinished", query.findAllTestStepFinished().stream()
                     .map(query::findPickleBy)
                     .map(pickle -> pickle.map(Pickle::getName))
                     .collect(toList()));
             return results;
         });
-        
+
         queries.put("findPickleStepBy", (query) -> query.findAllTestSteps().stream()
                 .map(query::findPickleStepBy)
                 .map(pickleStep -> pickleStep.map(PickleStep::getText))
@@ -193,6 +194,22 @@ public class QueryAcceptanceTest {
                 .map(stepDefinitions -> stepDefinitions.stream().map(StepDefinition::getId)
                         .collect(toList()))
                 .collect(toList()));
+
+        queries.put("findSuggestionsBy", (query) -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+            results.put("pickleStep", query.findAllPickleSteps().stream()
+                    .map(query::findSuggestionsBy)
+                    .flatMap(Collection::stream)
+                    .map(Suggestion::getId)
+                    .collect(toList()));
+            results.put("pickle", query.findAllPickles().stream()
+                    .map(query::findSuggestionsBy)
+                    .flatMap(Collection::stream)
+                    .map(Suggestion::getId)
+                    .collect(toList()));
+            return results;
+        });
+
         queries.put("findUnambiguousStepDefinitionBy", (query) -> query.findAllTestSteps().stream()
                 .map(query::findUnambiguousStepDefinitionBy)
                 .filter(Optional::isPresent)
@@ -201,17 +218,17 @@ public class QueryAcceptanceTest {
 
         queries.put("findTestCaseStartedBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
-            results.put("testStepStarted", query.findAllTestStepsStarted().stream()
+            results.put("testStepStarted", query.findAllTestStepStarted().stream()
                     .map(query::findTestCaseStartedBy)
                     .map(testCase -> testCase.map(TestCaseStarted::getId))
                     .collect(toList()));
-            results.put("testStepFinished", query.findAllTestStepsFinished().stream()
+            results.put("testStepFinished", query.findAllTestStepFinished().stream()
                     .map(query::findTestCaseStartedBy)
                     .map(testCase -> testCase.map(TestCaseStarted::getId))
                     .collect(toList()));
             return results;
         });
-        
+
         queries.put("findTestCaseBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
@@ -222,17 +239,17 @@ public class QueryAcceptanceTest {
                     .map(query::findTestCaseBy)
                     .map(testCase -> testCase.map(TestCase::getId))
                     .collect(toList()));
-            results.put("testStepStarted", query.findAllTestStepsStarted().stream()
+            results.put("testStepStarted", query.findAllTestStepStarted().stream()
                     .map(query::findTestCaseBy)
                     .map(testCase -> testCase.map(TestCase::getId))
                     .collect(toList()));
-            results.put("testStepFinished", query.findAllTestStepsFinished().stream()
+            results.put("testStepFinished", query.findAllTestStepFinished().stream()
                     .map(query::findTestCaseBy)
                     .map(testCase -> testCase.map(TestCase::getId))
                     .collect(toList()));
             return results;
         });
-        
+
         queries.put("findTestCaseDurationBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
@@ -245,7 +262,7 @@ public class QueryAcceptanceTest {
                     .collect(toList()));
             return results;
         });
-        
+
         queries.put("findTestCaseFinishedBy", (query) -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestCaseFinishedBy)
                 .map(testCaseFinished -> testCaseFinished.map(TestCaseFinished::getTestCaseStartedId))
@@ -260,7 +277,7 @@ public class QueryAcceptanceTest {
                 .map(query::findTestStepBy)
                 .map(testStep -> testStep.map(TestStep::getId))
                 .collect(toList()));
-        
+
         queries.put("findTestStepByTestStepFinished", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
 
@@ -279,7 +296,7 @@ public class QueryAcceptanceTest {
 
             return results;
         });
-        
+
         queries.put("findTestStepsFinishedBy", (query) -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepsFinishedBy)
                 .map(testStepFinisheds -> testStepFinisheds.stream().map(TestStepFinished::getTestStepId).collect(toList()))

@@ -14,6 +14,7 @@ import {
   Scenario,
   Step,
   StepDefinition,
+  Suggestion,
   TestCase,
   TestCaseFinished,
   TestCaseStarted,
@@ -71,6 +72,8 @@ export default class Query {
     new ArrayMultimap()
   private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
     new ArrayMultimap()
+  private readonly suggestionsByPickleStepId: ArrayMultimap<string, Suggestion> =
+    new ArrayMultimap()
 
   public update(envelope: messages.Envelope) {
     if (envelope.meta) {
@@ -111,6 +114,10 @@ export default class Query {
     }
     if (envelope.testRunFinished) {
       this.testRunFinished = envelope.testRunFinished
+    }
+
+    if (envelope.suggestion) {
+      this.updateSuggestion(envelope.suggestion)
     }
   }
 
@@ -257,6 +264,10 @@ export default class Query {
       testCaseFinished.testCaseStartedId,
       testCaseFinished
     )
+  }
+
+  private updateSuggestion(suggestion: Suggestion) {
+    this.suggestionsByPickleStepId.put(suggestion.pickleStepId, suggestion)
   }
 
   /**
@@ -571,6 +582,13 @@ export default class Query {
 
   public findStepDefinitionsBy(testStep: TestStep): ReadonlyArray<StepDefinition> {
     return (testStep.stepDefinitionIds ?? []).map((id) => this.stepDefinitionById.get(id))
+  }
+
+  findSuggestionsBy(element: PickleStep | Pickle): ReadonlyArray<Suggestion> {
+    if ('steps' in element) {
+      return element.steps.flatMap((value) => this.findSuggestionsBy(value))
+    }
+    return this.suggestionsByPickleStepId.get(element.id)
   }
 
   public findUnambiguousStepDefinitionBy(testStep: TestStep): StepDefinition | undefined {

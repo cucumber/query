@@ -23,7 +23,7 @@
     "No chocolates left",
     "No chocolates left"
   ],
-  "alTestStepsFinished" : [
+  "testStepFinished" : [
     "Not enough money",
     "Not enough money",
     "Not enough money",

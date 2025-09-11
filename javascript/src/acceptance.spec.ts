@@ -76,6 +76,14 @@ describe('Acceptance Tests', async () => {
           .findAllTestCaseFinished()
           .map((testCaseFinished) => query.findPickleBy(testCaseFinished))
           .map((pickle) => pickle?.name),
+        testStepStarted: query
+          .findAllTestStepFinished()
+          .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
+          .map((pickle) => pickle?.name),
+        testStepFinished: query
+          .findAllTestStepFinished()
+          .map((testCaseFinished) => query.findPickleBy(testCaseFinished))
+          .map((pickle) => pickle?.name),
       }
     },
     findPickleStepBy: (query: Query) =>
@@ -95,6 +103,18 @@ describe('Acceptance Tests', async () => {
         .map((pickleStep) =>
           query.findStepDefinitionsBy(pickleStep).map((stepDefinition) => stepDefinition?.id)
         ),
+    findSuggestionsBy: (query: Query) => {
+      return {
+        pickleStep: query
+          .findAllPickleSteps()
+          .flatMap((pickleSteps) => query.findSuggestionsBy(pickleSteps))
+          .map((suggestion) => suggestion.id),
+        pickle: query
+          .findAllPickles()
+          .flatMap((pickle) => query.findSuggestionsBy(pickle))
+          .map((suggestion) => suggestion.id),
+      }
+    },
     findUnambiguousStepDefinitionBy: (query: Query) =>
       query
         .findAllTestSteps()
