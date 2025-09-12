@@ -251,6 +251,10 @@ public class QueryAcceptanceTest {
 
         queries.put("findTestCaseStartedBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+                    .map(query::findTestCaseStartedBy)
+                    .map(testCase -> testCase.map(TestCaseStarted::getId))
+                    .collect(toList()));
             results.put("testStepStarted", query.findAllTestStepStarted().stream()
                     .map(query::findTestCaseStartedBy)
                     .map(testCase -> testCase.map(TestCaseStarted::getId))

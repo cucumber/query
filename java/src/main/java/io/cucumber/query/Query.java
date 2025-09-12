@@ -286,7 +286,7 @@ public final class Query {
         return ofNullable(repository.testCaseStartedById.get(testCaseStartedId));
     }
 
-    private Optional<TestCaseStarted> findTestCaseStartedBy(TestCaseFinished testCaseFinished) {
+    public Optional<TestCaseStarted> findTestCaseStartedBy(TestCaseFinished testCaseFinished) {
         requireNonNull(testCaseFinished);
         String testCaseStartedId = testCaseFinished.getTestCaseStartedId();
         return ofNullable(repository.testCaseStartedById.get(testCaseStartedId));
@@ -336,6 +336,14 @@ public final class Query {
         requireNonNull(testCaseStarted);
         List<TestStepStarted> testStepsStarted = repository.testStepsStartedByTestCaseStartedId.
                 getOrDefault(testCaseStarted.getId(), emptyList());
+        // Concurrency
+        return new ArrayList<>(testStepsStarted);
+    }
+
+    public List<TestStepStarted> findTestStepsStartedBy(TestCaseFinished testCaseFinished) {
+        requireNonNull(testCaseFinished);
+        List<TestStepStarted> testStepsStarted = repository.testStepsStartedByTestCaseStartedId.
+                getOrDefault(testCaseFinished.getTestCaseStartedId(), emptyList());
         // Concurrency
         return new ArrayList<>(testStepsStarted);
     }

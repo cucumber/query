@@ -128,7 +128,7 @@ public final class Repository {
         }
 
         public Repository build() {
-            return new Repository(features);
+            return new Repository(EnumSet.copyOf(features));
         }
     }
 
