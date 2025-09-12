@@ -30,7 +30,7 @@
     "@cucumber/fake-cucumber": "^18.0.0",
     "@cucumber/gherkin": "^35.0.0",
     "@cucumber/gherkin-streams": "^5.0.1",
-    "@cucumber/gherkin-utils": "^9.0.0",
+    "@cucumber/gherkin-utils": "^10.0.0",
     "@cucumber/messages": "29.0.1",
     "@eslint/compat": "^1.2.7",
     "@eslint/eslintrc": "^3.3.0",
