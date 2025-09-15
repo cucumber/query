@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add `findAllTestRunHookStarted()` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findAllTestRunHookFinished()` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findTestRunHookStartedBy(TestRunHookFinished)` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findTestRunHookFinishedBy(TestRunHookStarted)` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findAttachmentsBy(TestRunHookFinished)` ([#109](https://github.com/cucumber/query/pull/109))
 
 ## [14.1.0] - 2025-09-15
 ### Added
