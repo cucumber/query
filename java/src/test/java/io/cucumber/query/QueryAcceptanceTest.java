@@ -70,6 +70,7 @@ public class QueryAcceptanceTest {
                 Paths.get("../testdata/src/attachments.ndjson"),
                 Paths.get("../testdata/src/empty.ndjson"),
                 Paths.get("../testdata/src/global-hooks.ndjson"),
+                Paths.get("../testdata/src/global-hooks-attachments.ndjson"),
                 Paths.get("../testdata/src/hooks.ndjson"),
                 Paths.get("../testdata/src/minimal.ndjson"),
                 Paths.get("../testdata/src/rules.ndjson"),
@@ -137,19 +138,34 @@ public class QueryAcceptanceTest {
         queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepStarted().size());
         queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepFinished().size());
         queries.put("findAllTestCases", (query) -> query.findAllTestCases().size());
-        queries.put("findAttachmentsBy", (query) -> query.findAllTestCaseStarted().stream()
-                .map(query::findTestStepFinishedAndTestStepBy)
-                .flatMap(Collection::stream)
-                .map(Map.Entry::getKey)
-                .map(query::findAttachmentsBy)
-                .flatMap(Collection::stream)
-                .map(attachment -> Arrays.asList(
-                        attachment.getTestStepId(),
-                        attachment.getTestCaseStartedId(),
-                        attachment.getMediaType(),
-                        attachment.getContentEncoding()
-                ))
-                .collect(toList()));
+
+        queries.put("findAttachmentsBy", (query) -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+            results.put("testStepFinished", query.findAllTestCaseStarted().stream()
+                    .map(query::findTestStepFinishedAndTestStepBy)
+                    .flatMap(Collection::stream)
+                    .map(Map.Entry::getKey)
+                    .map(query::findAttachmentsBy)
+                    .flatMap(Collection::stream)
+                    .map(attachment -> Arrays.asList(
+                            attachment.getTestStepId(),
+                            attachment.getTestCaseStartedId(),
+                            attachment.getMediaType(),
+                            attachment.getContentEncoding()
+                    ))
+                    .collect(toList()));
+            results.put("testRunHookFinished", query.findAllTestRunHookFinished().stream()
+                    .map(query::findAttachmentsBy)
+                    .flatMap(Collection::stream)
+                    .map(attachment -> Arrays.asList(
+                            attachment.getTestRunHookStartedId(),
+                            attachment.getMediaType(),
+                            attachment.getContentEncoding()
+                    ))
+                    .collect(toList()));
+            return results;
+        });
+
         queries.put("findHookBy", (query) -> query.findAllTestSteps().stream()
                 .map(query::findHookBy)
                 .map(hook -> hook.map(Hook::getId))

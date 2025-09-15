@@ -144,6 +144,12 @@ public final class Query {
                 .collect(toList());
     }
 
+    public List<Attachment> findAttachmentsBy(TestRunHookFinished testRunHookFinished) {
+        requireNonNull(testRunHookFinished);
+        List<Attachment> attachments = repository.attachmentsByTestRunHookStartedId.getOrDefault(testRunHookFinished.getTestRunHookStartedId(), emptyList());
+        return new ArrayList<>(attachments);
+    }
+
     public Optional<Hook> findHookBy(TestStep testStep) {
         requireNonNull(testStep);
         return testStep.getHookId()

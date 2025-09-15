@@ -59,6 +59,7 @@ public final class Repository {
     final Map<String, PickleStep> pickleStepById = new LinkedHashMap<>();
     final Map<String, Hook> hookById = new LinkedHashMap<>();
     final Map<String, List<Attachment>> attachmentsByTestCaseStartedId = new LinkedHashMap<>();
+    final Map<String, List<Attachment>> attachmentsByTestRunHookStartedId = new LinkedHashMap<>();
     final Map<Object, Lineage> lineageById = new HashMap<>();
     final Map<String, StepDefinition> stepDefinitionById = new LinkedHashMap<>();
     final Map<String, List<Suggestion>> suggestionsByPickleStepId = new LinkedHashMap<>();
@@ -169,6 +170,8 @@ public final class Repository {
     private void updateAttachment(Attachment attachment) {
         attachment.getTestCaseStartedId()
                 .ifPresent(testCaseStartedId -> this.attachmentsByTestCaseStartedId.compute(testCaseStartedId, updateList(attachment)));
+        attachment.getTestRunHookStartedId()
+                .ifPresent(testRunHookStartedId -> this.attachmentsByTestRunHookStartedId.compute(testRunHookStartedId, updateList(attachment)));
     }
 
     private void updateHook(Hook hook) {
