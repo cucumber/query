@@ -21,6 +21,8 @@ import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
 import io.cucumber.messages.types.TestRunFinished;
+import io.cucumber.messages.types.TestRunHookFinished;
+import io.cucumber.messages.types.TestRunHookStarted;
 import io.cucumber.messages.types.TestRunStarted;
 import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
@@ -123,6 +125,14 @@ public final class Query {
         return repository.testStepsFinishedByTestCaseStartedId.values().stream()
                 .flatMap(Collection::stream)
                 .collect(toList());
+    }
+
+    public List<TestRunHookStarted> findAllTestRunHookStarted() {
+        return new ArrayList<>(repository.testRunHookStartedById.values());
+    }
+
+    public List<TestRunHookFinished> findAllTestRunHookFinished() {
+        return new ArrayList<>(repository.testRunHookFinishedByTestRunHookStartedId.values());
     }
 
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {

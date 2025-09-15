@@ -67,6 +67,7 @@ public class QueryAcceptanceTest {
         return Arrays.asList(
                 Paths.get("../testdata/src/attachments.ndjson"),
                 Paths.get("../testdata/src/empty.ndjson"),
+                Paths.get("../testdata/src/global-hooks.ndjson"),
                 Paths.get("../testdata/src/hooks.ndjson"),
                 Paths.get("../testdata/src/minimal.ndjson"),
                 Paths.get("../testdata/src/rules.ndjson"),
@@ -128,6 +129,8 @@ public class QueryAcceptanceTest {
         queries.put("findAllPickleSteps", (query) -> query.findAllPickleSteps().size());
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
+        queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookStarted().size());
+        queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookFinished().size());
         queries.put("findAllTestSteps", (query) -> query.findAllTestSteps().size());
         queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepStarted().size());
         queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepFinished().size());

@@ -15,6 +15,8 @@ import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
 import io.cucumber.messages.types.TestRunFinished;
+import io.cucumber.messages.types.TestRunHookFinished;
+import io.cucumber.messages.types.TestRunHookStarted;
 import io.cucumber.messages.types.TestRunStarted;
 import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
@@ -48,6 +50,8 @@ public final class Repository {
     final Map<String, TestCaseFinished> testCaseFinishedByTestCaseStartedId = new LinkedHashMap<>();
     final Map<String, List<TestStepFinished>> testStepsFinishedByTestCaseStartedId = new LinkedHashMap<>();
     final Map<String, List<TestStepStarted>> testStepsStartedByTestCaseStartedId = new LinkedHashMap<>();
+    final Map<String, TestRunHookStarted> testRunHookStartedById = new LinkedHashMap<>();
+    final Map<String, TestRunHookFinished> testRunHookFinishedByTestRunHookStartedId = new LinkedHashMap<>();
     final Map<String, Pickle> pickleById = new LinkedHashMap<>();
     final Map<String, TestCase> testCaseById = new LinkedHashMap<>();
     final Map<String, Step> stepById = new LinkedHashMap<>();
@@ -136,6 +140,8 @@ public final class Repository {
         envelope.getMeta().ifPresent(this::updateMeta);
         envelope.getTestRunStarted().ifPresent(this::updateTestRunStarted);
         envelope.getTestRunFinished().ifPresent(this::updateTestRunFinished);
+        envelope.getTestRunHookStarted().ifPresent(this::updateTestRunHookStarted);
+        envelope.getTestRunHookFinished().ifPresent(this::updateTestRunHookFinished);
         envelope.getTestCaseStarted().ifPresent(this::updateTestCaseStarted);
         envelope.getTestCaseFinished().ifPresent(this::updateTestCaseFinished);
         envelope.getTestStepStarted().ifPresent(this::updateTestStepStarted);
@@ -218,6 +224,14 @@ public final class Repository {
 
     private void updateTestRunStarted(TestRunStarted event) {
         this.testRunStarted = event;
+    }
+
+    private void updateTestRunHookStarted(TestRunHookStarted event) {
+        this.testRunHookStartedById.put(event.getId(), event);
+    }
+
+    private void updateTestRunHookFinished(TestRunHookFinished event) {
+        this.testRunHookFinishedByTestRunHookStartedId.put(event.getTestRunHookStartedId(), event);
     }
 
     private void updateScenario(Scenario scenario) {
