@@ -121,6 +121,22 @@ describe('Acceptance Tests', async () => {
         .map((pickleStep) => query.findUnambiguousStepDefinitionBy(pickleStep))
         .filter((stepDefinition) => !!stepDefinition)
         .map((stepDefinition) => stepDefinition.id),
+    findTestCaseStartedBy: (query: Query) => {
+      return {
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .map((testCaseFinished) => query.findTestCaseStartedBy(testCaseFinished))
+          .map((testCase) => testCase?.id),
+        testStepStarted: query
+          .findAllTestStepStarted()
+          .map((testStepStarted) => query.findTestCaseStartedBy(testStepStarted))
+          .map((testCase) => testCase?.id),
+        testStepFinished: query
+          .findAllTestStepFinished()
+          .map((testStepFinished) => query.findTestCaseStartedBy(testStepFinished))
+          .map((testCase) => testCase?.id),
+      }
+    },
     findTestCaseBy: (query: Query) => {
       return {
         testCaseStarted: query
