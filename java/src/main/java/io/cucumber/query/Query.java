@@ -313,6 +313,16 @@ public final class Query {
         return ofNullable(repository.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.getId()));
     }
 
+    public Optional<TestRunHookFinished> findTestRunHookFinishedBy(TestRunHookStarted testRunHookStarted) {
+        requireNonNull(testRunHookStarted);
+        return ofNullable(repository.testRunHookFinishedByTestRunHookStartedId.get(testRunHookStarted.getId()));
+    }
+
+    public Optional<TestRunHookStarted> findTestRunHookStartedBy(TestRunHookFinished testRunHookFinished) {
+        requireNonNull(testRunHookFinished);
+        return ofNullable(repository.testRunHookStartedById.get(testRunHookFinished.getTestRunHookStartedId()));
+    }
+
     public Optional<Duration> findTestRunDuration() {
         if (repository.testRunStarted == null || repository.testRunFinished == null) {
             return Optional.empty();

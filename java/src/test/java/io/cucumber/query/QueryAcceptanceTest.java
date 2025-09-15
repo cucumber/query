@@ -13,6 +13,8 @@ import io.cucumber.messages.types.Suggestion;
 import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
+import io.cucumber.messages.types.TestRunHookFinished;
+import io.cucumber.messages.types.TestRunHookStarted;
 import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
@@ -130,7 +132,7 @@ public class QueryAcceptanceTest {
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
         queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookStarted().size());
-        queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookFinished().size());
+        queries.put("findAllTestRunHookFinished", (query) -> query.findAllTestRunHookFinished().size());
         queries.put("findAllTestSteps", (query) -> query.findAllTestSteps().size());
         queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepStarted().size());
         queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepFinished().size());
@@ -316,6 +318,15 @@ public class QueryAcceptanceTest {
                 .flatMap(Collection::stream)
                 .map(query::findTestStepBy)
                 .map(testStep -> testStep.map(TestStep::getId))
+                .collect(toList()));
+
+        queries.put("findTestRunHookFinishedBy", (query) -> query.findAllTestRunHookStarted().stream()
+                .map(query::findTestRunHookFinishedBy)
+                .map(testRunHookFinished -> testRunHookFinished.map(TestRunHookFinished::getTestRunHookStartedId))
+                .collect(toList()));
+        queries.put("findTestRunHookStartedBy", (query) -> query.findAllTestRunHookFinished().stream()
+                .map(query::findTestRunHookStartedBy)
+                .map(testRunHookStarted -> testRunHookStarted.map(TestRunHookStarted::getId))
                 .collect(toList()));
 
         queries.put("findTestStepByTestStepFinished", (query) -> {
