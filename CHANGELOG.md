@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - [Java] Made `Repository.Builder` constructor private
 
+### Added
+- [Java] Add `findTestCaseStartedBy(TestCaseFinished)`
+- [Java] Add `findTestStepsStartedBy(TestCaseFinished)`
+
 ## [14.0.1] - 2025-09-11
 ### Fixed
 - [Java] Fix typo in `RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS`
