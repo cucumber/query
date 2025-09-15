@@ -175,7 +175,7 @@ describe('Acceptance Tests', async () => {
     findTestRunDuration: (query: Query) => query.findTestRunDuration(),
     findTestRunFinished: (query: Query) => query.findTestRunFinished(),
     findTestRunStarted: (query: Query) => query.findTestRunStarted(),
-    findTestStepByTestStepStarted: (query: Query) =>
+    findTestStepBy: (query: Query) =>
       query
         .findAllTestCaseStarted()
         .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))

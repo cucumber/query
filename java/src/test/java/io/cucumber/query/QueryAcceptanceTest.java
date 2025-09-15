@@ -308,7 +308,7 @@ public class QueryAcceptanceTest {
                 .map(Convertor::toMessage));
         queries.put("findTestRunFinished", Query::findTestRunFinished);
         queries.put("findTestRunStarted", Query::findTestRunStarted);
-        queries.put("findTestStepByTestStepStarted", (query) -> query.findAllTestCaseStarted().stream()
+        queries.put("findTestStepBy", (query) -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepsStartedBy)
                 .flatMap(Collection::stream)
                 .map(query::findTestStepBy)
