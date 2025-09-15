@@ -16,6 +16,8 @@ describe('Acceptance Tests', async () => {
   const sources = [
     path.join(__dirname, '../../testdata/src/attachments.ndjson'),
     path.join(__dirname, '../../testdata/src/empty.ndjson'),
+    path.join(__dirname, '../../testdata/src/global-hooks.ndjson'),
+    path.join(__dirname, '../../testdata/src/global-hooks-attachments.ndjson'),
     path.join(__dirname, '../../testdata/src/hooks.ndjson'),
     path.join(__dirname, '../../testdata/src/minimal.ndjson'),
     path.join(__dirname, '../../testdata/src/rules.ndjson'),
@@ -28,9 +30,21 @@ describe('Acceptance Tests', async () => {
     findAllPickles: (query: Query) => query.findAllPickles().length,
     findAllPickleSteps: (query: Query) => query.findAllPickleSteps().length,
     findAllTestCaseStarted: (query: Query) => query.findAllTestCaseStarted().length,
-    findAllTestSteps: (query: Query) => query.findAllTestSteps().length,
-    findAttachmentsBy: (query: Query) =>
+    findAllTestRunHookStarted: (query: Query) => query.findAllTestRunHookStarted().length,
+    findAllTestRunHookFinished: (query: Query) => query.findAllTestRunHookFinished().length,
+    findTestRunHookStartedBy: (query: Query) =>
       query
+        .findAllTestRunHookFinished()
+        .map((testRunHookFinished) => query.findTestRunHookStartedBy(testRunHookFinished))
+        .map((testRunHookStarted) => testRunHookStarted?.id),
+    findTestRunHookFinishedBy: (query: Query) =>
+      query
+        .findAllTestRunHookStarted()
+        .map((testRunHookStarted) => query.findTestRunHookFinishedBy(testRunHookStarted))
+        .map((testRunHookFinished) => testRunHookFinished?.testRunHookStartedId),
+    findAllTestSteps: (query: Query) => query.findAllTestSteps().length,
+    findAttachmentsBy: (query: Query) => ({
+      testStepFinished: query
         .findAllTestCaseStarted()
         .map((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
         .map((testStepFinisheds) =>
@@ -43,6 +57,16 @@ describe('Acceptance Tests', async () => {
           attachment.mediaType,
           attachment.contentEncoding,
         ]),
+      testRunHookFinished: query
+        .findAllTestRunHookFinished()
+        .map((testRunHookFinished) => query.findAttachmentsBy(testRunHookFinished))
+        .flat()
+        .map((attachment) => [
+          attachment.testRunHookStartedId,
+          attachment.mediaType,
+          attachment.contentEncoding,
+        ]),
+    }),
     findHookBy: (query: Query) =>
       query
         .findAllTestSteps()
