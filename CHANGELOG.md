@@ -6,12 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-### Fixed
-- [Java] Made `Repository.Builder` constructor private
 
+## [14.1.0] - 2025-09-15
 ### Added
 - [Java] Add `findTestCaseStartedBy(TestCaseFinished)`
 - [Java] Add `findTestStepsStartedBy(TestCaseFinished)`
+
+### Fixed
+- [Java] Made `Repository.Builder` constructor private
 
 ## [14.0.1] - 2025-09-11
 ### Fixed
@@ -230,7 +232,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.0.1...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.1.0...HEAD
+[14.1.0]: https://github.com/cucumber/cucumber/compare/query/v14.0.1...v14.1.0
 [14.0.1]: https://github.com/cucumber/cucumber/compare/query/v14.0.0...v14.0.1
 [14.0.0]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...v14.0.0
 [13.6.0]: https://github.com/cucumber/cucumber/compare/query/v13.5.0...v13.6.0
