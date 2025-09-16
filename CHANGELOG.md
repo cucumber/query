@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [14.2.3] - 2025-09-17
+
 ## [14.2.2] - 2025-09-17
 
 ## [14.2.1] - 2025-09-17
@@ -247,7 +249,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.2.2...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.2.3...HEAD
+[14.2.3]: https://github.com/cucumber/cucumber/compare/query/v14.2.2...v14.2.3
 [14.2.2]: https://github.com/cucumber/cucumber/compare/query/v14.2.1...v14.2.2
 [14.2.1]: https://github.com/cucumber/cucumber/compare/query/v14.2.0...v14.2.1
 [14.2.0]: https://github.com/cucumber/cucumber/compare/query/v14.1.0...v14.2.0
