@@ -6,6 +6,46 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add `findAllTestRunHookStarted()` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findAllTestRunHookFinished()` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findTestRunHookStartedBy(TestRunHookFinished)` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findTestRunHookFinishedBy(TestRunHookStarted)` ([#109](https://github.com/cucumber/query/pull/109))
+- Add `findAttachmentsBy(TestRunHookFinished)` ([#109](https://github.com/cucumber/query/pull/109))
+
+## [14.1.0] - 2025-09-15
+### Added
+- [Java] Add `findTestCaseStartedBy(TestCaseFinished)`
+- [Java] Add `findTestStepsStartedBy(TestCaseFinished)`
+
+### Fixed
+- [Java] Made `Repository.Builder` constructor private
+
+## [14.0.1] - 2025-09-11
+### Fixed
+- [Java] Fix typo in `RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS`
+
+## [14.0.0] - 2025-09-11
+### Added
+- Update dependency `messages` up to v29 ([#101](https://github.com/cucumber/query/pull/101))
+- Added more queries to find messages by `TestCaseFinished` and `TestStepFinished` ([#77](https://github.com/cucumber/query/pull/77))
+- Added queries to find suggestions by `Pickle` and `PickleStep` ([#102](https://github.com/cucumber/query/pull/102))
+
+### Changed
+- [Java] Split Query into a read only and write only components ([#104](https://github.com/cucumber/query/pull/104))
+
+### Removed
+- [JavaScript] Remove Node.js 18 support ([#84](https://github.com/cucumber/query/pull/84))
+- Removed support for `messages` below v29
+- Remove various lineage derived methods ([#84](https://github.com/cucumber/query/pull/84), [#103](https://github.com/cucumber/query/pull/103))
+
+## [13.6.0] - 2025-08-11
+### Changed
+- [Java] Replace redundant concurrent hashmap with regular hashmap ([#89](https://github.com/cucumber/query/pull/89))
+
+## [13.5.0] - 2025-07-10
+### Added
+- Add `findStepDefinitionsBy` and `findUnambiguousStepDefinitionBy` ([#80](https://github.com/cucumber/query/pull/80))
 
 ## [13.4.0] - 2025-07-07
 ### Added
@@ -198,7 +238,12 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v13.4.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.1.0...HEAD
+[14.1.0]: https://github.com/cucumber/cucumber/compare/query/v14.0.1...v14.1.0
+[14.0.1]: https://github.com/cucumber/cucumber/compare/query/v14.0.0...v14.0.1
+[14.0.0]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...v14.0.0
+[13.6.0]: https://github.com/cucumber/cucumber/compare/query/v13.5.0...v13.6.0
+[13.5.0]: https://github.com/cucumber/cucumber/compare/query/v13.4.0...v13.5.0
 [13.4.0]: https://github.com/cucumber/cucumber/compare/query/v13.3.0...v13.4.0
 [13.3.0]: https://github.com/cucumber/cucumber/compare/query/v13.2.0...v13.3.0
 [13.2.0]: https://github.com/cucumber/cucumber/compare/query/v13.1.0...v13.2.0

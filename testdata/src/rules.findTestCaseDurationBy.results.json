@@ -1,0 +1,30 @@
+{
+  "testCaseStarted" : [
+    {
+      "seconds" : 0,
+      "nanos" : 9000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 9000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 9000000
+    }
+  ],
+  "testCaseFinished" : [
+    {
+      "seconds" : 0,
+      "nanos" : 9000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 9000000
+    },
+    {
+      "seconds" : 0,
+      "nanos" : 9000000
+    }
+  ]
+}

@@ -13,10 +13,14 @@ import {
   Rule,
   Scenario,
   Step,
+  StepDefinition,
+  Suggestion,
   TestCase,
   TestCaseFinished,
   TestCaseStarted,
   TestRunFinished,
+  TestRunHookFinished,
+  TestRunHookStarted,
   TestRunStarted,
   TestStep,
   TestStepFinished,
@@ -29,7 +33,7 @@ import { ArrayMultimap } from '@teppeis/multimaps'
 import sortBy from 'lodash.sortby'
 
 import { assert, statusOrdinal } from './helpers'
-import { Lineage, NamingStrategy } from './Lineage'
+import { Lineage } from './Lineage'
 
 export default class Query {
   private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
@@ -60,14 +64,22 @@ export default class Query {
   private readonly stepById: Map<string, Step> = new Map()
   private readonly pickleById: Map<string, Pickle> = new Map()
   private readonly pickleStepById: Map<string, PickleStep> = new Map()
+  private readonly stepDefinitionById: Map<string, StepDefinition> = new Map()
   private readonly testCaseById: Map<string, TestCase> = new Map()
   private readonly testStepById: Map<string, TestStep> = new Map()
   private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
+  private readonly testRunHookStartedById: Map<string, TestRunHookStarted> = new Map()
+  private readonly testRunHookFinishedByTestRunHookStartedId: Map<string, TestRunHookFinished> =
+    new Map()
   private readonly testStepStartedByTestCaseStartedId: ArrayMultimap<string, TestStepStarted> =
     new ArrayMultimap()
   private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
     new ArrayMultimap()
   private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
+    new ArrayMultimap()
+  private readonly attachmentsByTestRunHookStartedId: ArrayMultimap<string, Attachment> =
+    new ArrayMultimap()
+  private readonly suggestionsByPickleStepId: ArrayMultimap<string, Suggestion> =
     new ArrayMultimap()
 
   public update(envelope: messages.Envelope) {
@@ -83,8 +95,17 @@ export default class Query {
     if (envelope.hook) {
       this.hooksById.set(envelope.hook.id, envelope.hook)
     }
+    if (envelope.stepDefinition) {
+      this.stepDefinitionById.set(envelope.stepDefinition.id, envelope.stepDefinition)
+    }
     if (envelope.testRunStarted) {
       this.testRunStarted = envelope.testRunStarted
+    }
+    if (envelope.testRunHookStarted) {
+      this.updateTestRunHookStarted(envelope.testRunHookStarted)
+    }
+    if (envelope.testRunHookFinished) {
+      this.updateTestRunHookFinished(envelope.testRunHookFinished)
     }
     if (envelope.testCase) {
       this.updateTestCase(envelope.testCase)
@@ -106,6 +127,9 @@ export default class Query {
     }
     if (envelope.testRunFinished) {
       this.testRunFinished = envelope.testRunFinished
+    }
+    if (envelope.suggestion) {
+      this.updateSuggestion(envelope.suggestion)
     }
   }
 
@@ -186,6 +210,17 @@ export default class Query {
     pickle.steps.forEach((pickleStep) => this.pickleStepById.set(pickleStep.id, pickleStep))
   }
 
+  private updateTestRunHookStarted(testRunHookStarted: TestRunHookStarted) {
+    this.testRunHookStartedById.set(testRunHookStarted.id, testRunHookStarted)
+  }
+
+  private updateTestRunHookFinished(testRunHookFinished: TestRunHookFinished) {
+    this.testRunHookFinishedByTestRunHookStartedId.set(
+      testRunHookFinished.testRunHookStartedId,
+      testRunHookFinished
+    )
+  }
+
   private updateTestCase(testCase: TestCase) {
     this.testCaseById.set(testCase.id, testCase)
 
@@ -232,6 +267,9 @@ export default class Query {
     if (attachment.testCaseStartedId) {
       this.attachmentsByTestCaseStartedId.put(attachment.testCaseStartedId, attachment)
     }
+    if (attachment.testRunHookStartedId) {
+      this.attachmentsByTestRunHookStartedId.put(attachment.testRunHookStartedId, attachment)
+    }
   }
 
   private updateTestStepFinished(testStepFinished: TestStepFinished) {
@@ -252,6 +290,10 @@ export default class Query {
       testCaseFinished.testCaseStartedId,
       testCaseFinished
     )
+  }
+
+  private updateSuggestion(suggestion: Suggestion) {
+    this.suggestionsByPickleStepId.put(suggestion.pickleStepId, suggestion)
   }
 
   /**
@@ -423,13 +465,11 @@ export default class Query {
   }
 
   public findAllPickles(): ReadonlyArray<Pickle> {
-    const pickles = [...this.pickleById.values()]
-    return sortBy(pickles, ['id'])
+    return [...this.pickleById.values()]
   }
 
   public findAllPickleSteps(): ReadonlyArray<PickleStep> {
-    const pickleSteps = [...this.pickleStepById.values()]
-    return sortBy(pickleSteps, ['id'])
+    return [...this.pickleStepById.values()]
   }
 
   public findAllTestCaseStarted(): ReadonlyArray<TestCaseStarted> {
@@ -447,35 +487,50 @@ export default class Query {
     )
   }
 
-  public findAllTestCaseStartedGroupedByFeature(): Map<
-    Feature | undefined,
-    ReadonlyArray<TestCaseStarted>
-  > {
-    const results = new Map()
-    sortBy(
-      this.findAllTestCaseStarted().map(
-        (testCaseStarted) => [this.findLineageBy(testCaseStarted), testCaseStarted] as const
-      ),
-      [([lineage]) => lineage.gherkinDocument.uri]
-    ).forEach(([{ feature }, testCaseStarted]) => {
-      results.set(feature, [...(results.get(feature) ?? []), testCaseStarted])
-    })
-    return results
+  public findAllTestCaseFinished(): ReadonlyArray<TestCaseFinished> {
+    return sortBy(
+      [...this.testCaseFinishedByTestCaseStartedId.values()].filter((testCaseFinished) => {
+        // only include if not yet finished OR won't be retried
+        return !testCaseFinished?.willBeRetried
+      }),
+      [
+        (testCaseFinished) =>
+          TimeConversion.timestampToMillisecondsSinceEpoch(testCaseFinished.timestamp),
+        'id',
+      ]
+    )
   }
 
   public findAllTestSteps(): ReadonlyArray<TestStep> {
-    const testSteps = [...this.testStepById.values()]
-    return sortBy(testSteps, ['id'])
+    return [...this.testStepById.values()]
   }
 
-  public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
-    return this.attachmentsByTestCaseStartedId
-      .get(testStepFinished.testCaseStartedId)
-      .filter((attachment) => attachment.testStepId === testStepFinished.testStepId)
+  public findAllTestStepStarted(): ReadonlyArray<TestStepStarted> {
+    return [...this.testStepStartedByTestCaseStartedId.values()]
   }
 
-  public findFeatureBy(testCaseStarted: TestCaseStarted): Feature | undefined {
-    return this.findLineageBy(testCaseStarted)?.feature
+  public findAllTestStepFinished(): ReadonlyArray<TestStepFinished> {
+    return [...this.testStepFinishedByTestCaseStartedId.values()]
+  }
+
+  public findAllTestRunHookStarted(): ReadonlyArray<TestRunHookStarted> {
+    return [...this.testRunHookStartedById.values()]
+  }
+
+  public findAllTestRunHookFinished(): ReadonlyArray<TestRunHookFinished> {
+    return [...this.testRunHookFinishedByTestRunHookStartedId.values()]
+  }
+
+  public findAttachmentsBy(
+    element: TestStepFinished | TestRunHookFinished
+  ): ReadonlyArray<Attachment> {
+    if ('testStepId' in element) {
+      return this.attachmentsByTestCaseStartedId
+        .get(element.testCaseStartedId)
+        .filter((attachment) => attachment.testStepId === element.testStepId)
+    } else {
+      return this.attachmentsByTestRunHookStartedId.get(element.testRunHookStartedId)
+    }
   }
 
   public findHookBy(testStep: TestStep): Hook | undefined {
@@ -490,19 +545,16 @@ export default class Query {
   }
 
   public findMostSevereTestStepResultBy(
-    testCaseStarted: TestCaseStarted
+    element: TestCaseStarted | TestCaseFinished
   ): TestStepResult | undefined {
+    const testCaseStarted =
+      'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
     return sortBy(
       this.findTestStepFinishedAndTestStepBy(testCaseStarted).map(
         ([testStepFinished]) => testStepFinished.testStepResult
       ),
       [(testStepResult) => statusOrdinal(testStepResult.status)]
     ).at(-1)
-  }
-
-  public findNameOf(pickle: Pickle, namingStrategy: NamingStrategy): string {
-    const lineage = this.findLineageBy(pickle)
-    return lineage ? namingStrategy.reduce(lineage, pickle) : pickle.name
   }
 
   public findLocationOf(pickle: Pickle): Location | undefined {
@@ -513,7 +565,9 @@ export default class Query {
     return lineage?.scenario?.location
   }
 
-  public findPickleBy(element: TestCaseStarted | TestStepStarted): Pickle | undefined {
+  public findPickleBy(
+    element: TestCaseStarted | TestCaseFinished | TestStepStarted
+  ): Pickle | undefined {
     const testCase = this.findTestCaseBy(element)
     assert.ok(testCase, 'Expected to find TestCase from TestCaseStarted')
     return this.pickleById.get(testCase.pickleId)
@@ -532,15 +586,43 @@ export default class Query {
     return this.stepById.get(astNodeId)
   }
 
-  public findTestCaseBy(element: TestCaseStarted | TestStepStarted): TestCase | undefined {
+  public findStepDefinitionsBy(testStep: TestStep): ReadonlyArray<StepDefinition> {
+    return (testStep.stepDefinitionIds ?? []).map((id) => this.stepDefinitionById.get(id))
+  }
+
+  findSuggestionsBy(element: PickleStep | Pickle): ReadonlyArray<Suggestion> {
+    if ('steps' in element) {
+      return element.steps.flatMap((value) => this.findSuggestionsBy(value))
+    }
+    return this.suggestionsByPickleStepId.get(element.id)
+  }
+
+  public findUnambiguousStepDefinitionBy(testStep: TestStep): StepDefinition | undefined {
+    if (testStep.stepDefinitionIds?.length === 1) {
+      return this.stepDefinitionById.get(testStep.stepDefinitionIds[0])
+    }
+    return undefined
+  }
+
+  public findTestCaseBy(
+    element: TestCaseStarted | TestCaseFinished | TestStepStarted | TestStepFinished
+  ): TestCase | undefined {
     const testCaseStarted =
       'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
     assert.ok(testCaseStarted, 'Expected to find TestCaseStarted by TestStepStarted')
     return this.testCaseById.get(testCaseStarted.testCaseId)
   }
 
-  public findTestCaseDurationBy(testCaseStarted: TestCaseStarted): Duration | undefined {
-    const testCaseFinished = this.findTestCaseFinishedBy(testCaseStarted)
+  public findTestCaseDurationBy(element: TestCaseStarted | TestCaseFinished): Duration | undefined {
+    let testCaseStarted: TestCaseStarted
+    let testCaseFinished: TestCaseFinished
+    if ('testCaseStartedId' in element) {
+      testCaseStarted = this.findTestCaseStartedBy(element)
+      testCaseFinished = element
+    } else {
+      testCaseStarted = element
+      testCaseFinished = this.findTestCaseFinishedBy(element)
+    }
     if (!testCaseFinished) {
       return undefined
     }
@@ -550,12 +632,26 @@ export default class Query {
     )
   }
 
-  public findTestCaseStartedBy(testStepStarted: TestStepStarted): TestCaseStarted | undefined {
-    return this.testCaseStartedById.get(testStepStarted.testCaseStartedId)
+  public findTestCaseStartedBy(
+    element: TestCaseFinished | TestStepStarted | TestStepFinished
+  ): TestCaseStarted | undefined {
+    return this.testCaseStartedById.get(element.testCaseStartedId)
   }
 
   public findTestCaseFinishedBy(testCaseStarted: TestCaseStarted): TestCaseFinished | undefined {
     return this.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.id)
+  }
+
+  public findTestRunHookStartedBy(
+    testRunHookFinished: TestRunHookFinished
+  ): TestRunHookStarted | undefined {
+    return this.testRunHookStartedById.get(testRunHookFinished.testRunHookStartedId)
+  }
+
+  public findTestRunHookFinishedBy(
+    testRunHookStarted: TestRunHookStarted
+  ): TestRunHookFinished | undefined {
+    return this.testRunHookFinishedByTestRunHookStartedId.get(testRunHookStarted.id)
   }
 
   public findTestRunDuration(): Duration | undefined {
@@ -586,8 +682,10 @@ export default class Query {
   }
 
   public findTestStepsFinishedBy(
-    testCaseStarted: TestCaseStarted
+    element: TestCaseStarted | TestCaseFinished
   ): ReadonlyArray<TestStepFinished> {
+    const testCaseStarted =
+      'testCaseStartedId' in element ? this.findTestCaseStartedBy(element) : element
     // multimaps `get` implements `getOrDefault([])` behaviour internally
     return [...this.testStepFinishedByTestCaseStartedId.get(testCaseStarted.id)]
   }

@@ -13,31 +13,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class QueryTest {
 
-    final Query query = new Query();
+    final Repository repository = Repository.builder().build();
+    final Query query = new Query(repository);
 
     @Test
-    void retainsTimestampOrderForTestCaseStarted() {
+    void retainsInsertionOrderForTestCaseStarted() {
         TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0L));
-        TestCaseStarted b = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(2L, 0L));
-        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(3L, 0L));
+        TestCaseStarted b = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0L));
+        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0L));
 
         Stream.of(a, b, c)
                 .map(Envelope::of)
-                .forEach(query::update);
+                .forEach(repository::update);
 
         assertThat(query.findAllTestCaseStarted()).containsExactly(a, b, c);
-    }
-    @Test
-    void idIsTieOrderTieBreaker() {
-        TestCaseStarted a = new TestCaseStarted(0L, "2", randomId(), "main", new Timestamp(1L, 0L));
-        TestCaseStarted b = new TestCaseStarted(0L, "1", randomId(), "main", new Timestamp(1L, 0L));
-        TestCaseStarted c = new TestCaseStarted(0L, "0", randomId(), "main", new Timestamp(1L, 0L));
-
-        Stream.of(a, b, c)
-                .map(Envelope::of)
-                .forEach(query::update);
-
-        assertThat(query.findAllTestCaseStarted()).containsExactly(c, b, a);
     }
 
     @Test
@@ -49,10 +38,10 @@ class QueryTest {
 
         Stream.of(a, c)
                 .map(Envelope::of)
-                .forEach(query::update);
+                .forEach(repository::update);
         Stream.of(b, d)
                 .map(Envelope::of)
-                .forEach(query::update);
+                .forEach(repository::update);
 
         assertThat(query.findAllTestCaseStarted()).containsExactly(c);
         assertThat(query.countTestCasesStarted()).isEqualTo(1);
