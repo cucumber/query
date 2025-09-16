@@ -676,9 +676,15 @@ export default class Query {
     return this.testStepById.get(element.testStepId)
   }
 
-  public findTestStepsStartedBy(testCaseStarted: TestCaseStarted): ReadonlyArray<TestStepStarted> {
+  public findTestStepsStartedBy(
+    testCaseStarted: TestCaseStarted | TestCaseFinished
+  ): ReadonlyArray<TestStepStarted> {
+    const testCaseStartedId =
+      'testCaseStartedId' in testCaseStarted
+        ? testCaseStarted.testCaseStartedId
+        : testCaseStarted.id
     // multimaps `get` implements `getOrDefault([])` behaviour internally
-    return [...this.testStepStartedByTestCaseStartedId.get(testCaseStarted.id)]
+    return [...this.testStepStartedByTestCaseStartedId.get(testCaseStartedId)]
   }
 
   public findTestStepsFinishedBy(
