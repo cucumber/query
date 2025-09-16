@@ -1,0 +1,10 @@
+{
+  "testCaseStarted" : [
+    "Global hooks - A passing scenario",
+    "Global hooks - A failing scenario"
+  ],
+  "pickle" : [
+    "Global hooks - A passing scenario",
+    "Global hooks - A failing scenario"
+  ]
+}

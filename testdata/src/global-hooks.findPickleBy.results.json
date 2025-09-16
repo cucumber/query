@@ -1,0 +1,18 @@
+{
+  "testCaseStarted" : [
+    "A passing scenario",
+    "A failing scenario"
+  ],
+  "testCaseFinished" : [
+    "A passing scenario",
+    "A failing scenario"
+  ],
+  "testStepStarted" : [
+    "A passing scenario",
+    "A failing scenario"
+  ],
+  "testStepFinished" : [
+    "A passing scenario",
+    "A failing scenario"
+  ]
+}

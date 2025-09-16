@@ -21,6 +21,8 @@ import io.cucumber.messages.types.TestCase;
 import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
 import io.cucumber.messages.types.TestRunFinished;
+import io.cucumber.messages.types.TestRunHookFinished;
+import io.cucumber.messages.types.TestRunHookStarted;
 import io.cucumber.messages.types.TestRunStarted;
 import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
@@ -125,6 +127,14 @@ public final class Query {
                 .collect(toList());
     }
 
+    public List<TestRunHookStarted> findAllTestRunHookStarted() {
+        return new ArrayList<>(repository.testRunHookStartedById.values());
+    }
+
+    public List<TestRunHookFinished> findAllTestRunHookFinished() {
+        return new ArrayList<>(repository.testRunHookFinishedByTestRunHookStartedId.values());
+    }
+
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
         return repository.attachmentsByTestCaseStartedId.getOrDefault(testStepFinished.getTestCaseStartedId(), emptyList()).stream()
@@ -132,6 +142,12 @@ public final class Query {
                         .map(testStepId -> testStepFinished.getTestStepId().equals(testStepId))
                         .orElse(false))
                 .collect(toList());
+    }
+
+    public List<Attachment> findAttachmentsBy(TestRunHookFinished testRunHookFinished) {
+        requireNonNull(testRunHookFinished);
+        List<Attachment> attachments = repository.attachmentsByTestRunHookStartedId.getOrDefault(testRunHookFinished.getTestRunHookStartedId(), emptyList());
+        return new ArrayList<>(attachments);
     }
 
     public Optional<Hook> findHookBy(TestStep testStep) {
@@ -301,6 +317,16 @@ public final class Query {
     public Optional<TestCaseFinished> findTestCaseFinishedBy(TestCaseStarted testCaseStarted) {
         requireNonNull(testCaseStarted);
         return ofNullable(repository.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.getId()));
+    }
+
+    public Optional<TestRunHookFinished> findTestRunHookFinishedBy(TestRunHookStarted testRunHookStarted) {
+        requireNonNull(testRunHookStarted);
+        return ofNullable(repository.testRunHookFinishedByTestRunHookStartedId.get(testRunHookStarted.getId()));
+    }
+
+    public Optional<TestRunHookStarted> findTestRunHookStartedBy(TestRunHookFinished testRunHookFinished) {
+        requireNonNull(testRunHookFinished);
+        return ofNullable(repository.testRunHookStartedById.get(testRunHookFinished.getTestRunHookStartedId()));
     }
 
     public Optional<Duration> findTestRunDuration() {

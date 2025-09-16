@@ -19,6 +19,8 @@ import {
   TestCaseFinished,
   TestCaseStarted,
   TestRunFinished,
+  TestRunHookFinished,
+  TestRunHookStarted,
   TestRunStarted,
   TestStep,
   TestStepFinished,
@@ -66,11 +68,16 @@ export default class Query {
   private readonly testCaseById: Map<string, TestCase> = new Map()
   private readonly testStepById: Map<string, TestStep> = new Map()
   private readonly testCaseFinishedByTestCaseStartedId: Map<string, TestCaseFinished> = new Map()
+  private readonly testRunHookStartedById: Map<string, TestRunHookStarted> = new Map()
+  private readonly testRunHookFinishedByTestRunHookStartedId: Map<string, TestRunHookFinished> =
+    new Map()
   private readonly testStepStartedByTestCaseStartedId: ArrayMultimap<string, TestStepStarted> =
     new ArrayMultimap()
   private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
     new ArrayMultimap()
   private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
+    new ArrayMultimap()
+  private readonly attachmentsByTestRunHookStartedId: ArrayMultimap<string, Attachment> =
     new ArrayMultimap()
   private readonly suggestionsByPickleStepId: ArrayMultimap<string, Suggestion> =
     new ArrayMultimap()
@@ -94,6 +101,12 @@ export default class Query {
     if (envelope.testRunStarted) {
       this.testRunStarted = envelope.testRunStarted
     }
+    if (envelope.testRunHookStarted) {
+      this.updateTestRunHookStarted(envelope.testRunHookStarted)
+    }
+    if (envelope.testRunHookFinished) {
+      this.updateTestRunHookFinished(envelope.testRunHookFinished)
+    }
     if (envelope.testCase) {
       this.updateTestCase(envelope.testCase)
     }
@@ -115,7 +128,6 @@ export default class Query {
     if (envelope.testRunFinished) {
       this.testRunFinished = envelope.testRunFinished
     }
-
     if (envelope.suggestion) {
       this.updateSuggestion(envelope.suggestion)
     }
@@ -198,6 +210,17 @@ export default class Query {
     pickle.steps.forEach((pickleStep) => this.pickleStepById.set(pickleStep.id, pickleStep))
   }
 
+  private updateTestRunHookStarted(testRunHookStarted: TestRunHookStarted) {
+    this.testRunHookStartedById.set(testRunHookStarted.id, testRunHookStarted)
+  }
+
+  private updateTestRunHookFinished(testRunHookFinished: TestRunHookFinished) {
+    this.testRunHookFinishedByTestRunHookStartedId.set(
+      testRunHookFinished.testRunHookStartedId,
+      testRunHookFinished
+    )
+  }
+
   private updateTestCase(testCase: TestCase) {
     this.testCaseById.set(testCase.id, testCase)
 
@@ -243,6 +266,9 @@ export default class Query {
     }
     if (attachment.testCaseStartedId) {
       this.attachmentsByTestCaseStartedId.put(attachment.testCaseStartedId, attachment)
+    }
+    if (attachment.testRunHookStartedId) {
+      this.attachmentsByTestRunHookStartedId.put(attachment.testRunHookStartedId, attachment)
     }
   }
 
@@ -487,10 +513,24 @@ export default class Query {
     return [...this.testStepFinishedByTestCaseStartedId.values()]
   }
 
-  public findAttachmentsBy(testStepFinished: TestStepFinished): ReadonlyArray<Attachment> {
-    return this.attachmentsByTestCaseStartedId
-      .get(testStepFinished.testCaseStartedId)
-      .filter((attachment) => attachment.testStepId === testStepFinished.testStepId)
+  public findAllTestRunHookStarted(): ReadonlyArray<TestRunHookStarted> {
+    return [...this.testRunHookStartedById.values()]
+  }
+
+  public findAllTestRunHookFinished(): ReadonlyArray<TestRunHookFinished> {
+    return [...this.testRunHookFinishedByTestRunHookStartedId.values()]
+  }
+
+  public findAttachmentsBy(
+    element: TestStepFinished | TestRunHookFinished
+  ): ReadonlyArray<Attachment> {
+    if ('testStepId' in element) {
+      return this.attachmentsByTestCaseStartedId
+        .get(element.testCaseStartedId)
+        .filter((attachment) => attachment.testStepId === element.testStepId)
+    } else {
+      return this.attachmentsByTestRunHookStartedId.get(element.testRunHookStartedId)
+    }
   }
 
   public findHookBy(testStep: TestStep): Hook | undefined {
@@ -600,6 +640,18 @@ export default class Query {
 
   public findTestCaseFinishedBy(testCaseStarted: TestCaseStarted): TestCaseFinished | undefined {
     return this.testCaseFinishedByTestCaseStartedId.get(testCaseStarted.id)
+  }
+
+  public findTestRunHookStartedBy(
+    testRunHookFinished: TestRunHookFinished
+  ): TestRunHookStarted | undefined {
+    return this.testRunHookStartedById.get(testRunHookFinished.testRunHookStartedId)
+  }
+
+  public findTestRunHookFinishedBy(
+    testRunHookStarted: TestRunHookStarted
+  ): TestRunHookFinished | undefined {
+    return this.testRunHookFinishedByTestRunHookStartedId.get(testRunHookStarted.id)
   }
 
   public findTestRunDuration(): Duration | undefined {
