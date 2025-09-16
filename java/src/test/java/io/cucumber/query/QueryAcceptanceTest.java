@@ -3,21 +3,7 @@ package io.cucumber.query;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.NdjsonToMessageIterable;
-import io.cucumber.messages.types.Envelope;
-import io.cucumber.messages.types.Hook;
-import io.cucumber.messages.types.Pickle;
-import io.cucumber.messages.types.PickleStep;
-import io.cucumber.messages.types.Step;
-import io.cucumber.messages.types.StepDefinition;
-import io.cucumber.messages.types.Suggestion;
-import io.cucumber.messages.types.TestCase;
-import io.cucumber.messages.types.TestCaseFinished;
-import io.cucumber.messages.types.TestCaseStarted;
-import io.cucumber.messages.types.TestRunHookFinished;
-import io.cucumber.messages.types.TestRunHookStarted;
-import io.cucumber.messages.types.TestStep;
-import io.cucumber.messages.types.TestStepFinished;
-import io.cucumber.messages.types.TestStepResult;
+import io.cucumber.messages.types.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -335,6 +321,22 @@ public class QueryAcceptanceTest {
                 .map(query::findTestStepBy)
                 .map(testStep -> testStep.map(TestStep::getId))
                 .collect(toList()));
+
+        queries.put("findTestStepsStartedBy", (query) -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+
+            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
+                    .map(query::findTestStepsStartedBy)
+                    .map(Collection::stream)
+                    .map(testStepStarted -> testStepStarted.map(TestStepStarted::getTestStepId))
+                    .collect(toList()));
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+                    .map(query::findTestStepsStartedBy)
+                    .map(Collection::stream)
+                    .map(testStepStarted -> testStepStarted.map(TestStepStarted::getTestStepId))
+                    .collect(toList()));
+            return results;
+        });
 
         queries.put("findTestRunHookFinishedBy", (query) -> query.findAllTestRunHookStarted().stream()
                 .map(query::findTestRunHookFinishedBy)
