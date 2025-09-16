@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Add `findTestRunHookFinishedBy(TestRunHookStarted)` ([#109](https://github.com/cucumber/query/pull/109))
 - Add `findAttachmentsBy(TestRunHookFinished)` ([#109](https://github.com/cucumber/query/pull/109))
 
+### Fixed
+- [JavaScript] Support `TestCaseFinished` as parameter to `findTestStepsStartedBy` ([#111](https://github.com/cucumber/query/pull/111))
+
 ## [14.1.0] - 2025-09-15
 ### Added
 - [Java] Add `findTestCaseStartedBy(TestCaseFinished)`
