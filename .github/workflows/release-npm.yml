@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
+        working-directory: javascript
       - run: npm ci
         working-directory: javascript
       - run: npm test
