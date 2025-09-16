@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [14.2.0] - 2025-09-16
 ### Added
 - Add `findAllTestRunHookStarted()` ([#109](https://github.com/cucumber/query/pull/109))
 - Add `findAllTestRunHookFinished()` ([#109](https://github.com/cucumber/query/pull/109))
@@ -241,7 +243,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.1.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.2.0...HEAD
+[14.2.0]: https://github.com/cucumber/cucumber/compare/query/v14.1.0...v14.2.0
 [14.1.0]: https://github.com/cucumber/cucumber/compare/query/v14.0.1...v14.1.0
 [14.0.1]: https://github.com/cucumber/cucumber/compare/query/v14.0.0...v14.0.1
 [14.0.0]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...v14.0.0
