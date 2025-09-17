@@ -156,6 +156,17 @@ public final class Query {
                 .map(repository.hookById::get);
     }
 
+    public Optional<Hook> findHookBy(TestRunHookStarted testRunHookStarted) {
+        requireNonNull(testRunHookStarted);
+        return Optional.ofNullable(repository.hookById.get(testRunHookStarted.getHookId()));
+    }
+
+    public Optional<Hook> findHookBy(TestRunHookFinished testRunHookFinished) {
+        requireNonNull(testRunHookFinished);
+        return findTestRunHookStartedBy(testRunHookFinished)
+                .flatMap(this::findHookBy);
+    }
+
     public Optional<Meta> findMeta() {
         return ofNullable(repository.meta);
     }
