@@ -83,7 +83,7 @@ namespace Io.Cucumber.Query
             if (_features.Contains(RepositoryFeature.INCLUDE_SUGGESTIONS) && envelope.Suggestion != null) UpdateSuggestions(envelope.Suggestion);
         }
 
-        public void UpdateAttachment(Attachment attachment)
+        internal void UpdateAttachment(Attachment attachment)
         {
             if (attachment.TestCaseStartedId != null)
             {
@@ -105,17 +105,17 @@ namespace Io.Cucumber.Query
             }
         }
 
-        public void UpdateHook(Hook hook)
+        internal void UpdateHook(Hook hook)
         {
             HookById[hook.Id] = hook;
         }
 
-        public void UpdateTestCaseStarted(TestCaseStarted testCaseStarted)
+        internal void UpdateTestCaseStarted(TestCaseStarted testCaseStarted)
         {
             TestCaseStartedById[testCaseStarted.Id] = testCaseStarted;
         }
 
-        public void UpdateTestCase(TestCase testCase)
+        internal void UpdateTestCase(TestCase testCase)
         {
             TestCaseById[testCase.Id] = testCase;
             foreach (var testStep in testCase.TestSteps)
@@ -124,7 +124,7 @@ namespace Io.Cucumber.Query
             }
         }
 
-        public void UpdatePickle(Pickle pickle)
+        internal void UpdatePickle(Pickle pickle)
         {
             PickleById[pickle.Id] = pickle;
             foreach (var step in pickle.Steps)
@@ -133,7 +133,7 @@ namespace Io.Cucumber.Query
             }
         }
 
-        public void UpdateGherkinDocument(GherkinDocument document)
+        internal void UpdateGherkinDocument(GherkinDocument document)
         {
             foreach (var lineage in Lineages.Of(document))
             {
@@ -145,7 +145,7 @@ namespace Io.Cucumber.Query
             }
         }
 
-        public void UpdateFeature(Feature feature)
+        internal void UpdateFeature(Feature feature)
         {
             foreach (var child in feature.Children)
             {
@@ -174,7 +174,7 @@ namespace Io.Cucumber.Query
             }
         }
 
-        public void UpdateTestStepStarted(TestStepStarted testStepStarted)
+        internal void UpdateTestStepStarted(TestStepStarted testStepStarted)
         {
             if (!TestStepsStartedByTestCaseStartedId.TryGetValue(testStepStarted.TestCaseStartedId, out var list))
             {
@@ -184,7 +184,7 @@ namespace Io.Cucumber.Query
             list.Add(testStepStarted);
         }
 
-        public void UpdateTestStepFinished(TestStepFinished testStepFinished)
+        internal void UpdateTestStepFinished(TestStepFinished testStepFinished)
         {
             if (!TestStepsFinishedByTestCaseStartedId.TryGetValue(testStepFinished.TestCaseStartedId, out var list))
             {
@@ -194,42 +194,42 @@ namespace Io.Cucumber.Query
             list.Add(testStepFinished);
         }
 
-        public void UpdateTestCaseFinished(TestCaseFinished testCaseFinished)
+        internal void UpdateTestCaseFinished(TestCaseFinished testCaseFinished)
         {
             TestCaseFinishedByTestCaseStartedId[testCaseFinished.TestCaseStartedId] = testCaseFinished;
         }
 
-        public void UpdateTestRunFinished(TestRunFinished testRunFinished)
+        internal void UpdateTestRunFinished(TestRunFinished testRunFinished)
         {
             TestRunFinished = testRunFinished;
         }
 
-        public void UpdateTestRunStarted(TestRunStarted testRunStarted)
+        internal void UpdateTestRunStarted(TestRunStarted testRunStarted)
         {
             TestRunStarted = testRunStarted;
         }
 
-        public void UpdateTestRunHookStarted(TestRunHookStarted testRunHookStarted)
+        internal void UpdateTestRunHookStarted(TestRunHookStarted testRunHookStarted)
         {
             TestRunHookStartedById[testRunHookStarted.Id] = testRunHookStarted;
         }
 
-        public void UpdateTestRunHookFinished(TestRunHookFinished testRunHookFinished)
+        internal void UpdateTestRunHookFinished(TestRunHookFinished testRunHookFinished)
         {
             TestRunHookFinishedByTestRunHookStartedId[testRunHookFinished.TestRunHookStartedId] = testRunHookFinished;
         }
 
-        public void UpdateScenario(Scenario scenario)
+        internal void UpdateScenario(Scenario scenario)
         {
             UpdateSteps(scenario.Steps);
         }
 
-        public void UpdateStepDefinition(StepDefinition stepDefinition)
+        internal void UpdateStepDefinition(StepDefinition stepDefinition)
         {
             StepDefinitionById[stepDefinition.Id] = stepDefinition;
         }
 
-        public void UpdateSteps(IList<Step> steps)
+        internal void UpdateSteps(IList<Step> steps)
         {
             foreach (var step in steps)
             {
@@ -237,7 +237,7 @@ namespace Io.Cucumber.Query
             }
         }
 
-        public void UpdateSuggestions(Suggestion suggestion)
+        internal void UpdateSuggestions(Suggestion suggestion)
         {
             if (!SuggestionsByPickleStepId.TryGetValue(suggestion.PickleStepId, out var list))
             {
@@ -247,7 +247,7 @@ namespace Io.Cucumber.Query
             list.Add(suggestion);
         }
 
-        public void UpdateMeta(Meta meta)
+        internal void UpdateMeta(Meta meta)
         {
             Meta = meta;
         }
