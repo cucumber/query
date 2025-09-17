@@ -10,34 +10,27 @@ namespace QueryTest
     [TestClass]
     public class QueryTest
     {
-        private readonly Query query = new Query();
+        private readonly Repository _repository;
+        private readonly Query _query;
 
-        [TestMethod]
-        public void RetainsTimestampOrderForTestCaseStarted()
-        {
-            var a = new TestCaseStarted(0L, RandomId(), RandomId(), "main", new Timestamp(1L, 0L));
-            var b = new TestCaseStarted(0L, RandomId(), RandomId(), "main", new Timestamp(2L, 0L));
-            var c = new TestCaseStarted(0L, RandomId(), RandomId(), "main", new Timestamp(3L, 0L));
-
-            foreach (var tcs in new[] { a, b, c })
-                query.UpdateTestCaseStarted(tcs);
-
-            var result = query.FindAllTestCaseStarted();
-            CollectionAssert.AreEqual(new[] { a, b, c }, result.ToArray());
+        public QueryTest() {
+            _repository = Repository.Builder().Build();
+            _query = new Query(_repository);
         }
 
+
         [TestMethod]
-        public void IdIsTieOrderTieBreaker()
+        public void RetainsInsertionOrderForTestCaseStarted()
         {
-            var a = new TestCaseStarted(0L, "2", RandomId(), "main", new Timestamp(1L, 0L));
-            var b = new TestCaseStarted(0L, "1", RandomId(), "main", new Timestamp(1L, 0L));
-            var c = new TestCaseStarted(0L, "0", RandomId(), "main", new Timestamp(1L, 0L));
+            var a = new TestCaseStarted(0L, RandomId(), RandomId(), "main", new Timestamp(1L, 0L));
+            var b = new TestCaseStarted(0L, RandomId(), RandomId(), "main", new Timestamp(1L, 0L));
+            var c = new TestCaseStarted(0L, RandomId(), RandomId(), "main", new Timestamp(1L, 0L));
 
             foreach (var tcs in new[] { a, b, c })
-                query.UpdateTestCaseStarted(tcs);
+                _repository.UpdateTestCaseStarted(tcs);
 
-            var result = query.FindAllTestCaseStarted();
-            CollectionAssert.AreEqual(new[] { c, b, a }, result.ToArray());
+            var result = _query.FindAllTestCaseStarted();
+            CollectionAssert.AreEqual(new[] { a, b, c }, result.ToArray());
         }
 
         [TestMethod]
@@ -48,15 +41,15 @@ namespace QueryTest
             var c = new TestCaseStarted(0L, RandomId(), RandomId(), "main", new Timestamp(0L, 0L));
             var d = new TestCaseFinished(c.Id, new Timestamp(0L, 0L), false);
 
-            query.UpdateTestCaseStarted(a);
-            query.UpdateTestCaseStarted(c);
-            query.UpdateTestCaseFinished(b);
-            query.UpdateTestCaseFinished(d);
+            _repository.UpdateTestCaseStarted(a);
+            _repository.UpdateTestCaseStarted(c);
+            _repository.UpdateTestCaseFinished(b);
+            _repository.UpdateTestCaseFinished(d);
 
-            var result = query.FindAllTestCaseStarted();
+            var result = _query.FindAllTestCaseStarted();
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(c, result[0]);
-            Assert.AreEqual(1, query.TestCasesStartedCount);
+            Assert.AreEqual(1, _query.TestCasesStartedCount);
         }
 
         private static string RandomId() => Guid.NewGuid().ToString();

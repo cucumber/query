@@ -27,9 +27,9 @@ namespace QueryTest
         {
             var sources = new[]
             {
-                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "minimal.feature.ndjson"),
-                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "rules.feature.ndjson"),
-                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "examples-tables.feature.ndjson")
+                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "src", "minimal.ndjson"),
+                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "src", "rules.ndjson"),
+                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "src", "examples-tables.ndjson")
             };
 
             foreach (var source in sources)
@@ -50,15 +50,6 @@ namespace QueryTest
             actual.Should().Be(expected, $"NamingStrategy results for {testCase} do not match expected results.");
         }
 
-        // Disabled: Only for updating expected files
-        // [TestMethod]
-        // [DynamicData(nameof(Acceptance), DynamicDataSourceType.Method)]
-        // [Ignore]
-        public void UpdateExpectedQueryResultFiles(TestCase testCase)
-        {
-            using var outStream = File.Open(testCase.Expected, FileMode.Create, FileAccess.Write);
-            WriteResults(testCase.Strategy, testCase, outStream);
-        }
 
         private static string WriteResults(TestCase testCase, NamingStrategy strategy)
         {
@@ -71,16 +62,18 @@ namespace QueryTest
         {
             using var inStream = File.OpenRead(testCase.Source);
             using var reader = new StreamReader(inStream, Encoding.UTF8);
-            using var writer = new StreamWriter(outStream, Encoding.UTF8, leaveOpen: true);
-            var query = new Query();
+            using var writer = new StreamWriter(outStream, new UTF8Encoding(false), leaveOpen: true);
+
+            var repository = CreateRepository();
 
             string? line;
             while ((line = reader.ReadLine()) != null)
             {
                 if (string.IsNullOrWhiteSpace(line)) continue;
-                var envelope = NdjsonSerializer.Deserialize<Envelope>(line);
-                query.Update(envelope);
+                var envelope = Reqnroll.Formatters.PayloadProcessing.NdjsonSerializer.Deserialize<Envelope>(line);
+                repository.Update(envelope);
             }
+            var query = new Query(repository);
 
             foreach (var pickle in query.FindAllPickles())
             {
@@ -93,6 +86,11 @@ namespace QueryTest
                 }
             }
             writer.Flush();
+        }
+
+        private static Repository CreateRepository()
+        {
+            return Repository.Builder().Feature(Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS, true).Build();
         }
 
         public class TestCase

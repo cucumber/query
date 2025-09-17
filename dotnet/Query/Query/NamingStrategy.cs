@@ -33,8 +33,6 @@ namespace Io.Cucumber.Query
             return new Builder(strategy);
         }
 
-        protected NamingStrategy() { }
-
         public abstract string Reduce(Lineage lineage);
         public abstract string Reduce(Lineage lineage, Pickle pickle);
 
