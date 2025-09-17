@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- Add `findHookBy(TestRunHookStarted)` ([#113](https://github.com/cucumber/query/pull/113))
+- Add `findHookBy(TestRunHookFinished)` ([#113](https://github.com/cucumber/query/pull/113))
 
 ## [14.2.3] - 2025-09-17
 

@@ -67,12 +67,27 @@ describe('Acceptance Tests', async () => {
           attachment.contentEncoding,
         ]),
     }),
-    findHookBy: (query: Query) =>
-      query
-        .findAllTestSteps()
-        .map((testStep) => query.findHookBy(testStep))
-        .map((hook) => hook?.id)
-        .filter((value) => !!value),
+
+    findHookBy: (query: Query) => {
+      return {
+        testStep: query
+          .findAllTestSteps()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+        testRunHookStarted: query
+          .findAllTestRunHookStarted()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+        testRunHookFinished: query
+          .findAllTestRunHookFinished()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+      }
+    },
+
     findMeta: (query: Query) => query.findMeta()?.implementation?.name,
     findMostSevereTestStepResultBy: (query: Query) => {
       return {
