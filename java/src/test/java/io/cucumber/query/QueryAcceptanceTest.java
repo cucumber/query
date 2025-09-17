@@ -18,6 +18,7 @@ import io.cucumber.messages.types.TestRunHookStarted;
 import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
+import io.cucumber.messages.types.TestStepStarted;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -166,11 +167,25 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findHookBy", (query) -> query.findAllTestSteps().stream()
-                .map(query::findHookBy)
-                .map(hook -> hook.map(Hook::getId))
-                .filter(Optional::isPresent)
-                .collect(toList()));
+        queries.put("findHookBy", (query) -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+            results.put("testStep", query.findAllTestSteps().stream()
+                    .map(query::findHookBy)
+                    .map(hook -> hook.map(Hook::getId))
+                    .filter(Optional::isPresent)
+                    .collect(toList()));
+            results.put("testRunHookStarted", query.findAllTestRunHookStarted().stream()
+                    .map(query::findHookBy)
+                    .map(hook -> hook.map(Hook::getId))
+                    .filter(Optional::isPresent)
+                    .collect(toList()));
+            results.put("testRunHookFinished", query.findAllTestRunHookFinished().stream()
+                    .map(query::findHookBy)
+                    .map(hook -> hook.map(Hook::getId))
+                    .filter(Optional::isPresent)
+                    .collect(toList()));
+            return results;
+        });
 
         queries.put("findLineageBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
@@ -189,7 +204,7 @@ public class QueryAcceptanceTest {
                     .collect(toList()));
             return results;
         });
-        
+
         queries.put("findLocationOf", (query) -> query.findAllPickles().stream()
                 .map(query::findLocationOf)
                 .filter(Optional::isPresent)
@@ -335,6 +350,22 @@ public class QueryAcceptanceTest {
                 .map(query::findTestStepBy)
                 .map(testStep -> testStep.map(TestStep::getId))
                 .collect(toList()));
+
+        queries.put("findTestStepsStartedBy", (query) -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+
+            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
+                    .map(query::findTestStepsStartedBy)
+                    .map(Collection::stream)
+                    .map(testStepStarted -> testStepStarted.map(TestStepStarted::getTestStepId))
+                    .collect(toList()));
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+                    .map(query::findTestStepsStartedBy)
+                    .map(Collection::stream)
+                    .map(testStepStarted -> testStepStarted.map(TestStepStarted::getTestStepId))
+                    .collect(toList()));
+            return results;
+        });
 
         queries.put("findTestRunHookFinishedBy", (query) -> query.findAllTestRunHookStarted().stream()
                 .map(query::findTestRunHookFinishedBy)

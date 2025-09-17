@@ -67,12 +67,27 @@ describe('Acceptance Tests', async () => {
           attachment.contentEncoding,
         ]),
     }),
-    findHookBy: (query: Query) =>
-      query
-        .findAllTestSteps()
-        .map((testStep) => query.findHookBy(testStep))
-        .map((hook) => hook?.id)
-        .filter((value) => !!value),
+
+    findHookBy: (query: Query) => {
+      return {
+        testStep: query
+          .findAllTestSteps()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+        testRunHookStarted: query
+          .findAllTestRunHookStarted()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+        testRunHookFinished: query
+          .findAllTestRunHookFinished()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+      }
+    },
+
     findMeta: (query: Query) => query.findMeta()?.implementation?.name,
     findMostSevereTestStepResultBy: (query: Query) => {
       return {
@@ -205,6 +220,22 @@ describe('Acceptance Tests', async () => {
         .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
         .map((testStepStarted) => query.findTestStepBy(testStepStarted))
         .map((testStep) => testStep?.id),
+    findTestStepsStartedBy: (query: Query) => {
+      return {
+        testCaseStarted: query
+          .findAllTestCaseStarted()
+          .map((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
+          .map((testStepsStarted) =>
+            testStepsStarted.map((testStepStarted) => testStepStarted.testStepId)
+          ),
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .map((testCaseFinished) => query.findTestStepsStartedBy(testCaseFinished))
+          .map((testStepsStarted) =>
+            testStepsStarted.map((testStepStarted) => testStepStarted.testStepId)
+          ),
+      }
+    },
     findTestStepByTestStepFinished: (query: Query) => {
       return {
         testCaseStarted: query

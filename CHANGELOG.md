@@ -6,12 +6,28 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [14.3.0] - 2025-09-17
+### Added
+- Add `findHookBy(TestRunHookStarted)` ([#113](https://github.com/cucumber/query/pull/113))
+- Add `findHookBy(TestRunHookFinished)` ([#113](https://github.com/cucumber/query/pull/113))
+
+## [14.2.3] - 2025-09-17
+
+## [14.2.2] - 2025-09-17
+
+## [14.2.1] - 2025-09-17
+
+## [14.2.0] - 2025-09-16
 ### Added
 - Add `findAllTestRunHookStarted()` ([#109](https://github.com/cucumber/query/pull/109))
 - Add `findAllTestRunHookFinished()` ([#109](https://github.com/cucumber/query/pull/109))
 - Add `findTestRunHookStartedBy(TestRunHookFinished)` ([#109](https://github.com/cucumber/query/pull/109))
 - Add `findTestRunHookFinishedBy(TestRunHookStarted)` ([#109](https://github.com/cucumber/query/pull/109))
 - Add `findAttachmentsBy(TestRunHookFinished)` ([#109](https://github.com/cucumber/query/pull/109))
+
+### Fixed
+- [JavaScript] Support `TestCaseFinished` as parameter to `findTestStepsStartedBy` ([#111](https://github.com/cucumber/query/pull/111))
 
 ## [14.1.0] - 2025-09-15
 ### Added
@@ -238,7 +254,12 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.1.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.3.0...HEAD
+[14.3.0]: https://github.com/cucumber/cucumber/compare/query/v14.2.3...v14.3.0
+[14.2.3]: https://github.com/cucumber/cucumber/compare/query/v14.2.2...v14.2.3
+[14.2.2]: https://github.com/cucumber/cucumber/compare/query/v14.2.1...v14.2.2
+[14.2.1]: https://github.com/cucumber/cucumber/compare/query/v14.2.0...v14.2.1
+[14.2.0]: https://github.com/cucumber/cucumber/compare/query/v14.1.0...v14.2.0
 [14.1.0]: https://github.com/cucumber/cucumber/compare/query/v14.0.1...v14.1.0
 [14.0.1]: https://github.com/cucumber/cucumber/compare/query/v14.0.0...v14.0.1
 [14.0.0]: https://github.com/cucumber/cucumber/compare/query/v13.6.0...v14.0.0

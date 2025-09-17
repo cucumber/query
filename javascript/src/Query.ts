@@ -533,11 +533,16 @@ export default class Query {
     }
   }
 
-  public findHookBy(testStep: TestStep): Hook | undefined {
-    if (!testStep.hookId) {
+  public findHookBy(item: TestStep | TestRunHookStarted | TestRunHookFinished): Hook | undefined {
+    if ('testRunHookStartedId' in item) {
+      const testRunHookStarted = this.findTestRunHookStartedBy(item)
+      assert.ok(testRunHookStarted, 'Expected to find TestRunHookStarted from TestRunHookFinished')
+      return this.findHookBy(testRunHookStarted)
+    }
+    if (!item.hookId) {
       return undefined
     }
-    return this.hooksById.get(testStep.hookId)
+    return this.hooksById.get(item.hookId)
   }
 
   public findMeta(): Meta | undefined {
@@ -676,9 +681,13 @@ export default class Query {
     return this.testStepById.get(element.testStepId)
   }
 
-  public findTestStepsStartedBy(testCaseStarted: TestCaseStarted): ReadonlyArray<TestStepStarted> {
+  public findTestStepsStartedBy(
+    element: TestCaseStarted | TestCaseFinished
+  ): ReadonlyArray<TestStepStarted> {
+    const testCaseStartedId =
+      'testCaseStartedId' in element ? element.testCaseStartedId : element.id
     // multimaps `get` implements `getOrDefault([])` behaviour internally
-    return [...this.testStepStartedByTestCaseStartedId.get(testCaseStarted.id)]
+    return [...this.testStepStartedByTestCaseStartedId.get(testCaseStartedId)]
   }
 
   public findTestStepsFinishedBy(
