@@ -167,8 +167,6 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-
-
         queries.put("findHookBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testStep", query.findAllTestSteps().stream()
@@ -186,10 +184,8 @@ public class QueryAcceptanceTest {
                     .map(hook -> hook.map(Hook::getId))
                     .filter(Optional::isPresent)
                     .collect(toList()));
-
             return results;
         });
-
 
         queries.put("findLineageBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
