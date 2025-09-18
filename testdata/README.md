@@ -6,7 +6,7 @@ the [`fake-cucumber` reference implementation](https://github.com/cucumber/fake-
 
 * The `.njdon` files are copied in by running `npm install`.
 * The expected `.xml` files are created by running the
-  `QueryTest#updateExpectedXmlReportFiles` test.
+  `QueryTest#updateExpectedFiles` test.
 
 We ensure the `.ndjson` files stay up to date by running `npm install` in CI
 and verifying nothing changed.
