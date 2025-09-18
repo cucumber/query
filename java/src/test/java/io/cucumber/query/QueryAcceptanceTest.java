@@ -91,7 +91,7 @@ public class QueryAcceptanceTest {
     @ParameterizedTest
     @MethodSource("acceptance")
     @Disabled
-    void updateExpectedQueryResultFiles(QueryTestCase testCase) throws IOException {
+    void updateExpectedFiles(QueryTestCase testCase) throws IOException {
         try (OutputStream out = Files.newOutputStream(testCase.expected)) {
             writeQueryResults(testCase, out);
         }

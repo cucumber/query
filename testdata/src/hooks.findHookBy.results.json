@@ -1,11 +1,9 @@
 {
   "testStep" : [
-    "12",
-    "15",
-    "12",
-    "15",
-    "12",
-    "15"
+    "8",
+    "11",
+    "8",
+    "11"
   ],
   "testRunHookStarted" : [ ],
   "testRunHookFinished" : [ ]

@@ -1,13 +1,11 @@
 {
   "testCaseStarted" : [
     "No tags and a passed step",
-    "No tags and a failed step",
-    "No tags and a undefined step"
+    "No tags and a failed step"
   ],
   "testCaseFinished" : [
     "No tags and a passed step",
-    "No tags and a failed step",
-    "No tags and a undefined step"
+    "No tags and a failed step"
   ],
   "testStepStarted" : [
     "No tags and a passed step",
@@ -15,10 +13,7 @@
     "No tags and a passed step",
     "No tags and a failed step",
     "No tags and a failed step",
-    "No tags and a failed step",
-    "No tags and a undefined step",
-    "No tags and a undefined step",
-    "No tags and a undefined step"
+    "No tags and a failed step"
   ],
   "testStepFinished" : [
     "No tags and a passed step",
@@ -26,9 +21,6 @@
     "No tags and a passed step",
     "No tags and a failed step",
     "No tags and a failed step",
-    "No tags and a failed step",
-    "No tags and a undefined step",
-    "No tags and a undefined step",
-    "No tags and a undefined step"
+    "No tags and a failed step"
   ]
 }
