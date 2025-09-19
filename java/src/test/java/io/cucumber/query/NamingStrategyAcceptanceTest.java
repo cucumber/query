@@ -102,7 +102,7 @@ public class NamingStrategyAcceptanceTest {
     @ParameterizedTest
     @MethodSource("acceptance")
     @Disabled
-    void updateExpectedQueryResultFiles(TestCase testCase) throws IOException {
+    void updateExpectedFiles(TestCase testCase) throws IOException {
         try (OutputStream out = newOutputStream(testCase.expected)) {
             writeResults(testCase.strategy, testCase, out);
         }
