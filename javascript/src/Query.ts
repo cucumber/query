@@ -28,6 +28,7 @@ import {
   TestStepResultStatus,
   TestStepStarted,
   TimeConversion,
+  UndefinedParameterType,
 } from '@cucumber/messages'
 import { ArrayMultimap } from '@teppeis/multimaps'
 import sortBy from 'lodash.sortby'
@@ -81,6 +82,7 @@ export default class Query {
     new ArrayMultimap()
   private readonly suggestionsByPickleStepId: ArrayMultimap<string, Suggestion> =
     new ArrayMultimap()
+  private readonly undefinedParameterTypes: UndefinedParameterType[] = []
 
   public update(envelope: messages.Envelope) {
     if (envelope.meta) {
@@ -130,6 +132,9 @@ export default class Query {
     }
     if (envelope.suggestion) {
       this.updateSuggestion(envelope.suggestion)
+    }
+    if (envelope.undefinedParameterType) {
+      this.updateUndefinedParameterType(envelope.undefinedParameterType)
     }
   }
 
@@ -294,6 +299,10 @@ export default class Query {
 
   private updateSuggestion(suggestion: Suggestion) {
     this.suggestionsByPickleStepId.put(suggestion.pickleStepId, suggestion)
+  }
+
+  private updateUndefinedParameterType(undefinedParameterType: UndefinedParameterType) {
+    this.undefinedParameterTypes.push(undefinedParameterType)
   }
 
   /**
@@ -519,6 +528,10 @@ export default class Query {
 
   public findAllTestRunHookFinished(): ReadonlyArray<TestRunHookFinished> {
     return [...this.testRunHookFinishedByTestRunHookStartedId.values()]
+  }
+
+  public findAllUndefinedParameterTypes(): ReadonlyArray<UndefinedParameterType> {
+    return [...this.undefinedParameterTypes]
   }
 
   public findAttachmentsBy(

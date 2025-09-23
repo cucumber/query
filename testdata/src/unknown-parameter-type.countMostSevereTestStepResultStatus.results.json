@@ -1,0 +1,9 @@
+{
+  "UNKNOWN" : 0,
+  "PASSED" : 0,
+  "SKIPPED" : 0,
+  "PENDING" : 0,
+  "UNDEFINED" : 1,
+  "AMBIGUOUS" : 0,
+  "FAILED" : 0
+}

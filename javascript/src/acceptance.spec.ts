@@ -22,6 +22,7 @@ describe('Acceptance Tests', async () => {
     path.join(__dirname, '../../testdata/src/minimal.ndjson'),
     path.join(__dirname, '../../testdata/src/rules.ndjson'),
     path.join(__dirname, '../../testdata/src/examples-tables.ndjson'),
+    path.join(__dirname, '../../testdata/src/unknown-parameter-type.ndjson'),
   ]
   const queries: Queries = {
     countMostSevereTestStepResultStatus: (query: Query) =>
@@ -146,7 +147,7 @@ describe('Acceptance Tests', async () => {
       return {
         pickleStep: query
           .findAllPickleSteps()
-          .flatMap((pickleSteps) => query.findSuggestionsBy(pickleSteps))
+          .flatMap((pickleStep) => query.findSuggestionsBy(pickleStep))
           .map((suggestion) => suggestion.id),
         pickle: query
           .findAllPickles()
@@ -262,6 +263,13 @@ describe('Acceptance Tests', async () => {
         .findAllTestCaseStarted()
         .flatMap((testCaseStarted) => query.findTestStepFinishedAndTestStepBy(testCaseStarted))
         .map(([testStepFinished, testStep]) => [testStepFinished.testStepId, testStep.id]),
+    findAllUndefinedParameterTypes: (query: Query) =>
+      query
+        .findAllUndefinedParameterTypes()
+        .map((undefinedParameterType) => [
+          undefinedParameterType.name,
+          undefinedParameterType.expression,
+        ]),
   }
 
   for (const source of sources) {

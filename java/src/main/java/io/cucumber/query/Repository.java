@@ -21,6 +21,7 @@ import io.cucumber.messages.types.TestRunStarted;
 import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepStarted;
+import io.cucumber.messages.types.UndefinedParameterType;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -63,6 +64,7 @@ public final class Repository {
     final Map<Object, Lineage> lineageById = new HashMap<>();
     final Map<String, StepDefinition> stepDefinitionById = new LinkedHashMap<>();
     final Map<String, List<Suggestion>> suggestionsByPickleStepId = new LinkedHashMap<>();
+    final List<UndefinedParameterType> undefinedParameterTypes = new ArrayList<>();
 
     Meta meta;
     TestRunStarted testRunStarted;
@@ -165,6 +167,7 @@ public final class Repository {
         if (features.contains(INCLUDE_SUGGESTIONS)) {
             envelope.getSuggestion().ifPresent(this::updateSuggestions);
         }
+        envelope.getUndefinedParameterType().ifPresent(this::updateUndefinedParameterType);
     }
 
     private void updateAttachment(Attachment attachment) {
@@ -255,6 +258,10 @@ public final class Repository {
 
     private void updateMeta(Meta event) {
         this.meta = event;
+    }
+
+    private void updateUndefinedParameterType(UndefinedParameterType event) {
+        this.undefinedParameterTypes.add(event);
     }
 
     private <K, E> BiFunction<K, List<E>, List<E>> updateList(E element) {
