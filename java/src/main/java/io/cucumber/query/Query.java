@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Objects;
+import java.util.function.Function;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
@@ -81,6 +82,7 @@ public final class Query {
                 .collect(groupingBy(identity(), LinkedHashMap::new, counting())));
         return results;
     }
+
     public int countTestCasesStarted() {
         return findAllTestCaseStarted().size();
     }
@@ -101,10 +103,36 @@ public final class Query {
                 .collect(toList());
     }
 
+    public List<TestCaseStarted> findAllTestCaseStartedInCanonicalOrder() {
+        return findAllTestCaseStarted().stream()
+                .map(createOrderableMessage(this::findPickleBy))
+                .map(OrderableMessage::getMessage)
+                .collect(toList());
+    }
+
     public List<TestCaseFinished> findAllTestCaseFinished() {
         return repository.testCaseFinishedByTestCaseStartedId.values().stream()
                 .filter(testCaseFinished -> !testCaseFinished.getWillBeRetried())
                 .collect(toList());
+    }
+
+    public List<TestCaseFinished> findAllTestCaseFinishedInCanonicalOrder() {
+        return findAllTestCaseFinished().stream()
+                .map(createOrderableMessage(this::findPickleBy))
+                .map(OrderableMessage::getMessage)
+                .collect(toList());
+    }
+
+    private <T> Function<T, OrderableMessage<T>> createOrderableMessage(Function<T, Optional<Pickle>> findPickleBy) {
+        return message -> findPickleBy.apply(message)
+                .map(pickle -> {
+                    String uri = pickle.getUri();
+                    Long location = findLocationOf(pickle)
+                            .map(Location::getLine)
+                            .orElse(null);
+                    return new OrderableMessage<>(message, uri, location);
+                })
+                .orElseGet(() -> new OrderableMessage<>(message));
     }
 
     public List<TestStep> findAllTestSteps() {
