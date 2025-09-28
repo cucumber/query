@@ -30,6 +30,7 @@ import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepResultStatus;
 import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.Timestamp;
+import io.cucumber.messages.types.UndefinedParameterType;
 
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
@@ -133,6 +134,10 @@ public final class Query {
 
     public List<TestRunHookFinished> findAllTestRunHookFinished() {
         return new ArrayList<>(repository.testRunHookFinishedByTestRunHookStartedId.values());
+    }
+
+    public List<UndefinedParameterType> findAllUndefinedParameterTypes() {
+        return new ArrayList<>(repository.undefinedParameterTypes);
     }
 
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {

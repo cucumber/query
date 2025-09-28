@@ -3,22 +3,7 @@ package io.cucumber.query;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.NdjsonToMessageIterable;
-import io.cucumber.messages.types.Envelope;
-import io.cucumber.messages.types.Hook;
-import io.cucumber.messages.types.Pickle;
-import io.cucumber.messages.types.PickleStep;
-import io.cucumber.messages.types.Step;
-import io.cucumber.messages.types.StepDefinition;
-import io.cucumber.messages.types.Suggestion;
-import io.cucumber.messages.types.TestCase;
-import io.cucumber.messages.types.TestCaseFinished;
-import io.cucumber.messages.types.TestCaseStarted;
-import io.cucumber.messages.types.TestRunHookFinished;
-import io.cucumber.messages.types.TestRunHookStarted;
-import io.cucumber.messages.types.TestStep;
-import io.cucumber.messages.types.TestStepFinished;
-import io.cucumber.messages.types.TestStepResult;
-import io.cucumber.messages.types.TestStepStarted;
+import io.cucumber.messages.types.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,21 +15,12 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
 import static io.cucumber.query.Jackson.OBJECT_MAPPER;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS;
+import static io.cucumber.query.Repository.RepositoryFeature.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -70,12 +46,13 @@ public class QueryAcceptanceTest {
         return Arrays.asList(
                 Paths.get("../testdata/src/attachments.ndjson"),
                 Paths.get("../testdata/src/empty.ndjson"),
+                Paths.get("../testdata/src/examples-tables.ndjson"),
                 Paths.get("../testdata/src/global-hooks.ndjson"),
                 Paths.get("../testdata/src/global-hooks-attachments.ndjson"),
                 Paths.get("../testdata/src/hooks.ndjson"),
                 Paths.get("../testdata/src/minimal.ndjson"),
                 Paths.get("../testdata/src/rules.ndjson"),
-                Paths.get("../testdata/src/examples-tables.ndjson")
+                Paths.get("../testdata/src/unknown-parameter-type.ndjson")
         );
     }
 
@@ -118,8 +95,10 @@ public class QueryAcceptanceTest {
         return Repository.builder()
                 .feature(INCLUDE_ATTACHMENTS, true)
                 .feature(INCLUDE_STEP_DEFINITIONS, true)
+                .feature(INCLUDE_SUGGESTIONS, true)
                 .feature(INCLUDE_HOOKS, true)
                 .feature(INCLUDE_GHERKIN_DOCUMENTS, true)
+                .feature(INCLUDE_UNDEFINED_PARAMETER_TYPES, true)
                 .build();
     }
 
@@ -139,6 +118,12 @@ public class QueryAcceptanceTest {
         queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepStarted().size());
         queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepFinished().size());
         queries.put("findAllTestCases", (query) -> query.findAllTestCases().size());
+        queries.put("findAllUndefinedParameterTypes", (query) -> query.findAllUndefinedParameterTypes().stream()
+                .map(undefinedParameterType -> Arrays.asList(
+                        undefinedParameterType.getName(),
+                        undefinedParameterType.getExpression()
+                ))
+                .collect(toList()));
 
         queries.put("findAttachmentsBy", (query) -> {
             Map<String, Object> results = new LinkedHashMap<>();
