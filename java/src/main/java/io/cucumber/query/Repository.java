@@ -32,11 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS;
-import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_SUGGESTIONS;
+import static io.cucumber.query.Repository.RepositoryFeature.*;
 
 /**
  * A write only repository of Cucumber Messages.
@@ -114,6 +110,13 @@ public final class Repository {
          * Disable to reduce memory usage.
          */
         INCLUDE_SUGGESTIONS,
+
+        /**
+         * Include {@link UndefinedParameterType} messages.
+         * <p>
+         * Disable to reduce memory usage.
+         */
+        INCLUDE_UNDEFINED_PARAMETER_TYPES,
     }
 
     public static class Builder {
@@ -167,7 +170,9 @@ public final class Repository {
         if (features.contains(INCLUDE_SUGGESTIONS)) {
             envelope.getSuggestion().ifPresent(this::updateSuggestions);
         }
-        envelope.getUndefinedParameterType().ifPresent(this::updateUndefinedParameterType);
+        if (features.contains(INCLUDE_UNDEFINED_PARAMETER_TYPES)) {
+            envelope.getUndefinedParameterType().ifPresent(this::updateUndefinedParameterType);
+        }
     }
 
     private void updateAttachment(Attachment attachment) {

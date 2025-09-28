@@ -98,6 +98,7 @@ public class QueryAcceptanceTest {
                 .feature(INCLUDE_SUGGESTIONS, true)
                 .feature(INCLUDE_HOOKS, true)
                 .feature(INCLUDE_GHERKIN_DOCUMENTS, true)
+                .feature(INCLUDE_UNDEFINED_PARAMETER_TYPES, true)
                 .build();
     }
 
