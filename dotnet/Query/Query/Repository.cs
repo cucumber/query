@@ -17,6 +17,12 @@ namespace Io.Cucumber.Query
             INCLUDE_HOOKS,
             INCLUDE_STEP_DEFINITIONS,
             INCLUDE_SUGGESTIONS,
+
+            /// <summary>
+            /// Include <see cref="UndefinedParameterType"/> messages.
+            /// Disable to reduce memory usage.
+            /// </summary>
+            INCLUDE_UNDEFINED_PARAMETER_TYPES,
         }
 
         private readonly HashSet<RepositoryFeature> _features;
@@ -39,6 +45,7 @@ namespace Io.Cucumber.Query
         public readonly Dictionary<object, Lineage> LineageById = new();
         public readonly Dictionary<string, StepDefinition> StepDefinitionById = new();
         public readonly Dictionary<string, List<Suggestion>> SuggestionsByPickleStepId = new();
+        public readonly List<UndefinedParameterType> UndefinedParameterTypes = new();
 
         public Meta? Meta;
         public TestRunStarted? TestRunStarted;
@@ -81,6 +88,7 @@ namespace Io.Cucumber.Query
             if (_features.Contains(RepositoryFeature.INCLUDE_HOOKS) && envelope.Hook != null) UpdateHook(envelope.Hook);
             if (_features.Contains(RepositoryFeature.INCLUDE_ATTACHMENTS) && envelope.Attachment != null) UpdateAttachment(envelope.Attachment);
             if (_features.Contains(RepositoryFeature.INCLUDE_SUGGESTIONS) && envelope.Suggestion != null) UpdateSuggestions(envelope.Suggestion);
+            if (_features.Contains(RepositoryFeature.INCLUDE_UNDEFINED_PARAMETER_TYPES) && envelope.UndefinedParameterType != null) UpdateUndefinedParameterType(envelope.UndefinedParameterType);
         }
 
         internal void UpdateAttachment(Attachment attachment)
@@ -250,6 +258,11 @@ namespace Io.Cucumber.Query
         internal void UpdateMeta(Meta meta)
         {
             Meta = meta;
+        }
+
+        internal void UpdateUndefinedParameterType(UndefinedParameterType undefinedParameterType)
+        {
+            UndefinedParameterTypes.Add(undefinedParameterType);
         }
     }
 }
