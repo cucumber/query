@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [14.5.0] - 2025-10-08
 ### Added
 - Add `findAllStepDefinitions()` ([#119](https://github.com/cucumber/query/pull/119))
 
@@ -260,7 +262,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.4.0...HEAD
+[Unreleased]: https://github.com/cucumber/cucumber/compare/query/v14.5.0...HEAD
+[14.5.0]: https://github.com/cucumber/cucumber/compare/query/v14.4.0...v14.5.0
 [14.4.0]: https://github.com/cucumber/cucumber/compare/query/v14.3.0...v14.4.0
 [14.3.0]: https://github.com/cucumber/cucumber/compare/query/v14.2.3...v14.3.0
 [14.2.3]: https://github.com/cucumber/cucumber/compare/query/v14.2.2...v14.2.3
