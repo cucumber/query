@@ -110,6 +110,7 @@ public class QueryAcceptanceTest {
         queries.put("countTestCasesStarted", Query::countTestCasesStarted);
         queries.put("findAllPickles", (query) -> query.findAllPickles().size());
         queries.put("findAllPickleSteps", (query) -> query.findAllPickleSteps().size());
+        queries.put("findAllStepDefinitions", (query) -> query.findAllStepDefinitions().size());
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
         queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookStarted().size());

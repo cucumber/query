@@ -101,6 +101,10 @@ public final class Query {
                         .isPresent())
                 .collect(toList());
     }
+    
+    public List<StepDefinition> findAllStepDefinitions(){
+        return new ArrayList<>(repository.stepDefinitionById.values());
+    }
 
     public List<TestCaseFinished> findAllTestCaseFinished() {
         return repository.testCaseFinishedByTestCaseStartedId.values().stream()
