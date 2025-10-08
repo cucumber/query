@@ -481,6 +481,10 @@ export default class Query {
     return [...this.pickleStepById.values()]
   }
 
+  public findAllStepDefinitions(): ReadonlyArray<StepDefinition> {
+    return [...this.stepDefinitionById.values()]
+  }
+
   public findAllTestCaseStarted(): ReadonlyArray<TestCaseStarted> {
     return sortBy(
       [...this.testCaseStartedById.values()].filter((testCaseStarted) => {
