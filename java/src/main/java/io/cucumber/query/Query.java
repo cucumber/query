@@ -458,4 +458,9 @@ public final class Query {
         return findPickleBy(testCaseStarted)
                 .flatMap(this::findLineageBy);
     }
+
+    public Optional<Lineage> findLineageBy(TestCaseFinished testCaseFinished) {
+        return findPickleBy(testCaseFinished)
+                .flatMap(this::findLineageBy);
+    }
 }
