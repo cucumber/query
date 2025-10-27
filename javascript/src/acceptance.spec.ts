@@ -107,6 +107,7 @@ describe('Acceptance Tests', async () => {
     },
     findLocationOf: (query: Query) =>
       query.findAllPickles().map((pickle) => query.findLocationOf(pickle)),
+
     findPickleBy: (query: Query) => {
       return {
         testCaseStarted: query
