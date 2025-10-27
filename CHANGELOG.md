@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Add `findLineageBy(TestCaseFinished)` ([#119](https://github.com/cucumber/query/pull/119))
 
-### Changed
-- Update dependency `messages` up to v30
-
 ## [14.5.0] - 2025-10-08
 ### Added
 - Add `findAllStepDefinitions()` ([#119](https://github.com/cucumber/query/pull/119))
+
+### Changed
+- Update dependency `messages` up to v30
 
 ## [14.4.0] - 2025-09-29
 ### Added
