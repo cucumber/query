@@ -728,8 +728,8 @@ export default class Query {
       })
   }
 
-  public findLineageBy(element: Pickle | TestCaseStarted): Lineage | undefined {
-    const pickle = 'testCaseId' in element ? this.findPickleBy(element) : element
+  public findLineageBy(element: Pickle | TestCaseStarted | TestCaseFinished): Lineage | undefined {
+    const pickle = 'astNodeIds' in element ? element : this.findPickleBy(element)
     const deepestAstNodeId = pickle.astNodeIds.at(-1)
     assert.ok(deepestAstNodeId, 'Expected Pickle to have at least one astNodeId')
     return this.lineageById.get(deepestAstNodeId)
