@@ -8,6 +8,15 @@
     "Examples Tables - Eating cucumbers with <friends> friends - #1.2",
     "Examples Tables - Eating cucumbers with <friends> friends - #1.3"
   ],
+  "testCaseFinished" : [
+    "Examples Tables - Eating cucumbers - These are passing - #1.1",
+    "Examples Tables - Eating cucumbers - These are passing - #1.2",
+    "Examples Tables - Eating cucumbers - These are failing - #2.1",
+    "Examples Tables - Eating cucumbers - These are failing - #2.2",
+    "Examples Tables - Eating cucumbers with <friends> friends - #1.1",
+    "Examples Tables - Eating cucumbers with <friends> friends - #1.2",
+    "Examples Tables - Eating cucumbers with <friends> friends - #1.3"
+  ],
   "pickle" : [
     "Examples Tables - Eating cucumbers - These are passing - #1.1",
     "Examples Tables - Eating cucumbers - These are passing - #1.2",

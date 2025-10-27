@@ -182,6 +182,12 @@ public class QueryAcceptanceTest {
                     .map(Optional::get)
                     .map(namingStrategy::reduce)
                     .collect(toList()));
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+                    .map(query::findLineageBy)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(namingStrategy::reduce)
+                    .collect(toList()));
             results.put("pickle", query.findAllPickles().stream()
                     .map(query::findLineageBy)
                     .filter(Optional::isPresent)
