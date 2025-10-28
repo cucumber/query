@@ -54,6 +54,8 @@ public class Query
         .Where(tcs => !FindTestCaseFinishedBy(tcs)?.WillBeRetried ?? true) // Exclude finished cases that will be retried
         .ToList();
 
+    public IList<StepDefinition> FindAllStepDefinitions() => _repository.StepDefinitionById.Values.ToList();
+
     public IList<TestCaseFinished> FindAllTestCaseFinished()
     {
         return _repository.TestCaseFinishedByTestCaseStartedId.Values
@@ -460,4 +462,15 @@ public class Query
         }
         return FindLineageBy(pickle);
     }
+
+    public Lineage? FindLineageBy(TestCaseFinished testCaseFinished)
+    {
+        var pickle = FindPickleBy(testCaseFinished);
+        if (pickle == null)
+        {
+            return null;
+        }
+        return FindLineageBy(pickle);
+    }
+
 }

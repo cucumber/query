@@ -56,6 +56,7 @@ namespace QueryTest
                 ["countTestCasesStarted"] = q => q.TestCasesStartedCount,
                 ["findAllPickles"] = q => q.FindAllPickles().Count,
                 ["findAllPickleSteps"] = q => q.FindAllPickleSteps().Count,
+                ["findAllStepDefinitions"] = q => q.FindAllStepDefinitions().Count,
                 ["findAllTestCaseStarted"] = q => q.FindAllTestCaseStarted().Count,
                 ["findAllTestCaseFinished"] = q => q.FindAllTestCaseFinished().Count,
                 ["findAllTestRunHookStarted"] = q => q.FindAllTestRunHookStarted().Count,
@@ -110,6 +111,11 @@ namespace QueryTest
                 ["findLineageBy"] = q => new Dictionary<string, object>
                 {
                     ["testCaseStarted"] = q.FindAllTestCaseStarted()
+                        .Select(tcs => q.FindLineageBy(tcs))
+                        .Where(lineage => lineage != null)
+                        .Select(lineage => namingStrategy.Reduce(lineage))
+                        .ToList(),
+                    ["testCaseFinished"] = q.FindAllTestCaseFinished()
                         .Select(tcs => q.FindLineageBy(tcs))
                         .Where(lineage => lineage != null)
                         .Select(lineage => namingStrategy.Reduce(lineage))
