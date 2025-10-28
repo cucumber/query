@@ -30,6 +30,7 @@ describe('Acceptance Tests', async () => {
     countTestCasesStarted: (query: Query) => query.countTestCasesStarted(),
     findAllPickles: (query: Query) => query.findAllPickles().length,
     findAllPickleSteps: (query: Query) => query.findAllPickleSteps().length,
+    findAllStepDefinitions: (query: Query) => query.findAllStepDefinitions().length,
     findAllTestCaseStarted: (query: Query) => query.findAllTestCaseStarted().length,
     findAllTestRunHookStarted: (query: Query) => query.findAllTestRunHookStarted().length,
     findAllTestRunHookFinished: (query: Query) => query.findAllTestRunHookFinished().length,
@@ -106,6 +107,7 @@ describe('Acceptance Tests', async () => {
     },
     findLocationOf: (query: Query) =>
       query.findAllPickles().map((pickle) => query.findLocationOf(pickle)),
+
     findPickleBy: (query: Query) => {
       return {
         testCaseStarted: query

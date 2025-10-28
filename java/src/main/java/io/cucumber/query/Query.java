@@ -101,6 +101,10 @@ public final class Query {
                         .isPresent())
                 .collect(toList());
     }
+    
+    public List<StepDefinition> findAllStepDefinitions(){
+        return new ArrayList<>(repository.stepDefinitionById.values());
+    }
 
     public List<TestCaseFinished> findAllTestCaseFinished() {
         return repository.testCaseFinishedByTestCaseStartedId.values().stream()
@@ -452,6 +456,11 @@ public final class Query {
 
     public Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
+                .flatMap(this::findLineageBy);
+    }
+
+    public Optional<Lineage> findLineageBy(TestCaseFinished testCaseFinished) {
+        return findPickleBy(testCaseFinished)
                 .flatMap(this::findLineageBy);
     }
 }

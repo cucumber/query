@@ -110,6 +110,7 @@ public class QueryAcceptanceTest {
         queries.put("countTestCasesStarted", Query::countTestCasesStarted);
         queries.put("findAllPickles", (query) -> query.findAllPickles().size());
         queries.put("findAllPickleSteps", (query) -> query.findAllPickleSteps().size());
+        queries.put("findAllStepDefinitions", (query) -> query.findAllStepDefinitions().size());
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
         queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookStarted().size());
@@ -176,6 +177,12 @@ public class QueryAcceptanceTest {
             Map<String, Object> results = new LinkedHashMap<>();
             NamingStrategy namingStrategy = NamingStrategy.strategy(NamingStrategy.Strategy.LONG).build();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
+                    .map(query::findLineageBy)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .map(namingStrategy::reduce)
+                    .collect(toList()));
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
                     .map(query::findLineageBy)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
