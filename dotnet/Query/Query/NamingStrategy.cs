@@ -1,5 +1,6 @@
-using System;
 using Io.Cucumber.Messages.Types;
+using System;
+using static Io.Cucumber.Query.NamingStrategy;
 
 namespace Io.Cucumber.Query
 {
@@ -28,46 +29,21 @@ namespace Io.Cucumber.Query
             EXCLUDE
         }
 
-        public static Builder Create(Strategy strategy)
+        public static NamingStrategy Create(Strategy strategy, FeatureName featureName = FeatureName.INCLUDE, ExampleName exampleName = ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED)
         {
-            return new Builder(strategy);
+            return new Adaptor(
+                    new LineageReducerDescending<string>(
+                        () => new NamingCollector(strategy, featureName, exampleName)
+                    ));
+        }
+
+        public static NamingStrategy Create(Strategy strategy, ExampleName exampleName)
+        {
+            return Create(strategy, FeatureName.INCLUDE, exampleName);
         }
 
         public abstract string Reduce(Lineage lineage);
         public abstract string Reduce(Lineage lineage, Pickle pickle);
-
-        public class Builder
-        {
-            private readonly Strategy _strategy;
-            private FeatureName _featureName = NamingStrategy.FeatureName.INCLUDE;
-            private ExampleName _exampleName = NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
-
-            public Builder(Strategy strategy)
-            {
-                _strategy = strategy;
-            }
-
-            public Builder ExampleName(ExampleName exampleName)
-            {
-                _exampleName = exampleName;
-                return this;
-            }
-
-            public Builder FeatureName(FeatureName featureName)
-            {
-                _featureName = featureName;
-                return this;
-            }
-
-            public NamingStrategy Build()
-            {
-                return new Adaptor(
-                    new LineageReducerDescending<string>(
-                        () => new NamingCollector((Strategy)_strategy, (FeatureName)_featureName, (ExampleName)_exampleName)
-                    )
-                );
-            }
-        }
 
         private class Adaptor : NamingStrategy
         {

@@ -4,7 +4,6 @@ using Io.Cucumber.Messages.Types;
 
 namespace Io.Cucumber.Query
 {
-    // port of io.cucumber.query.Lineages (Java)
     internal static class Lineages
     {
         /// <summary>

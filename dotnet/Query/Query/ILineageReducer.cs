@@ -3,14 +3,12 @@ using Io.Cucumber.Messages.Types;
 
 namespace Io.Cucumber.Query
 {
-    // port of io.cucumber.query.LineageReducer<T> (Java)
     public interface ILineageReducer<T>
     {
         T Reduce(Lineage lineage);
         T Reduce(Lineage lineage, Pickle pickle);
     }
 
-    // port of io.cucumber.query.LineageReducer.Collector<T> (Java)
     public interface ICollector<T>
     {
         void Add(GherkinDocument document);

@@ -9,7 +9,6 @@ using Cucumber.Messages;
 
 namespace Io.Cucumber.Query;
 
-// Ported from io.cucumber.query.Query (Java)
 public class Query
 {
     private readonly Repository _repository;

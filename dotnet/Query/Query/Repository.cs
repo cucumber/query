@@ -12,10 +12,34 @@ namespace Io.Cucumber.Query
         // Features
         public enum RepositoryFeature
         {
+            /// <summary>
+            /// Include <see cref="Attachment"/> messages.
+            /// Disable to reduce memory usage.
+            /// </summary>
             INCLUDE_ATTACHMENTS,
+
+            /// <summary>
+            /// Include <see cref="Io.Cucumber.Messages.Types.GherkinDocument"/> messages.
+            /// Disable to reduce memory usage.
+            /// </summary>
             INCLUDE_GHERKIN_DOCUMENTS,
+
+            /// <summary>
+            /// Include <see cref="Hook"/> messages.
+            /// Disable to reduce memory usage.
+            /// </summary>
             INCLUDE_HOOKS,
+
+            /// <summary>
+            /// Include <see cref="StepDefinition"/> messages.
+            /// Disable to reduce memory usage.
+            /// </summary>
             INCLUDE_STEP_DEFINITIONS,
+
+            /// <summary>
+            /// Include <see cref="Suggestion"/> messages.
+            /// Disable to reduce memory usage.
+            /// </summary>
             INCLUDE_SUGGESTIONS,
 
             /// <summary>
@@ -51,23 +75,16 @@ namespace Io.Cucumber.Query
         public TestRunStarted? TestRunStarted;
         public TestRunFinished? TestRunFinished;
 
-        private Repository(HashSet<RepositoryFeature> features)
+        public static Repository CreateWithAllFeatures()
         {
-            _features = features;
+            return new Repository((RepositoryFeature[])Enum.GetValues(typeof(RepositoryFeature)));
         }
 
-        public static RepositoryBuilder Builder() => new RepositoryBuilder();
-
-        public class RepositoryBuilder
+        public Repository(IEnumerable<RepositoryFeature>? features = null)
         {
-            private readonly HashSet<RepositoryFeature> _features = new();
-            public RepositoryBuilder Feature(RepositoryFeature feature, bool enabled)
-            {
-                if (enabled) _features.Add(feature);
-                else _features.Remove(feature);
-                return this;
-            }
-            public Repository Build() => new Repository(new HashSet<RepositoryFeature>(_features));
+            _features = features != null
+                ? new HashSet<RepositoryFeature>(features)
+                : new HashSet<RepositoryFeature>();
         }
 
         public void Update(Envelope envelope)

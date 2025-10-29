@@ -46,7 +46,7 @@ namespace QueryTest
 
         private static Dictionary<string, Func<Query, object>> createQueries()
         {
-            var namingStrategy = NamingStrategy.Create(NamingStrategy.Strategy.LONG).Build();
+            var namingStrategy = NamingStrategy.Create(NamingStrategy.Strategy.LONG);
             var queries = new Dictionary<string, Func<Query, object>>
             {
                 ["countMostSevereTestStepResultStatus"] = q => q.CountMostSevereTestStepResultStatus()
@@ -130,7 +130,7 @@ namespace QueryTest
                     .Select(pickle => q.FindLocationOf(pickle))
                     .Where(loc => loc != null)
                     .ToList(),
-                ["findMeta"] = q => q.FindMeta()?.Implementation?.Name,
+                ["findMeta"] = q => q.FindMeta()?.Implementation?.Name!,
                 ["findMostSevereTestStepResultBy"] = q => new Dictionary<string, object>
                 {
                     ["testCaseStarted"] = q.FindAllTestCaseStarted()
@@ -221,9 +221,9 @@ namespace QueryTest
                 ["findTestCaseFinishedBy"] = q => q.FindAllTestCaseStarted()
                     .Select(tcs => q.FindTestCaseFinishedBy(tcs)?.TestCaseStartedId)
                     .ToList(),
-                ["findTestRunDuration"] = q => ConvertTimeSpanToTimestamp(q.FindTestRunDuration()),
-                ["findTestRunFinished"] = q => q.FindTestRunFinished(),
-                ["findTestRunStarted"] = q => q.FindTestRunStarted(),
+                ["findTestRunDuration"] = q => ConvertTimeSpanToTimestamp(q.FindTestRunDuration())!,
+                ["findTestRunFinished"] = q => q.FindTestRunFinished()!,
+                ["findTestRunStarted"] = q => q.FindTestRunStarted()!,
                 ["findTestStepBy"] = q => q.FindAllTestCaseStarted()
                     .SelectMany(tcs => q.FindTestStepsStartedBy(tcs))
                     .Select(tss => q.FindTestStepBy(tss)?.Id)
@@ -292,18 +292,13 @@ namespace QueryTest
             while ((line = reader.ReadLine()) != null)
             {
                 if (string.IsNullOrWhiteSpace(line)) continue;
-                var envelope = Reqnroll.Formatters.PayloadProcessing.NdjsonSerializer.Deserialize<Envelope>(line);
+                var envelope = NdjsonSerializer.Deserialize<Envelope>(line);
                 repository.Update(envelope);
             }
 
             var query = new Query(repository);
             var queryResults = testCase.Query(query);
-            var options = new JsonSerializerOptions(Reqnroll.Formatters.PayloadProcessing.NdjsonSerializer.JsonOptions);
-            //{
-            //    WriteIndented = true,
-            //    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-            //    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            //};
+            var options = new JsonSerializerOptions(NdjsonSerializer.JsonOptions);
             options.Converters.Add(new TimestampOrderedConverter());
             options.Converters.Add(new TestRunStartedOrderedConverter());
             options.Converters.Add(new TestRunFinishedOrderedConverter());
@@ -313,14 +308,7 @@ namespace QueryTest
 
         private static Repository CreateRepository()
         {
-            return Repository.Builder()
-                .Feature(Repository.RepositoryFeature.INCLUDE_ATTACHMENTS, true)
-                .Feature(Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS, true)
-                .Feature(Repository.RepositoryFeature.INCLUDE_SUGGESTIONS, true)
-                .Feature(Repository.RepositoryFeature.INCLUDE_HOOKS, true)
-                .Feature(Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS, true)
-                .Feature(Repository.RepositoryFeature.INCLUDE_UNDEFINED_PARAMETER_TYPES, true)
-                .Build();
+            return Repository.CreateWithAllFeatures();
         }
 
         private static Timestamp? ConvertTimeSpanToTimestamp(TimeSpan? duration)

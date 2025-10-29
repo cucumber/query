@@ -1,15 +1,9 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-// NOTICE: Source copied from Reqnroll under Reqnroll's BSD-3 license
-
-namespace Reqnroll.Formatters.PayloadProcessing;
-
+namespace QueryTest;
 public class CucumberMessagesEnumConverterFactory : JsonConverterFactory
 {
     private static readonly ConcurrentDictionary<Type, JsonConverter> _cache = new();
@@ -38,10 +32,13 @@ public class CucumberMessagesEnumConverterFactory : JsonConverterFactory
 
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
-        var converterType = typeof(DescriptionEnumConverter<>).MakeGenericType(typeToConvert);
-        var instance = Activator.CreateInstance(converterType);
-        if (instance is null)
-            throw new InvalidOperationException($"Could not create an instance of {converterType.FullName}.");
-        return (JsonConverter)instance;
+        return _cache.GetOrAdd(typeToConvert, t =>
+        {
+            var converterType = typeof(DescriptionEnumConverter<>).MakeGenericType(t);
+            var instance = Activator.CreateInstance(converterType);
+            if (instance is null)
+                throw new InvalidOperationException($"Could not create an instance of {converterType.FullName}.");
+            return (JsonConverter)instance;
+        });
     }
 }

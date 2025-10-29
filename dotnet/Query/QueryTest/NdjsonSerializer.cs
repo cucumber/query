@@ -4,9 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-// NOTICE: Source copied from Reqnroll under Reqnroll's BSD-3 license
-
-namespace Reqnroll.Formatters.PayloadProcessing;
+namespace QueryTest;
 
 /// <summary>
 /// Uses a correctly configured <see cref="JsonSerializer"/> that provides compatible JSON format for the Cucumber Messages standard.

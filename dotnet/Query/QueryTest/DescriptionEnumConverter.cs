@@ -5,10 +5,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-// NOTICE: Source copied from Reqnroll under Reqnroll's BSD-3 license
-
-namespace Reqnroll.Formatters.PayloadProcessing;
-
+namespace QueryTest;
 public class DescriptionEnumConverter<T> : JsonConverter<T> where T : struct, Enum
 {
     private readonly Dictionary<T, string> _enumToString = new();

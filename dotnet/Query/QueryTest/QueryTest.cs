@@ -14,7 +14,7 @@ namespace QueryTest
         private readonly Query _query;
 
         public QueryTest() {
-            _repository = Repository.Builder().Build();
+            _repository = new Repository();
             _query = new Query(_repository);
         }
 

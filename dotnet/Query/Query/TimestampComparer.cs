@@ -3,7 +3,6 @@ using Io.Cucumber.Messages.Types;
 
 namespace Io.Cucumber.Query
 {
-    // Port of io.cucumber.query.TimestampComparator (Java)
     internal class TimestampComparer : IComparer<Timestamp>
     {
         public int Compare(Timestamp a, Timestamp b)

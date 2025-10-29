@@ -16,11 +16,11 @@ namespace QueryTest
     {
         private static readonly Dictionary<string, NamingStrategy> Strategies = new()
         {
-            { "long", NamingStrategy.Create(NamingStrategy.Strategy.LONG).Build() },
-            { "long-exclude-feature-name", NamingStrategy.Create(NamingStrategy.Strategy.LONG).FeatureName(NamingStrategy.FeatureName.EXCLUDE).Build() },
-            { "long-with-pickle-name", NamingStrategy.Create(NamingStrategy.Strategy.LONG).ExampleName(NamingStrategy.ExampleName.PICKLE).Build() },
-            { "long-with-pickle-name-if-parameterized", NamingStrategy.Create(NamingStrategy.Strategy.LONG).ExampleName(NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED).Build() },
-            { "short", NamingStrategy.Create(NamingStrategy.Strategy.SHORT).Build() }
+            { "long", NamingStrategy.Create(NamingStrategy.Strategy.LONG) },
+            { "long-exclude-feature-name", NamingStrategy.Create(NamingStrategy.Strategy.LONG, NamingStrategy.FeatureName.EXCLUDE) },
+            { "long-with-pickle-name", NamingStrategy.Create(NamingStrategy.Strategy.LONG, NamingStrategy.ExampleName.PICKLE) },
+            { "long-with-pickle-name-if-parameterized", NamingStrategy.Create(NamingStrategy.Strategy.LONG, NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED)},
+            { "short", NamingStrategy.Create(NamingStrategy.Strategy.SHORT) }
         };
 
         public static IEnumerable<object[]> Acceptance()
@@ -70,7 +70,7 @@ namespace QueryTest
             while ((line = reader.ReadLine()) != null)
             {
                 if (string.IsNullOrWhiteSpace(line)) continue;
-                var envelope = Reqnroll.Formatters.PayloadProcessing.NdjsonSerializer.Deserialize<Envelope>(line);
+                var envelope = NdjsonSerializer.Deserialize<Envelope>(line);
                 repository.Update(envelope);
             }
             var query = new Query(repository);
@@ -88,10 +88,7 @@ namespace QueryTest
             writer.Flush();
         }
 
-        private static Repository CreateRepository()
-        {
-            return Repository.Builder().Feature(Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS, true).Build();
-        }
+        private static Repository CreateRepository() => new Repository(new[] { Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS });
 
         public class TestCase
         {
