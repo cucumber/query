@@ -27,7 +27,7 @@ public class Query
         }
         foreach (var testCaseStarted in FindAllTestCaseStarted())
         {
-            var finishedSteps = FindTestStepsFinishedBy(testCaseStarted);
+            var finishedSteps = FindTestStepsFinishedBy(testCaseStarted).ToList();
             if (finishedSteps.Count == 0)
                 continue;
             // Find the most severe status (largest enum value)
@@ -42,67 +42,63 @@ public class Query
         return statusCounts;
     }
 
-    public int TestCasesStartedCount => FindAllTestCaseStarted().Count;
+    public int TestCasesStartedCount => FindAllTestCaseStarted().Count();
 
-    public IList<Pickle> FindAllPickles() => _repository.PickleById.Values.ToList();
+    public IEnumerable<Pickle> FindAllPickles() => _repository.PickleById.Values;
 
-    public IList<PickleStep> FindAllPickleSteps() => _repository.PickleStepById.Values.ToList();
+    public IEnumerable<PickleStep> FindAllPickleSteps() => _repository.PickleStepById.Values;
 
-    public IList<TestCaseStarted> FindAllTestCaseStarted() => _repository.TestCaseStartedById.Values
-        .Where(tcs => !FindTestCaseFinishedBy(tcs)?.WillBeRetried ?? true) // Exclude finished cases that will be retried
-        .ToList();
+    public IEnumerable<TestCaseStarted> FindAllTestCaseStarted() => _repository.TestCaseStartedById.Values
+        .Where(tcs => !FindTestCaseFinishedBy(tcs)?.WillBeRetried ?? true); // Exclude finished cases that will be retried
 
-    public IList<StepDefinition> FindAllStepDefinitions() => _repository.StepDefinitionById.Values.ToList();
+    public IEnumerable<StepDefinition> FindAllStepDefinitions() => _repository.StepDefinitionById.Values;
 
-    public IList<TestCaseFinished> FindAllTestCaseFinished()
+    public IEnumerable<TestCaseFinished> FindAllTestCaseFinished()
     {
         return _repository.TestCaseFinishedByTestCaseStartedId.Values
-            .Where(tcFinished => !tcFinished.WillBeRetried)
-            .ToList();
+            .Where(tcFinished => !tcFinished.WillBeRetried);
     }
 
-    public IList<TestStep> FindAllTestSteps() => _repository.TestStepById.Values.ToList();
+    public IEnumerable<TestStep> FindAllTestSteps() => _repository.TestStepById.Values;
 
-    public IList<TestCase> FindAllTestCases()
+    public IEnumerable<TestCase> FindAllTestCases()
     {
-        return _repository.TestCaseById.Values.ToList();
+        return _repository.TestCaseById.Values;
     }
 
-    public IList<TestStepStarted> FindAllTestStepStarted()
+    public IEnumerable<TestStepStarted> FindAllTestStepStarted()
     {
         return _repository.TestStepsStartedByTestCaseStartedId.Values
-            .SelectMany(list => list)
-            .ToList();
+            .SelectMany(list => list);
     }
 
-    public IList<TestStepFinished> FindAllTestStepFinished()
+    public IEnumerable<TestStepFinished> FindAllTestStepFinished()
     {
         return _repository.TestStepsFinishedByTestCaseStartedId.Values
-            .SelectMany(list => list)
-            .ToList();
+            .SelectMany(list => list);
     }
 
-    public IList<TestRunHookStarted> FindAllTestRunHookStarted()
+    public IEnumerable<TestRunHookStarted> FindAllTestRunHookStarted()
     {
-        return _repository.TestRunHookStartedById.Values.ToList();
+        return _repository.TestRunHookStartedById.Values;
     }
 
-    public IList<TestRunHookFinished> FindAllTestRunHookFinished()
+    public IEnumerable<TestRunHookFinished> FindAllTestRunHookFinished()
     {
-        return _repository.TestRunHookFinishedByTestRunHookStartedId.Values.ToList();
+        return _repository.TestRunHookFinishedByTestRunHookStartedId.Values;
     }
 
-    public IList<UndefinedParameterType> FindAllUndefinedParameterTypes()
+    public IEnumerable<UndefinedParameterType> FindAllUndefinedParameterTypes()
     {
-        return _repository.UndefinedParameterTypes.ToList();
+        return _repository.UndefinedParameterTypes;
     }
 
-    public IList<Attachment> FindAttachmentsBy(TestStepFinished testStepFinished) =>
+    public IEnumerable<Attachment> FindAttachmentsBy(TestStepFinished testStepFinished) =>
         _repository.AttachmentsByTestCaseStartedId.TryGetValue(testStepFinished.TestCaseStartedId, out var attachments)
-            ? attachments.Where(a => a.TestStepId == testStepFinished.TestStepId).ToList()
+            ? attachments.Where(a => a.TestStepId == testStepFinished.TestStepId)
             : new List<Attachment>();
 
-    public IList<Attachment> FindAttachmentsBy(TestRunHookFinished testRunHookFinished)
+    public IEnumerable<Attachment> FindAttachmentsBy(TestRunHookFinished testRunHookFinished)
     {
         if (_repository.AttachmentsByTestRunHookStartedId.TryGetValue(testRunHookFinished.TestRunHookStartedId, out var attachments))
             return new List<Attachment>(attachments);
@@ -142,7 +138,7 @@ public class Query
     public TestStepResult? FindMostSevereTestStepResultBy(TestCaseStarted testCaseStarted)
     {
         var finishedSteps = FindTestStepsFinishedBy(testCaseStarted);
-        if (finishedSteps.Count == 0)
+        if (finishedSteps.Count() == 0)
             return null;
         // Find the TestStepFinished with the most severe status (highest enum value)
         var mostSevere = finishedSteps
@@ -214,14 +210,14 @@ public class Query
         return null;
     }
 
-    public IList<Suggestion> FindSuggestionsBy(PickleStep pickleStep)
+    public IEnumerable<Suggestion> FindSuggestionsBy(PickleStep pickleStep)
     {
         if (_repository.SuggestionsByPickleStepId.TryGetValue(pickleStep.Id, out var suggestions))
             return new List<Suggestion>(suggestions);
         return new List<Suggestion>();
     }
 
-    public IList<Suggestion> FindSuggestionsBy(Pickle pickle)
+    public IEnumerable<Suggestion> FindSuggestionsBy(Pickle pickle)
     {
         var result = new List<Suggestion>();
         foreach (var step in pickle.Steps)
@@ -242,14 +238,13 @@ public class Query
         return null;
     }
 
-    public IList<StepDefinition> FindStepDefinitionsBy(TestStep testStep)
+    public IEnumerable<StepDefinition> FindStepDefinitionsBy(TestStep testStep)
     {
         if (testStep.StepDefinitionIds != null)
             return testStep.StepDefinitionIds
                 .Select(id => _repository.StepDefinitionById.TryGetValue(id, out var def) ? def : null)
                 .Where(def => def != null)
-                .Cast<StepDefinition>()
-                .ToList();
+                .Cast<StepDefinition>();
         return new List<StepDefinition>();
     }
 
@@ -359,7 +354,7 @@ public class Query
         return _repository.TestStepById.TryGetValue(testStepFinished.TestStepId, out var testStep) ? testStep : null;
     }
 
-    public IList<TestStepStarted> FindTestStepsStartedBy(TestCaseStarted testCaseStarted)
+    public IEnumerable<TestStepStarted> FindTestStepsStartedBy(TestCaseStarted testCaseStarted)
     {
         if (_repository.TestStepsStartedByTestCaseStartedId.TryGetValue(testCaseStarted.Id, out var steps))
         {
@@ -368,7 +363,7 @@ public class Query
         return new List<TestStepStarted>();
     }
 
-    public IList<TestStepStarted> FindTestStepsStartedBy(TestCaseFinished testCaseFinished)
+    public IEnumerable<TestStepStarted> FindTestStepsStartedBy(TestCaseFinished testCaseFinished)
     {
         if (_repository.TestStepsStartedByTestCaseStartedId.TryGetValue(testCaseFinished.TestCaseStartedId, out var steps))
         {
@@ -377,7 +372,7 @@ public class Query
         return new List<TestStepStarted>();
     }
 
-    public IList<TestStepFinished> FindTestStepsFinishedBy(TestCaseStarted testCaseStarted)
+    public IEnumerable<TestStepFinished> FindTestStepsFinishedBy(TestCaseStarted testCaseStarted)
     {
         if (_repository.TestStepsFinishedByTestCaseStartedId.TryGetValue(testCaseStarted.Id, out var steps))
         {
@@ -386,13 +381,13 @@ public class Query
         return new List<TestStepFinished>();
     }
 
-    public IList<TestStepFinished> FindTestStepsFinishedBy(TestCaseFinished testCaseFinished)
+    public IEnumerable<TestStepFinished> FindTestStepsFinishedBy(TestCaseFinished testCaseFinished)
     {
         var testCaseStarted = FindTestCaseStartedBy(testCaseFinished);
         return testCaseStarted != null ? FindTestStepsFinishedBy(testCaseStarted) : new List<TestStepFinished>();
     }
 
-    public IList<(TestStepFinished, TestStep)> FindTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted)
+    public IEnumerable<(TestStepFinished, TestStep)> FindTestStepFinishedAndTestStepBy(TestCaseStarted testCaseStarted)
     {
         var finishedSteps = FindTestStepsFinishedBy(testCaseStarted);
         var result = new List<(TestStepFinished, TestStep)>();

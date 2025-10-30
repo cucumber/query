@@ -43,8 +43,8 @@ namespace QueryTest
             _repository.UpdateTestCaseFinished(d);
 
             var result = _query.FindAllTestCaseStarted();
-            Assert.AreEqual(1, result.Count);
-            Assert.AreEqual(c, result[0]);
+            Assert.AreEqual(1, result.Count());
+            Assert.AreEqual(c, result.ToArray()[0]);
             Assert.AreEqual(1, _query.TestCasesStartedCount);
         }
 
