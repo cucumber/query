@@ -2,16 +2,26 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <NoWarn>1591</NoWarn>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Query.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cucumber.Messages" Version="29.0.1" />
+    <PackageReference Include="Cucumber.Messages" Version="29.0.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="QueryTest" />
+    <InternalsVisibleTo Include="QueryTest, PublicKey=002400000480000094000000060200000024000052534131000400000100010011e8ff65f4785a464466c95b699df1713c4b702a5785da3246bb203c020f45ad9c77e23ec093ff4e1b2e93d352e580a566c38f969d1e7cccb01985e3f89a34f1cd60d915af5d6a4dfb16e6dd2a829aa179b5204b17993d197649a56c6187d471502263a193799b087f5b546514611108b8bfc0db53b2c634ce08b0b256e87aec" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)\Resources\cucumber-mark-green-128.png">
+      <Pack>True</Pack>
+      <PackagePath>.</PackagePath>
+      <Visible>true</Visible>
+    </None>
+  </ItemGroup>
+  
 </Project>
