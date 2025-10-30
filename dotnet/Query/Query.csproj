@@ -7,6 +7,29 @@
     <AssemblyOriginatorKeyFile>..\Query.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup Label="Version">
+    <VersionNumber>14.6.0</VersionNumber>
+    <Version Condition="'$(SnapshotSuffix)' != ''">$(VersionNumber)-$(SnapshotSuffix)</Version>
+    <Version Condition="'$(SnapshotSuffix)' == ''">$(VersionNumber)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package Properties">
+    <Product>Query</Product>
+    <PackageId>Query</PackageId>
+    <Authors>Cucumber Ltd, Chris Rudolphi</Authors>
+    <Copyright>Copyright &#xA9; Cucumber Ltd, Chris Rudolphi</Copyright>
+    <Description>Query provides a library of functions to query a collection of Cucumber Messages.</Description>
+    <PackageTags>reqnroll gherkin cucumber</PackageTags>
+    <PackageProjectUrl>https://github.com/cucumber/query</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cucumber/query</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>cucumber-mark-green-128.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>bin/$(Configuration)/NuGet</PackageOutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Cucumber.Messages" Version="29.0.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
