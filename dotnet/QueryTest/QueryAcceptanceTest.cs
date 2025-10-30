@@ -326,7 +326,7 @@ namespace QueryTest
             if (assemblyLocation == null)
                 throw new InvalidOperationException("Assembly location could not be determined.");
 
-            var fullName = Path.Combine(assemblyLocation, "..\\..\\..\\..\\..\\..\\testdata\\src", resourceName);
+            var fullName = Path.Combine(assemblyLocation, "..\\..\\..\\..\\..\\testdata\\src", resourceName);
             if (!File.Exists(fullName))
                 throw new FileNotFoundException($"Resource {fullName} not found.");
             return File.OpenRead(fullName);

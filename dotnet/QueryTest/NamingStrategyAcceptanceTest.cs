@@ -27,9 +27,9 @@ namespace QueryTest
         {
             var sources = new[]
             {
-                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "src", "minimal.ndjson"),
-                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "src", "rules.ndjson"),
-                Path.Combine("..", "..", "..", "..", "..", "..", "testdata", "src", "examples-tables.ndjson")
+                Path.Combine("..", "..", "..", "..", "..", "testdata", "src", "minimal.ndjson"),
+                Path.Combine("..", "..", "..", "..", "..", "testdata", "src", "rules.ndjson"),
+                Path.Combine("..", "..", "..", "..", "..", "testdata", "src", "examples-tables.ndjson")
             };
 
             foreach (var source in sources)
