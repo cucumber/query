@@ -314,11 +314,7 @@ namespace QueryTest
 
         private static Stream ReadResourceAsStream(string resourceName)
         {
-            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (assemblyLocation == null)
-                throw new InvalidOperationException("Assembly location could not be determined.");
-
-            var fullName = Path.Combine(assemblyLocation, "..\\..\\..\\..\\..\\testdata\\src", resourceName);
+            var fullName = Path.Combine(TestFolderHelper.TestFolder, "src", resourceName);
             if (!File.Exists(fullName))
                 throw new FileNotFoundException($"Resource {fullName} not found.");
             return File.OpenRead(fullName);
