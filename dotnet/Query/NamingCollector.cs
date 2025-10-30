@@ -1,7 +1,7 @@
+using Io.Cucumber.Messages.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Io.Cucumber.Messages.Types;
 
 namespace Io.Cucumber.Query
 {
@@ -12,6 +12,7 @@ namespace Io.Cucumber.Query
     {
         // There are at most 5 levels to a feature file.
         private readonly List<string> parts = new List<string>(5);
+
         private readonly string delimiter = " - ";
         private readonly NamingStrategy.Strategy strategy;
         private readonly NamingStrategy.FeatureName featureName;
@@ -33,7 +34,9 @@ namespace Io.Cucumber.Query
             this.exampleName = exampleName;
         }
 
-        public void Add(GherkinDocument document) { }
+        public void Add(GherkinDocument document)
+        { }
+
         public void Add(Feature feature)
         {
             if (featureName == NamingStrategy.FeatureName.INCLUDE || strategy == NamingStrategy.Strategy.SHORT)
@@ -41,25 +44,30 @@ namespace Io.Cucumber.Query
                 parts.Add(feature.Name);
             }
         }
+
         public void Add(Rule rule)
         {
             parts.Add(rule.Name);
         }
+
         public void Add(Scenario scenario)
         {
             scenarioName = scenario.Name;
             parts.Add(scenarioName);
         }
+
         public void Add(Examples examples, int index)
         {
             parts.Add(examples.Name);
             this.examplesIndex = index;
         }
+
         public void Add(TableRow example, int index)
         {
             isExample = true;
             parts.Add("#" + (examplesIndex + 1) + "." + (index + 1));
         }
+
         public void Add(Pickle pickle)
         {
             string pickleName = pickle.Name;
@@ -78,6 +86,7 @@ namespace Io.Cucumber.Query
                 {
                     case NamingStrategy.ExampleName.NUMBER:
                         break;
+
                     case NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED:
                         bool parameterized = !scenarioName.Equals(pickleName);
                         if (parameterized)
@@ -87,6 +96,7 @@ namespace Io.Cucumber.Query
                             parts.Add(exampleNumber + ": " + pickleName);
                         }
                         break;
+
                     case NamingStrategy.ExampleName.PICKLE:
                         parts.RemoveAt(parts.Count - 1); // Remove example number
                         parts.Add(pickleName);

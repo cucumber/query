@@ -1,6 +1,6 @@
+using Io.Cucumber.Messages.Types;
 using System;
 using System.Collections.Generic;
-using Io.Cucumber.Messages.Types;
 
 namespace Io.Cucumber.Query
 {

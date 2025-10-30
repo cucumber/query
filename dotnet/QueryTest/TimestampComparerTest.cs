@@ -1,7 +1,5 @@
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Io.Cucumber.Query;
 using Io.Cucumber.Messages.Types;
+using Io.Cucumber.Query;
 
 namespace QueryTest
 {

@@ -1,11 +1,10 @@
 #nullable enable
+
+using Cucumber.Messages;
+using Io.Cucumber.Messages.Types;
 using System;
-using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Linq;
-using Io.Cucumber.Messages.Types;
-using System.Collections.Concurrent;
-using Cucumber.Messages;
 
 namespace Io.Cucumber.Query;
 
@@ -97,6 +96,7 @@ public class Query
     {
         return _repository.UndefinedParameterTypes.ToList();
     }
+
     public IList<Attachment> FindAttachmentsBy(TestStepFinished testStepFinished) =>
         _repository.AttachmentsByTestCaseStartedId.TryGetValue(testStepFinished.TestCaseStartedId, out var attachments)
             ? attachments.Where(a => a.TestStepId == testStepFinished.TestStepId).ToList()
@@ -407,7 +407,7 @@ public class Query
         return result;
     }
 
-    // FindLineageBy methods 
+    // FindLineageBy methods
     public Lineage? FindLineageBy(GherkinDocument element)
     {
         _repository.LineageById.TryGetValue(element, out var lineage);
@@ -471,5 +471,4 @@ public class Query
         }
         return FindLineageBy(pickle);
     }
-
 }

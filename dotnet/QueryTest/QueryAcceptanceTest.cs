@@ -1,18 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using FluentAssertions;
+using Io.Cucumber.Messages.Types;
+using Io.Cucumber.Query;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using Io.Cucumber.Messages.Types;
-using Io.Cucumber.Query;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using System.Security.Cryptography;
 
 namespace QueryTest
 {

@@ -1,9 +1,5 @@
-using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Io.Cucumber.Query;
 using Io.Cucumber.Messages.Types;
-using System.Collections.Generic;
+using Io.Cucumber.Query;
 
 namespace QueryTest
 {
@@ -13,11 +9,11 @@ namespace QueryTest
         private readonly Repository _repository;
         private readonly Query _query;
 
-        public QueryTest() {
+        public QueryTest()
+        {
             _repository = new Repository();
             _query = new Query(_repository);
         }
-
 
         [TestMethod]
         public void RetainsInsertionOrderForTestCaseStarted()

@@ -1,13 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
 using FluentAssertions;
 using Io.Cucumber.Messages.Types;
 using Io.Cucumber.Query;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Text;
 
 namespace QueryTest
 {
@@ -49,7 +43,6 @@ namespace QueryTest
             var expected = File.ReadAllText(testCase.Expected, Encoding.UTF8);
             actual.Should().Be(expected, $"NamingStrategy results for {testCase} do not match expected results.");
         }
-
 
         private static string WriteResults(TestCase testCase, NamingStrategy strategy)
         {

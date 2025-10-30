@@ -1,6 +1,4 @@
 using Io.Cucumber.Messages.Types;
-using System;
-using static Io.Cucumber.Query.NamingStrategy;
 
 namespace Io.Cucumber.Query
 {
@@ -22,7 +20,6 @@ namespace Io.Cucumber.Query
             NUMBER_AND_PICKLE_IF_PARAMETERIZED
         }
 
-
         public enum FeatureName
         {
             INCLUDE,
@@ -43,6 +40,7 @@ namespace Io.Cucumber.Query
         }
 
         public abstract string Reduce(Lineage lineage);
+
         public abstract string Reduce(Lineage lineage, Pickle pickle);
 
         private class Adaptor : NamingStrategy

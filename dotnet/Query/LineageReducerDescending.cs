@@ -1,5 +1,5 @@
-using System;
 using Io.Cucumber.Messages.Types;
+using System;
 
 namespace Io.Cucumber.Query
 {

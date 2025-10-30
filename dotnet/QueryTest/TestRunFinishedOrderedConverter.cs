@@ -1,6 +1,6 @@
+using Io.Cucumber.Messages.Types;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Io.Cucumber.Messages.Types;
 
 public class TestRunFinishedOrderedConverter : JsonConverter<TestRunFinished>
 {

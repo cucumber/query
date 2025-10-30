@@ -1,9 +1,8 @@
 #nullable enable
+
 using Io.Cucumber.Messages.Types;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace Io.Cucumber.Query
 {
@@ -53,6 +52,7 @@ namespace Io.Cucumber.Query
 
         // Public fields (matching Java order)
         public readonly Dictionary<string, TestCaseStarted> TestCaseStartedById = new();
+
         public readonly Dictionary<string, TestCaseFinished> TestCaseFinishedByTestCaseStartedId = new();
         public readonly Dictionary<string, List<TestStepFinished>> TestStepsFinishedByTestCaseStartedId = new();
         public readonly Dictionary<string, List<TestStepStarted>> TestStepsStartedByTestCaseStartedId = new();

@@ -1,7 +1,8 @@
 #nullable enable
-using System.ComponentModel.DataAnnotations;
-using System;
+
 using Io.Cucumber.Messages.Types;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Io.Cucumber.Query;
 
@@ -23,7 +24,9 @@ public class Lineage : IEquatable<Lineage>
     private readonly TableRow? _example;
     private readonly int? _exampleIndex;
 
-    internal Lineage([Required] GherkinDocument document) : this(document, null, null, null, null, null, null, null) { }
+    internal Lineage([Required] GherkinDocument document) : this(document, null, null, null, null, null, null, null)
+    {
+    }
 
     internal Lineage(Lineage parent, Feature feature)
         : this(parent._document, feature, null, null, null, null, null, null) { }
