@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <NoWarn>1591</NoWarn>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Query.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Version">
+    <VersionNumber>14.6.0</VersionNumber>
+    <Version Condition="'$(SnapshotSuffix)' != ''">$(VersionNumber)-$(SnapshotSuffix)</Version>
+    <Version Condition="'$(SnapshotSuffix)' == ''">$(VersionNumber)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package Properties">
+    <Product>Query</Product>
+    <PackageId>Query</PackageId>
+    <Authors>Cucumber Ltd, Chris Rudolphi</Authors>
+    <Copyright>Copyright &#xA9; Cucumber Ltd, Chris Rudolphi</Copyright>
+    <Description>Query provides a library of functions to query a collection of Cucumber Messages.</Description>
+    <PackageTags>reqnroll gherkin cucumber</PackageTags>
+    <PackageProjectUrl>https://github.com/cucumber/query</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cucumber/query</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>cucumber-mark-green-128.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageOutputPath>bin/$(Configuration)/NuGet</PackageOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cucumber.Messages" Version="29.0.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="QueryTest, PublicKey=002400000480000094000000060200000024000052534131000400000100010011e8ff65f4785a464466c95b699df1713c4b702a5785da3246bb203c020f45ad9c77e23ec093ff4e1b2e93d352e580a566c38f969d1e7cccb01985e3f89a34f1cd60d915af5d6a4dfb16e6dd2a829aa179b5204b17993d197649a56c6187d471502263a193799b087f5b546514611108b8bfc0db53b2c634ce08b0b256e87aec" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)\Resources\cucumber-mark-green-128.png">
+      <Pack>True</Pack>
+      <PackagePath>.</PackagePath>
+      <Visible>true</Visible>
+    </None>
+  </ItemGroup>
+  
+</Project>
