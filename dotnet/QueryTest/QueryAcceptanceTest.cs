@@ -105,17 +105,17 @@ namespace QueryTest
                     ["testCaseStarted"] = q.FindAllTestCaseStarted()
                         .Select(tcs => q.FindLineageBy(tcs))
                         .Where(lineage => lineage != null)
-                        .Select(lineage => namingStrategy.Reduce(lineage))
+                        .Select(lineage => namingStrategy.Reduce(lineage!))
                         .ToList(),
                     ["testCaseFinished"] = q.FindAllTestCaseFinished()
                         .Select(tcs => q.FindLineageBy(tcs))
                         .Where(lineage => lineage != null)
-                        .Select(lineage => namingStrategy.Reduce(lineage))
+                        .Select(lineage => namingStrategy.Reduce(lineage!))
                         .ToList(),
                     ["pickle"] = q.FindAllPickles()
                         .Select(pickle => q.FindLineageBy(pickle))
                         .Where(lineage => lineage != null)
-                        .Select(lineage => namingStrategy.Reduce(lineage))
+                        .Select(lineage => namingStrategy.Reduce(lineage!))
                         .ToList()
                 },
                 ["findLocationOf"] = q => q.FindAllPickles()

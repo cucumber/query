@@ -14,12 +14,12 @@
       -->
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>QueryTestKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>../Cucumber.Query.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="7.2.0" />
-    <ProjectReference Include="..\Query\Query.csproj" />
+    <ProjectReference Include="..\Query\Cucumber.Query.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.12.6" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.4.3" />

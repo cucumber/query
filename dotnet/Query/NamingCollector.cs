@@ -18,7 +18,7 @@ namespace Io.Cucumber.Query
         private readonly NamingStrategy.FeatureName featureName;
         private readonly NamingStrategy.ExampleName exampleName;
 
-        private string scenarioName;
+        private string? scenarioName;
         private bool isExample;
         private int examplesIndex;
 
