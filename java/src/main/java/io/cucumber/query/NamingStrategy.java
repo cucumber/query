@@ -4,7 +4,6 @@ import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Pickle;
 
 import static io.cucumber.query.LineageReducer.descending;
-import static io.cucumber.query.NamingCollector.of;
 import static io.cucumber.query.NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
 import static io.cucumber.query.NamingStrategy.FeatureName.INCLUDE;
 import static java.util.Objects.requireNonNull;
@@ -26,10 +25,10 @@ import static java.util.Objects.requireNonNull;
  *
  * <pre>{@code
  * Feature: Examples Tables
- *   Scenario Outline: Eating &lt;eat&gt; cucumbers
- *     Given there are &lt;start&gt; cucumbers
- *     When I eat &lt;eat&gt; cucumbers
- *     Then I should have &lt;left&gt; cucumbers
+ *   Scenario Outline: Eating <eat> cucumbers
+ *     Given there are <start> cucumbers
+ *     When I eat <eat> cucumbers
+ *     Then I should have <left> cucumbers
  *
  *     Examples: These are passing
  *       | start | eat | left |
@@ -45,10 +44,10 @@ import static java.util.Objects.requireNonNull;
  * With the long strategy, using example numbers and the pickle if
  * parameterized, the pickles in this example would be named:
  * <ul>
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are passing - #1.1: Eating 5 cucumbers
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are passing - #1.2: Eating 6 cucumbers
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are failing - #2.1: Eating 20 cucumbers
- *     <li>Examples Tables - Eating &lt;eat&gt; cucumbers - These are failing - #2.2: Eating 1 cucumbers
+ *     <li>Examples Tables - Eating <eat> cucumbers - These are passing - #1.1: Eating 5 cucumbers
+ *     <li>Examples Tables - Eating <eat> cucumbers - These are passing - #1.2: Eating 6 cucumbers
+ *     <li>Examples Tables - Eating <eat> cucumbers - These are failing - #2.1: Eating 20 cucumbers
+ *     <li>Examples Tables - Eating <eat> cucumbers - These are failing - #2.2: Eating 1 cucumbers
  * </ul>
  * <p>
  * And with the short strategy, using pickle names:
@@ -133,7 +132,7 @@ public abstract class NamingStrategy implements LineageReducer<String> {
         }
 
         public NamingStrategy build() {
-            return new Adaptor(descending(of(strategy, featureName, exampleName)));
+            return new Adaptor(descending(NamingCollector.of(strategy, featureName, exampleName)));
         }
     }
 

@@ -22,6 +22,7 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.UndefinedParameterType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -62,9 +63,9 @@ public final class Repository {
     final Map<String, List<Suggestion>> suggestionsByPickleStepId = new LinkedHashMap<>();
     final List<UndefinedParameterType> undefinedParameterTypes = new ArrayList<>();
 
-    Meta meta;
-    TestRunStarted testRunStarted;
-    TestRunFinished testRunFinished;
+    @Nullable Meta meta;
+    @Nullable TestRunStarted testRunStarted;
+    @Nullable TestRunFinished testRunFinished;
 
     private Repository(Set<RepositoryFeature> features) {
         this.features = features;

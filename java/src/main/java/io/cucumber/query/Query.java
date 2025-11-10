@@ -195,6 +195,10 @@ public final class Query {
     }
 
     public Optional<Location> findLocationOf(Pickle pickle) {
+        Optional<Location> location = pickle.getLocation();
+        if (location.isPresent()) {
+            return location;
+        }
         return findLineageBy(pickle).flatMap(lineage -> {
             if (lineage.example().isPresent()) {
                 return lineage.example().map(TableRow::getLocation);

@@ -3,7 +3,22 @@ package io.cucumber.query;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.NdjsonToMessageIterable;
-import io.cucumber.messages.types.*;
+import io.cucumber.messages.types.Envelope;
+import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Pickle;
+import io.cucumber.messages.types.PickleStep;
+import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.StepDefinition;
+import io.cucumber.messages.types.Suggestion;
+import io.cucumber.messages.types.TestCase;
+import io.cucumber.messages.types.TestCaseFinished;
+import io.cucumber.messages.types.TestCaseStarted;
+import io.cucumber.messages.types.TestRunHookFinished;
+import io.cucumber.messages.types.TestRunHookStarted;
+import io.cucumber.messages.types.TestStep;
+import io.cucumber.messages.types.TestStepFinished;
+import io.cucumber.messages.types.TestStepResult;
+import io.cucumber.messages.types.TestStepStarted;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,6 +38,7 @@ import static io.cucumber.query.Jackson.OBJECT_MAPPER;
 import static io.cucumber.query.Repository.RepositoryFeature.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -413,7 +429,7 @@ public class QueryAcceptanceTest {
             this.query = query;
             String fileName = source.getFileName().toString();
             this.name = fileName.substring(0, fileName.lastIndexOf(".ndjson"));
-            this.expected = source.getParent().resolve(name + "." + methodName + ".results.json");
+            this.expected = requireNonNull(source.getParent()).resolve(name + "." + methodName + ".results.json");
         }
 
         @Override
