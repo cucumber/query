@@ -31,12 +31,11 @@ import static io.cucumber.query.NamingStrategy.Strategy.LONG;
 import static io.cucumber.query.NamingStrategy.Strategy.SHORT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.newOutputStream;
-import static java.nio.file.Files.readAllBytes;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NamingStrategyAcceptanceTest {
-    private static final NdjsonToMessageIterable.Deserializer deserializer = (json) -> OBJECT_MAPPER.readValue(json, Envelope.class);
+class NamingStrategyAcceptanceTest {
+    private static final NdjsonToMessageIterable.Deserializer deserializer = json -> OBJECT_MAPPER.readValue(json, Envelope.class);
 
     static List<TestCase> acceptance() {
         Map<String, NamingStrategy> strategies = new LinkedHashMap<>();
@@ -63,7 +62,7 @@ public class NamingStrategyAcceptanceTest {
     private static String writeResults(TestCase testCase, NamingStrategy strategy) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writeResults(strategy, testCase, out);
-        return new String(out.toByteArray(), UTF_8);
+        return out.toString(UTF_8);
     }
 
     private static void writeResults(NamingStrategy strategy, TestCase testCase, OutputStream out) throws IOException {
@@ -91,12 +90,11 @@ public class NamingStrategyAcceptanceTest {
                 .build();
     }
 
-
     @ParameterizedTest
     @MethodSource("acceptance")
     void test(TestCase testCase) throws IOException {
         String actual = writeResults(testCase, testCase.strategy);
-        String expected = new String(readAllBytes(testCase.expected), UTF_8);
+        String expected = Files.readString(testCase.expected);
         assertThat(actual).isEqualTo(expected);
     }
 

@@ -26,7 +26,7 @@ import static io.cucumber.query.NamingStrategy.Strategy.SHORT;
  *
  * @see NamingStrategy
  */
-class NamingCollector implements Collector<String> {
+final class NamingCollector implements Collector<String> {
 
     // There are at most 5 levels to a feature file.
     private final Deque<String> parts = new ArrayDeque<>(5);

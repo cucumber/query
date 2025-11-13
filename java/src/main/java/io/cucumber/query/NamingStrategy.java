@@ -111,7 +111,7 @@ public abstract class NamingStrategy implements LineageReducer<String> {
         // Could be made a public interface if GherkinDocumentElements had a better API
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private final Strategy strategy;
         private FeatureName featureName = INCLUDE;
