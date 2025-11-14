@@ -22,6 +22,7 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.UndefinedParameterType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -32,7 +33,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import static io.cucumber.query.Repository.RepositoryFeature.*;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_SUGGESTIONS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_UNDEFINED_PARAMETER_TYPES;
 
 /**
  * A write only repository of Cucumber Messages.
@@ -62,9 +68,9 @@ public final class Repository {
     final Map<String, List<Suggestion>> suggestionsByPickleStepId = new LinkedHashMap<>();
     final List<UndefinedParameterType> undefinedParameterTypes = new ArrayList<>();
 
-    Meta meta;
-    TestRunStarted testRunStarted;
-    TestRunFinished testRunFinished;
+    @Nullable Meta meta;
+    @Nullable TestRunStarted testRunStarted;
+    @Nullable TestRunFinished testRunFinished;
 
     private Repository(Set<RepositoryFeature> features) {
         this.features = features;
@@ -72,74 +78,6 @@ public final class Repository {
 
     public static Builder builder() {
         return new Builder();
-    }
-
-    public enum RepositoryFeature {
-
-        /**
-         * Include {@link Attachment} messages.
-         * <p>
-         * Disable to reduce memory usage.
-         */
-        INCLUDE_ATTACHMENTS,
-
-        /**
-         * Include {@link io.cucumber.messages.types.GherkinDocument} messages.
-         * <p>
-         * Disable to reduce memory usage.
-         */
-        INCLUDE_GHERKIN_DOCUMENTS,
-
-        /**
-         * Include {@link Hook} messages.
-         * <p>
-         * Disable to reduce memory usage.
-         */
-        INCLUDE_HOOKS,
-
-        /**
-         * Include {@link StepDefinition} messages.
-         * <p>
-         * Disable to reduce memory usage.
-         */
-        INCLUDE_STEP_DEFINITIONS,
-
-        /**
-         * Include {@link Suggestion} messages.
-         * <p>
-         * Disable to reduce memory usage.
-         */
-        INCLUDE_SUGGESTIONS,
-
-        /**
-         * Include {@link UndefinedParameterType} messages.
-         * <p>
-         * Disable to reduce memory usage.
-         */
-        INCLUDE_UNDEFINED_PARAMETER_TYPES,
-    }
-
-    public static class Builder {
-        private final EnumSet<RepositoryFeature> features = EnumSet.noneOf(RepositoryFeature.class);
-        
-        private Builder(){
-            
-        }
-        /**
-         * Toggles a given feature.
-         */
-        public Builder feature(RepositoryFeature feature, boolean enabled) {
-            if (enabled) {
-                features.add(feature);
-            } else {
-                features.remove(feature);
-            }
-            return this;
-        }
-
-        public Repository build() {
-            return new Repository(EnumSet.copyOf(features));
-        }
     }
 
     public void update(Envelope envelope) {
@@ -281,4 +219,72 @@ public final class Repository {
         };
     }
 
+    public enum RepositoryFeature {
+
+        /**
+         * Include {@link Attachment} messages.
+         * <p>
+         * Disable to reduce memory usage.
+         */
+        INCLUDE_ATTACHMENTS,
+
+        /**
+         * Include {@link io.cucumber.messages.types.GherkinDocument} messages.
+         * <p>
+         * Disable to reduce memory usage.
+         */
+        INCLUDE_GHERKIN_DOCUMENTS,
+
+        /**
+         * Include {@link Hook} messages.
+         * <p>
+         * Disable to reduce memory usage.
+         */
+        INCLUDE_HOOKS,
+
+        /**
+         * Include {@link StepDefinition} messages.
+         * <p>
+         * Disable to reduce memory usage.
+         */
+        INCLUDE_STEP_DEFINITIONS,
+
+        /**
+         * Include {@link Suggestion} messages.
+         * <p>
+         * Disable to reduce memory usage.
+         */
+        INCLUDE_SUGGESTIONS,
+
+        /**
+         * Include {@link UndefinedParameterType} messages.
+         * <p>
+         * Disable to reduce memory usage.
+         */
+        INCLUDE_UNDEFINED_PARAMETER_TYPES
+    }
+
+    public static final class Builder {
+        private final EnumSet<RepositoryFeature> features = EnumSet.noneOf(RepositoryFeature.class);
+
+        private Builder() {
+
+        }
+        
+        /**
+         * Toggles a given feature.
+         */
+        public Builder feature(RepositoryFeature feature, boolean enabled) {
+            if (enabled) {
+                features.add(feature);
+            } else {
+                features.remove(feature);
+            }
+            return this;
+        }
+
+        public Repository build() {
+            return new Repository(EnumSet.copyOf(features));
+        }
+    }
 }

@@ -82,6 +82,7 @@ public final class Query {
                 .collect(groupingBy(identity(), LinkedHashMap::new, counting())));
         return results;
     }
+
     public int countTestCasesStarted() {
         return findAllTestCaseStarted().size();
     }
@@ -101,8 +102,8 @@ public final class Query {
                         .isPresent())
                 .collect(toList());
     }
-    
-    public List<StepDefinition> findAllStepDefinitions(){
+
+    public List<StepDefinition> findAllStepDefinitions() {
         return new ArrayList<>(repository.stepDefinitionById.values());
     }
 
@@ -195,6 +196,10 @@ public final class Query {
     }
 
     public Optional<Location> findLocationOf(Pickle pickle) {
+        Optional<Location> location = pickle.getLocation();
+        if (location.isPresent()) {
+            return location;
+        }
         return findLineageBy(pickle).flatMap(lineage -> {
             if (lineage.example().isPresent()) {
                 return lineage.example().map(TableRow::getLocation);
