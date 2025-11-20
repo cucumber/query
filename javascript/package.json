@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/cucumber/query#readme",
   "devDependencies": {
-    "@cucumber/compatibility-kit": "^24.0.0",
+    "@cucumber/compatibility-kit": "^25.0.0",
     "@cucumber/fake-cucumber": "^18.0.0",
     "@cucumber/gherkin": "36.1.0",
     "@cucumber/gherkin-streams": "^6.0.0",
