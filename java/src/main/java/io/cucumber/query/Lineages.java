@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 final class Lineages {
     
     private Lineages(){
-        // utility class
+        /* no-op */
     }
 
     /**
