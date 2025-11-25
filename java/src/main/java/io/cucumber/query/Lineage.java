@@ -6,6 +6,7 @@ import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.TableRow;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -23,13 +24,13 @@ import static java.util.Objects.requireNonNull;
 public final class Lineage {
 
     private final GherkinDocument document;
-    private final Feature feature;
-    private final Rule rule;
-    private final Scenario scenario;
-    private final Examples examples;
-    private final Integer examplesIndex;
-    private final TableRow example;
-    private final Integer exampleIndex;
+    private final @Nullable Feature feature;
+    private final @Nullable Rule rule;
+    private final @Nullable Scenario scenario;
+    private final @Nullable Examples examples;
+    private final @Nullable Integer examplesIndex;
+    private final @Nullable TableRow example;
+    private final @Nullable Integer exampleIndex;
 
     Lineage(GherkinDocument document) {
         this(document, null, null, null, null, null, null, null);
@@ -55,7 +56,7 @@ public final class Lineage {
         this(parent.document, parent.feature, parent.rule, parent.scenario, parent.examples, parent.examplesIndex, example, exampleIndex);
     }
 
-    private Lineage(GherkinDocument document, Feature feature, Rule rule, Scenario scenario, Examples examples, Integer examplesIndex, TableRow example, Integer exampleIndex) {
+    private Lineage(GherkinDocument document, @Nullable Feature feature, @Nullable Rule rule, @Nullable Scenario scenario, @Nullable Examples examples, @Nullable Integer examplesIndex, @Nullable TableRow example, @Nullable Integer exampleIndex) {
         this.document = requireNonNull(document);
         this.feature = feature;
         this.rule = rule;
@@ -103,7 +104,7 @@ public final class Lineage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Lineage that = (Lineage) o;
-        return document.equals(that.document) && feature.equals(that.feature) && Objects.equals(rule, that.rule) && scenario.equals(that.scenario) && Objects.equals(examples, that.examples) && Objects.equals(example, that.example) && Objects.equals(examplesIndex, that.examplesIndex) && Objects.equals(exampleIndex, that.exampleIndex);
+        return document.equals(that.document) && Objects.equals(feature, that.feature) && Objects.equals(rule, that.rule) && Objects.equals(scenario, that.scenario) && Objects.equals(examples, that.examples) && Objects.equals(example, that.example) && Objects.equals(examplesIndex, that.examplesIndex) && Objects.equals(exampleIndex, that.exampleIndex);
     }
 
     @Override

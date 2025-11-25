@@ -12,12 +12,14 @@ import io.cucumber.messages.types.TableRow;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-class Lineages {
+final class Lineages {
+    
+    private Lineages(){
+        /* no-op */
+    }
 
     /**
      * Create map of a {@link GherkinDocument} element to its {@link Lineage} in that document.
