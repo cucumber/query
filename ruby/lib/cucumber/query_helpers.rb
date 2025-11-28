@@ -2,7 +2,7 @@ require 'cucumber/messages/test_step_result_status'
 
 module Cucumber
   module Query
-    module Helpers
+    module QueryHelpers
       def status_ordinal(status)
         [
           TestStepResultStatus::UNKNOWN,
