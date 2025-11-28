@@ -1,4 +1,4 @@
-require_relative 'helpers'
+require_relative '../ry_helpers'
 
 module Cucumber
   class Query
