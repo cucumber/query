@@ -2,7 +2,7 @@
 
 module Cucumber
   module Query
-    module Legacy
+    module Error
       TestCaseUnknownError = Class.new(StandardError)
       TestStepUnknownError = Class.new(StandardError)
     end
