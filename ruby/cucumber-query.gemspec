@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.metadata = {
     'bug_tracker_uri' => 'https://github.com/cucumber/query/issues',
     'changelog_uri' => 'https://github.com/cucumber/query/blob/main/CHANGELOG.md',
-    'documentation_uri' => 'https://github.com/cucumber/query/blob/main/CONTRIBUTING.md',
+    'documentation_uri' => 'https://github.com/cucumber/query/blob/main/README.md',
     'mailing_list_uri' => 'https://groups.google.com/forum/#!forum/cukes',
     'source_code_uri' => 'https://github.com/cucumber/query/blob/main/ruby'
   }
@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop-performance', '~> 1.25.0'
   s.add_development_dependency 'rubocop-rspec', '~> 3.7.0'
 
-  s.files            = Dir['README.md', 'LICENSE', 'lib/**/*']
+  s.files            = Dir['LICENSE', 'lib/**/*']
   s.rdoc_options     = ['--charset=UTF-8']
   s.require_path     = 'lib'
 end
