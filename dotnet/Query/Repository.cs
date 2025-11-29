@@ -4,7 +4,7 @@ using Io.Cucumber.Messages.Types;
 using System;
 using System.Collections.Generic;
 
-namespace Io.Cucumber.Query
+namespace Cucumber.Query
 {
     public class Repository
     {

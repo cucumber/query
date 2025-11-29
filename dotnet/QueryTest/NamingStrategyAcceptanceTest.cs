@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Io.Cucumber.Messages.Types;
-using Io.Cucumber.Query;
+using Cucumber.Query;
 using System.Text;
 
-namespace QueryTest
+namespace Cucumber.QueryTest
 {
     [TestClass]
     public class NamingStrategyAcceptanceTest
@@ -67,7 +67,7 @@ namespace QueryTest
                 var envelope = NdjsonSerializer.Deserialize<Envelope>(line);
                 repository.Update(envelope);
             }
-            var query = new Query(repository);
+            var query = new Cucumber.Query.Query(repository);
 
             foreach (var pickle in query.FindAllPickles())
             {

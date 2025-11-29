@@ -1,7 +1,7 @@
 using Io.Cucumber.Messages.Types;
 using System.Text.Json;
 
-namespace QueryTest;
+namespace Cucumber.QueryTest;
 
 /// <summary>
 /// Uses a correctly configured <see cref="JsonSerializer"/> that provides compatible JSON format for the Cucumber Messages standard.

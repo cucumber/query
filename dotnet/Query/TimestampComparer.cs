@@ -1,7 +1,7 @@
 using Io.Cucumber.Messages.Types;
 using System.Collections.Generic;
 
-namespace Io.Cucumber.Query
+namespace Cucumber.Query
 {
     internal class TimestampComparer : IComparer<Timestamp>
     {

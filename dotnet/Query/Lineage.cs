@@ -4,7 +4,7 @@ using Io.Cucumber.Messages.Types;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Io.Cucumber.Query;
+namespace Cucumber.Query;
 
 /// <summary>
 /// A structure containing all ancestors of a given

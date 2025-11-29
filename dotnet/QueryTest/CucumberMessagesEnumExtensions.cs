@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace QueryTest;
+namespace Cucumber.QueryTest;
 
 public static class CucumberMessagesEnumExtensions
 {

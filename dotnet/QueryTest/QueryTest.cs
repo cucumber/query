@@ -1,18 +1,18 @@
 using Io.Cucumber.Messages.Types;
-using Io.Cucumber.Query;
+using Cucumber.Query;
 
-namespace QueryTest
+namespace Cucumber.QueryTest
 {
     [TestClass]
     public class QueryTest
     {
         private readonly Repository _repository;
-        private readonly Query _query;
+        private readonly Cucumber.Query.Query _query;
 
         public QueryTest()
         {
             _repository = new Repository();
-            _query = new Query(_repository);
+            _query = new Cucumber.Query.Query(_repository);
         }
 
         [TestMethod]

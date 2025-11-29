@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Io.Cucumber.Query
+namespace Cucumber.Query
 {
     /// <summary>
     /// Names GherkinDocument elements or Pickles.

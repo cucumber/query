@@ -1,7 +1,7 @@
 using Io.Cucumber.Messages.Types;
-using Io.Cucumber.Query;
+using Cucumber.Query;
 
-namespace QueryTest
+namespace Cucumber.QueryTest
 {
     [TestClass]
     public class TimestampComparerTest

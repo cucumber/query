@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace QueryTest;
+namespace Cucumber.QueryTest;
 
 public class DescriptionEnumConverter<T> : JsonConverter<T> where T : struct, Enum
 {

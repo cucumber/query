@@ -1,7 +1,7 @@
 using Io.Cucumber.Messages.Types;
 using System;
 
-namespace Io.Cucumber.Query
+namespace Cucumber.Query
 {
     public class LineageReducerAscending<T> : ILineageReducer<T>
     {

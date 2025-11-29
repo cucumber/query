@@ -1,6 +1,6 @@
 using Io.Cucumber.Messages.Types;
 
-namespace Io.Cucumber.Query
+namespace Cucumber.Query
 {
     /// <summary>
     /// Names Pickles and other elements in a GherkinDocument.

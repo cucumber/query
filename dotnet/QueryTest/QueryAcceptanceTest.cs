@@ -1,12 +1,11 @@
 using FluentAssertions;
 using Io.Cucumber.Messages.Types;
-using Io.Cucumber.Query;
-using System.Reflection;
+using Cucumber.Query;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace QueryTest
+namespace Cucumber.QueryTest
 {
     [TestClass]
     public class QueryAcceptanceTest
@@ -36,10 +35,10 @@ namespace QueryTest
             }
         }
 
-        private static Dictionary<string, Func<Query, object>> createQueries()
+        private static Dictionary<string, Func<Cucumber.Query.Query, object>> createQueries()
         {
             var namingStrategy = NamingStrategy.Create(NamingStrategy.Strategy.LONG);
-            var queries = new Dictionary<string, Func<Query, object>>
+            var queries = new Dictionary<string, Func<Cucumber.Query.Query, object>>
             {
                 ["countMostSevereTestStepResultStatus"] = q => q.CountMostSevereTestStepResultStatus()
                                                                 .ToDictionary(
@@ -288,7 +287,7 @@ namespace QueryTest
                 repository.Update(envelope);
             }
 
-            var query = new Query(repository);
+            var query = new Cucumber.Query.Query(repository);
             var queryResults = testCase.Query(query);
             var options = new JsonSerializerOptions(NdjsonSerializer.JsonOptions);
             options.Converters.Add(new TimestampOrderedConverter());
@@ -333,9 +332,9 @@ namespace QueryTest
             public string ExpectedResourceName { get; }
             public string Name { get; }
             public string MethodName { get; }
-            public Func<Query, object> Query { get; }
+            public Func<Cucumber.Query.Query, object> Query { get; }
 
-            public QueryTestCase(string methodName, string source, Func<Query, object> query)
+            public QueryTestCase(string methodName, string source, Func<Cucumber.Query.Query, object> query)
             {
                 MethodName = methodName;
                 Name = source.Substring(0, source.LastIndexOf(".ndjson", StringComparison.Ordinal));

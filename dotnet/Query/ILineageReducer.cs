@@ -1,6 +1,6 @@
 using Io.Cucumber.Messages.Types;
 
-namespace Io.Cucumber.Query
+namespace Cucumber.Query
 {
     public interface ILineageReducer<T>
     {

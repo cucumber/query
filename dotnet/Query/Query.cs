@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Io.Cucumber.Query;
+namespace Cucumber.Query;
 
 public class Query
 {
