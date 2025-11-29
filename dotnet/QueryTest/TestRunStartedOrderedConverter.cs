@@ -2,6 +2,8 @@ using Io.Cucumber.Messages.Types;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+namespace Cucumber.QueryTest;
+
 public class TestRunStartedOrderedConverter : JsonConverter<TestRunStarted>
 {
     public override TestRunStarted? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
