@@ -1,0 +1,45 @@
+using System.Collections.Concurrent;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Cucumber.QueryTest;
+
+public class CucumberMessagesEnumConverterFactory : JsonConverterFactory
+{
+    private static readonly ConcurrentDictionary<Type, JsonConverter> _cache = new();
+    private static readonly HashSet<Type> _enumTypes;
+
+    static CucumberMessagesEnumConverterFactory()
+    {
+        // Discover all enums in Io.Cucumber.Messages.Types
+        var typesNamespace = "Io.Cucumber.Messages.Types";
+        var enumTypes = AppDomain.CurrentDomain.GetAssemblies()
+                                 .SelectMany(a => SafeGetTypes(a))
+                                 .Where(t => t.IsEnum && t.Namespace == typesNamespace)
+                                 .ToList();
+        _enumTypes = new HashSet<Type>(enumTypes);
+    }
+
+    private static IEnumerable<Type> SafeGetTypes(Assembly assembly)
+    {
+        try { return assembly.GetTypes(); } catch { return Array.Empty<Type>(); }
+    }
+
+    public override bool CanConvert(Type typeToConvert)
+    {
+        return _enumTypes.Contains(typeToConvert);
+    }
+
+    public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
+    {
+        return _cache.GetOrAdd(typeToConvert, t =>
+        {
+            var converterType = typeof(DescriptionEnumConverter<>).MakeGenericType(t);
+            var instance = Activator.CreateInstance(converterType);
+            if (instance is null)
+                throw new InvalidOperationException($"Could not create an instance of {converterType.FullName}.");
+            return (JsonConverter)instance;
+        });
+    }
+}
