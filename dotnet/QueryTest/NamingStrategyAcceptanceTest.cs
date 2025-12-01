@@ -37,7 +37,7 @@ public class NamingStrategyAcceptanceTest
     }
 
     [TestMethod]
-    [DynamicData(nameof(Acceptance), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(Acceptance))]
     public void Test(TestCase testCase)
     {
         var actual = WriteResults(testCase, testCase.Strategy);

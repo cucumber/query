@@ -257,7 +257,7 @@ public class QueryAcceptanceTest
     }
 
     [TestMethod]
-    [DynamicData(nameof(Acceptance), DynamicDataSourceType.Method)]
+    [DynamicData(nameof(Acceptance))]
     public void Test(QueryTestCase testCase)
     {
         var actual = WriteQueryResults(testCase);
