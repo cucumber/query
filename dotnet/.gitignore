@@ -177,4 +177,4 @@ Gherkin.NuGetPackages/bin/
 
 # ========================
 # Query project specific ignore settings
-Query/QueryTest/testdata/
+Cucumber.Query/QueryTest/testdata/

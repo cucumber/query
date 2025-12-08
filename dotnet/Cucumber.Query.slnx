@@ -2,6 +2,6 @@
   <Folder Name="/Solution ITems/">
     <File Path="Directory.Build.props" />
   </Folder>
-  <Project Path="Query/Cucumber.Query.csproj" />
-  <Project Path="QueryTest/Cucumber.QueryTest.csproj" />
+  <Project Path="Cucumber.Query/Cucumber.Query.csproj" />
+  <Project Path="Cucumber.QueryTest/Cucumber.QueryTest.csproj" />
 </Solution>
