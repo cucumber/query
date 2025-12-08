@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- [NET] Added .NET port
+- [NET] Added .NET port  ([#81](https://github.com/cucumber/query/pull/81))
 
 ## [14.6.0] - 2025-10-27
 ### Added
