@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Query\Cucumber.Query.csproj" />
+    <ProjectReference Include="..\Cucumber.Query\Cucumber.Query.csproj" />
     <PackageReference Include="AwesomeAssertions" Version="9.3.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" />
