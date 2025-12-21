@@ -27,6 +27,7 @@
   "homepage": "https://github.com/cucumber/query#readme",
   "devDependencies": {
     "@cucumber/compatibility-kit": "^26.0.0",
+    "@cucumber/message-streams": "^4.0.1",
     "@cucumber/messages": "31.0.1",
     "@eslint/compat": "^2.0.0",
     "@eslint/eslintrc": "^3.3.0",
