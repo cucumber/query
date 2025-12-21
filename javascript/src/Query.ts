@@ -3,7 +3,6 @@ import {
   Attachment,
   Duration,
   Feature,
-  getWorstTestStepResult,
   GherkinDocument,
   Hook,
   Location,
@@ -37,26 +36,6 @@ import { assert, statusOrdinal } from './helpers'
 import { Lineage } from './Lineage'
 
 export default class Query {
-  private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
-  private readonly testStepResultsByPickleStepId = new ArrayMultimap<
-    string,
-    messages.TestStepResult
-  >()
-  private readonly testCaseByPickleId = new Map<string, messages.TestCase>()
-  private readonly pickleIdByTestStepId = new Map<string, string>()
-  private readonly pickleStepIdByTestStepId = new Map<string, string>()
-  private readonly testStepResultsbyTestStepId = new ArrayMultimap<
-    string,
-    messages.TestStepResult
-  >()
-  private readonly testStepIdsByPickleStepId = new ArrayMultimap<string, string>()
-  private readonly hooksById = new Map<string, messages.Hook>()
-  private readonly attachmentsByTestStepId = new ArrayMultimap<string, messages.Attachment>()
-  private readonly stepMatchArgumentsListsByPickleStepId = new Map<
-    string,
-    readonly messages.StepMatchArgumentsList[]
-  >()
-
   private meta: Meta
   private testRunStarted: TestRunStarted
   private testRunFinished: TestRunFinished
@@ -65,6 +44,7 @@ export default class Query {
   private readonly stepById: Map<string, Step> = new Map()
   private readonly pickleById: Map<string, Pickle> = new Map()
   private readonly pickleStepById: Map<string, PickleStep> = new Map()
+  private readonly hookById: Map<string, Hook> = new Map()
   private readonly stepDefinitionById: Map<string, StepDefinition> = new Map()
   private readonly testCaseById: Map<string, TestCase> = new Map()
   private readonly testStepById: Map<string, TestStep> = new Map()
@@ -95,7 +75,7 @@ export default class Query {
       this.updatePickle(envelope.pickle)
     }
     if (envelope.hook) {
-      this.hooksById.set(envelope.hook.id, envelope.hook)
+      this.hookById.set(envelope.hook.id, envelope.hook)
     }
     if (envelope.stepDefinition) {
       this.stepDefinitionById.set(envelope.stepDefinition.id, envelope.stepDefinition)
@@ -228,37 +208,13 @@ export default class Query {
 
   private updateTestCase(testCase: TestCase) {
     this.testCaseById.set(testCase.id, testCase)
-
-    this.testCaseByPickleId.set(testCase.pickleId, testCase)
     testCase.testSteps.forEach((testStep) => {
       this.testStepById.set(testStep.id, testStep)
-      this.pickleIdByTestStepId.set(testStep.id, testCase.pickleId)
-      this.pickleStepIdByTestStepId.set(testStep.id, testStep.pickleStepId)
-      this.testStepIdsByPickleStepId.put(testStep.pickleStepId, testStep.id)
-      this.stepMatchArgumentsListsByPickleStepId.set(
-        testStep.pickleStepId,
-        testStep.stepMatchArgumentsLists
-      )
     })
   }
 
   private updateTestCaseStarted(testCaseStarted: TestCaseStarted) {
     this.testCaseStartedById.set(testCaseStarted.id, testCaseStarted)
-
-    /*
-    when a test case attempt starts besides the first one, clear all existing results
-    and attachments for that test case, so we always report on the latest attempt
-    (applies to legacy pickle-oriented query methods only)
-     */
-    const testCase = this.testCaseById.get(testCaseStarted.testCaseId)
-    if (testCase) {
-      this.testStepResultByPickleId.delete(testCase.pickleId)
-      for (const testStep of testCase.testSteps) {
-        this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
-        this.testStepResultsbyTestStepId.delete(testStep.id)
-        this.attachmentsByTestStepId.delete(testStep.id)
-      }
-    }
   }
 
   private updateTestStepStarted(testStepStarted: TestStepStarted) {
@@ -266,9 +222,6 @@ export default class Query {
   }
 
   private updateAttachment(attachment: Attachment) {
-    if (attachment.testStepId) {
-      this.attachmentsByTestStepId.put(attachment.testStepId, attachment)
-    }
     if (attachment.testCaseStartedId) {
       this.attachmentsByTestCaseStartedId.put(attachment.testCaseStartedId, attachment)
     }
@@ -282,12 +235,6 @@ export default class Query {
       testStepFinished.testCaseStartedId,
       testStepFinished
     )
-
-    const pickleId = this.pickleIdByTestStepId.get(testStepFinished.testStepId)
-    this.testStepResultByPickleId.put(pickleId, testStepFinished.testStepResult)
-    const testStep = this.testStepById.get(testStepFinished.testStepId)
-    this.testStepResultsByPickleStepId.put(testStep.pickleStepId, testStepFinished.testStepResult)
-    this.testStepResultsbyTestStepId.put(testStep.id, testStepFinished.testStepResult)
   }
 
   private updateTestCaseFinished(testCaseFinished: TestCaseFinished) {
@@ -304,146 +251,6 @@ export default class Query {
   private updateUndefinedParameterType(undefinedParameterType: UndefinedParameterType) {
     this.undefinedParameterTypes.push(undefinedParameterType)
   }
-
-  /**
-   * Gets all the results for multiple pickle steps
-   * @param pickleStepIds
-   */
-  public getPickleStepTestStepResults(
-    pickleStepIds: readonly string[]
-  ): readonly messages.TestStepResult[] {
-    if (pickleStepIds.length === 0) {
-      return [
-        {
-          status: messages.TestStepResultStatus.UNKNOWN,
-          duration: messages.TimeConversion.millisecondsToDuration(0),
-        },
-      ]
-    }
-    return pickleStepIds.reduce((testStepResults: messages.TestStepResult[], pickleId) => {
-      return testStepResults.concat(this.testStepResultsByPickleStepId.get(pickleId))
-    }, [])
-  }
-
-  /**
-   * Gets all the results for multiple pickles
-   * @param pickleIds
-   */
-  public getPickleTestStepResults(
-    pickleIds: readonly string[]
-  ): readonly messages.TestStepResult[] {
-    if (pickleIds.length === 0) {
-      return [
-        {
-          status: messages.TestStepResultStatus.UNKNOWN,
-          duration: messages.TimeConversion.millisecondsToDuration(0),
-        },
-      ]
-    }
-    return pickleIds.reduce((testStepResults: messages.TestStepResult[], pickleId) => {
-      return testStepResults.concat(this.testStepResultByPickleId.get(pickleId))
-    }, [])
-  }
-
-  /**
-   * Gets all the attachments for multiple pickle steps
-   * @param pickleStepIds
-   */
-  public getPickleStepAttachments(
-    pickleStepIds: readonly string[]
-  ): readonly messages.Attachment[] {
-    return this.getTestStepsAttachments(
-      pickleStepIds.reduce((testStepIds: string[], pickleStepId: string) => {
-        return testStepIds.concat(this.testStepIdsByPickleStepId.get(pickleStepId))
-      }, [])
-    )
-  }
-
-  public getTestStepsAttachments(testStepIds: readonly string[]): readonly messages.Attachment[] {
-    return testStepIds.reduce((attachments: messages.Attachment[], testStepId) => {
-      return attachments.concat(this.attachmentsByTestStepId.get(testStepId))
-    }, [])
-  }
-
-  /**
-   * Get StepMatchArguments for a pickle step
-   * @param pickleStepId
-   */
-  public getStepMatchArgumentsLists(
-    pickleStepId: string
-  ): readonly messages.StepMatchArgumentsList[] | undefined {
-    return this.stepMatchArgumentsListsByPickleStepId.get(pickleStepId)
-  }
-
-  public getHook(hookId: string): messages.Hook {
-    return this.hooksById.get(hookId)
-  }
-
-  public getBeforeHookSteps(pickleId: string): readonly messages.TestStep[] {
-    const hookSteps: messages.TestStep[] = []
-
-    this.identifyHookSteps(
-      pickleId,
-      (hook) => hookSteps.push(hook),
-      () => null
-    )
-    return hookSteps
-  }
-
-  public getAfterHookSteps(pickleId: string): readonly messages.TestStep[] {
-    const hookSteps: messages.TestStep[] = []
-
-    this.identifyHookSteps(
-      pickleId,
-      () => null,
-      (hook) => hookSteps.push(hook)
-    )
-    return hookSteps
-  }
-
-  private identifyHookSteps(
-    pickleId: string,
-    onBeforeHookFound: (hook: messages.TestStep) => void,
-    onAfterHookFound: (hook: messages.TestStep) => void
-  ): void {
-    const testCase = this.testCaseByPickleId.get(pickleId)
-
-    if (!testCase) {
-      return
-    }
-
-    let pickleStepFound = false
-
-    for (const step of testCase.testSteps) {
-      if (step.hookId) {
-        if (pickleStepFound) {
-          onAfterHookFound(step)
-        } else {
-          onBeforeHookFound(step)
-        }
-      } else {
-        pickleStepFound = true
-      }
-    }
-  }
-
-  public getTestStepResults(testStepId: string): messages.TestStepResult[] {
-    return this.testStepResultsbyTestStepId.get(testStepId)
-  }
-
-  public getStatusCounts(
-    pickleIds: readonly string[]
-  ): Partial<Record<messages.TestStepResultStatus, number>> {
-    const result: Partial<Record<messages.TestStepResultStatus, number>> = {}
-    for (const pickleId of pickleIds) {
-      const testStepResult = getWorstTestStepResult(this.getPickleTestStepResults([pickleId]))
-      const count = result[testStepResult.status] || 0
-      result[testStepResult.status] = count + 1
-    }
-    return result
-  }
-
-  /* new common interface with Java starts here */
 
   public countMostSevereTestStepResultStatus(): Record<TestStepResultStatus, number> {
     const result: Record<TestStepResultStatus, number> = {
@@ -559,7 +366,7 @@ export default class Query {
     if (!item.hookId) {
       return undefined
     }
-    return this.hooksById.get(item.hookId)
+    return this.hookById.get(item.hookId)
   }
 
   public findMeta(): Meta | undefined {
