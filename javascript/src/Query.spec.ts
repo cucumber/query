@@ -1,4 +1,6 @@
 import assert from 'node:assert'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import {
   IncrementClock,
@@ -12,10 +14,11 @@ import {
 import { GherkinStreams } from '@cucumber/gherkin-streams'
 import { Query as GherkinQuery } from '@cucumber/gherkin-utils'
 import * as messages from '@cucumber/messages'
-import { TestCaseStarted } from '@cucumber/messages'
+import { Envelope, TestCaseStarted } from '@cucumber/messages'
 import { pipeline, Readable, Writable } from 'stream'
 import { promisify } from 'util'
 
+import { Lineage } from './Lineage'
 import Query from './Query'
 
 const pipelinePromise = promisify(pipeline)
@@ -100,6 +103,91 @@ describe('Query', () => {
         })
 
       assert.deepStrictEqual(cucumberQuery.findAllTestCaseStarted(), testCasesStarted)
+    })
+  })
+
+  describe('#findLineageBy', () => {
+    it('returns correct lineage for a minimal scenario', async () => {
+      const envelopes: ReadonlyArray<Envelope> = (
+        await fs.readFile(path.join(__dirname, '../../testdata/src/minimal.ndjson'), {
+          encoding: 'utf-8',
+        })
+      )
+        .split('\n')
+        .filter((line) => !!line)
+        .map((line) => JSON.parse(line))
+      envelopes.forEach((envelope) => cucumberQuery.update(envelope))
+
+      const gherkinDocument = envelopes.find((envelope) => envelope.gherkinDocument).gherkinDocument
+      const feature = gherkinDocument.feature
+      const scenario = feature.children.find((child) => child.scenario).scenario
+      const pickle = envelopes.find((envelope) => envelope.pickle).pickle
+
+      assert.deepStrictEqual(cucumberQuery.findLineageBy(pickle), {
+        gherkinDocument,
+        feature,
+        scenario,
+      } satisfies Lineage)
+    })
+
+    it('returns correct lineage for a pickle from an examples table', async () => {
+      const envelopes: ReadonlyArray<Envelope> = (
+        await fs.readFile(path.join(__dirname, '../../testdata/src/examples-tables.ndjson'), {
+          encoding: 'utf-8',
+        })
+      )
+        .split('\n')
+        .filter((line) => !!line)
+        .map((line) => JSON.parse(line))
+      envelopes.forEach((envelope) => cucumberQuery.update(envelope))
+
+      const gherkinDocument = envelopes.find((envelope) => envelope.gherkinDocument).gherkinDocument
+      const feature = gherkinDocument.feature
+      const scenario = feature.children.find((child) => child.scenario).scenario
+      const pickle = envelopes.find((envelope) => envelope.pickle).pickle
+      const examples = scenario.examples[0]
+      const example = examples.tableBody[0]
+
+      assert.deepStrictEqual(cucumberQuery.findLineageBy(pickle), {
+        gherkinDocument,
+        feature,
+        scenario,
+        examples,
+        examplesIndex: 0,
+        example,
+        exampleIndex: 0,
+      } satisfies Lineage)
+    })
+
+    it('returns correct lineage for a pickle with background-derived steps', async () => {
+      const envelopes: ReadonlyArray<Envelope> = (
+        await fs.readFile(path.join(__dirname, '../../testdata/src/rules-backgrounds.ndjson'), {
+          encoding: 'utf-8',
+        })
+      )
+        .split('\n')
+        .filter((line) => !!line)
+        .map((line) => JSON.parse(line))
+      envelopes.forEach((envelope) => cucumberQuery.update(envelope))
+
+      const gherkinDocument = envelopes.find((envelope) => envelope.gherkinDocument).gherkinDocument
+      const feature = gherkinDocument.feature
+      const background = gherkinDocument.feature.children.find(
+        (child) => child.background
+      ).background
+      const rule = feature.children.find((child) => child.rule).rule
+      const ruleBackground = rule.children.find((child) => child.background).background
+      const scenario = rule.children.find((child) => child.scenario).scenario
+      const pickle = envelopes.find((envelope) => envelope.pickle).pickle
+
+      assert.deepStrictEqual(cucumberQuery.findLineageBy(pickle), {
+        gherkinDocument,
+        feature,
+        background,
+        rule,
+        ruleBackground,
+        scenario,
+      } satisfies Lineage)
     })
   })
 
