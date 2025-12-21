@@ -3,7 +3,6 @@ import {
   Attachment,
   Duration,
   Feature,
-  getWorstTestStepResult,
   GherkinDocument,
   Hook,
   Location,
