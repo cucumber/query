@@ -36,26 +36,6 @@ import { assert, statusOrdinal } from './helpers'
 import { Lineage } from './Lineage'
 
 export default class Query {
-  private readonly testStepResultByPickleId = new ArrayMultimap<string, messages.TestStepResult>()
-  private readonly testStepResultsByPickleStepId = new ArrayMultimap<
-    string,
-    messages.TestStepResult
-  >()
-  private readonly testCaseByPickleId = new Map<string, messages.TestCase>()
-  private readonly pickleIdByTestStepId = new Map<string, string>()
-  private readonly pickleStepIdByTestStepId = new Map<string, string>()
-  private readonly testStepResultsbyTestStepId = new ArrayMultimap<
-    string,
-    messages.TestStepResult
-  >()
-  private readonly testStepIdsByPickleStepId = new ArrayMultimap<string, string>()
-  private readonly hooksById = new Map<string, messages.Hook>()
-  private readonly attachmentsByTestStepId = new ArrayMultimap<string, messages.Attachment>()
-  private readonly stepMatchArgumentsListsByPickleStepId = new Map<
-    string,
-    readonly messages.StepMatchArgumentsList[]
-  >()
-
   private meta: Meta
   private testRunStarted: TestRunStarted
   private testRunFinished: TestRunFinished
@@ -64,6 +44,7 @@ export default class Query {
   private readonly stepById: Map<string, Step> = new Map()
   private readonly pickleById: Map<string, Pickle> = new Map()
   private readonly pickleStepById: Map<string, PickleStep> = new Map()
+  private readonly hookById: Map<string, Hook> = new Map()
   private readonly stepDefinitionById: Map<string, StepDefinition> = new Map()
   private readonly testCaseById: Map<string, TestCase> = new Map()
   private readonly testStepById: Map<string, TestStep> = new Map()
@@ -94,7 +75,7 @@ export default class Query {
       this.updatePickle(envelope.pickle)
     }
     if (envelope.hook) {
-      this.hooksById.set(envelope.hook.id, envelope.hook)
+      this.hookById.set(envelope.hook.id, envelope.hook)
     }
     if (envelope.stepDefinition) {
       this.stepDefinitionById.set(envelope.stepDefinition.id, envelope.stepDefinition)
@@ -227,37 +208,13 @@ export default class Query {
 
   private updateTestCase(testCase: TestCase) {
     this.testCaseById.set(testCase.id, testCase)
-
-    this.testCaseByPickleId.set(testCase.pickleId, testCase)
     testCase.testSteps.forEach((testStep) => {
       this.testStepById.set(testStep.id, testStep)
-      this.pickleIdByTestStepId.set(testStep.id, testCase.pickleId)
-      this.pickleStepIdByTestStepId.set(testStep.id, testStep.pickleStepId)
-      this.testStepIdsByPickleStepId.put(testStep.pickleStepId, testStep.id)
-      this.stepMatchArgumentsListsByPickleStepId.set(
-        testStep.pickleStepId,
-        testStep.stepMatchArgumentsLists
-      )
     })
   }
 
   private updateTestCaseStarted(testCaseStarted: TestCaseStarted) {
     this.testCaseStartedById.set(testCaseStarted.id, testCaseStarted)
-
-    /*
-    when a test case attempt starts besides the first one, clear all existing results
-    and attachments for that test case, so we always report on the latest attempt
-    (applies to legacy pickle-oriented query methods only)
-     */
-    const testCase = this.testCaseById.get(testCaseStarted.testCaseId)
-    if (testCase) {
-      this.testStepResultByPickleId.delete(testCase.pickleId)
-      for (const testStep of testCase.testSteps) {
-        this.testStepResultsByPickleStepId.delete(testStep.pickleStepId)
-        this.testStepResultsbyTestStepId.delete(testStep.id)
-        this.attachmentsByTestStepId.delete(testStep.id)
-      }
-    }
   }
 
   private updateTestStepStarted(testStepStarted: TestStepStarted) {
@@ -265,9 +222,6 @@ export default class Query {
   }
 
   private updateAttachment(attachment: Attachment) {
-    if (attachment.testStepId) {
-      this.attachmentsByTestStepId.put(attachment.testStepId, attachment)
-    }
     if (attachment.testCaseStartedId) {
       this.attachmentsByTestCaseStartedId.put(attachment.testCaseStartedId, attachment)
     }
@@ -281,12 +235,6 @@ export default class Query {
       testStepFinished.testCaseStartedId,
       testStepFinished
     )
-
-    const pickleId = this.pickleIdByTestStepId.get(testStepFinished.testStepId)
-    this.testStepResultByPickleId.put(pickleId, testStepFinished.testStepResult)
-    const testStep = this.testStepById.get(testStepFinished.testStepId)
-    this.testStepResultsByPickleStepId.put(testStep.pickleStepId, testStepFinished.testStepResult)
-    this.testStepResultsbyTestStepId.put(testStep.id, testStepFinished.testStepResult)
   }
 
   private updateTestCaseFinished(testCaseFinished: TestCaseFinished) {
@@ -418,7 +366,7 @@ export default class Query {
     if (!item.hookId) {
       return undefined
     }
-    return this.hooksById.get(item.hookId)
+    return this.hookById.get(item.hookId)
   }
 
   public findMeta(): Meta | undefined {
