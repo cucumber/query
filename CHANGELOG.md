@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ## Added
-- [Java] Add `Lineage.background()` and `.ruleBackground()`
+- [Javam, JavaScript] Add `Lineage.background()` and `.ruleBackground()` ([#140](https://github.com/cucumber/query/pull/140))
 
 ## [14.7.0] - 2025-12-08
 ### Added
