@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Removed
+- [JavaScript] Remove defunct legacy methods from `Query` ([#141](https://github.com/cucumber/query/pull/141))
 
 ## [14.7.0] - 2025-12-08
 ### Added
