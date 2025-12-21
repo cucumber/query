@@ -149,6 +149,7 @@ export default class Query {
   private updateFeature(feature: Feature, lineage: Lineage) {
     feature.children.forEach((featureChild) => {
       if (featureChild.background) {
+        lineage.background = featureChild.background
         this.updateSteps(featureChild.background.steps)
       }
       if (featureChild.scenario) {
@@ -169,6 +170,7 @@ export default class Query {
   private updateRule(rule: Rule, lineage: Lineage) {
     rule.children.forEach((ruleChild) => {
       if (ruleChild.background) {
+        lineage.ruleBackground = ruleChild.background
         this.updateSteps(ruleChild.background.steps)
       }
       if (ruleChild.scenario) {
