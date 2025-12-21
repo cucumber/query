@@ -1,16 +1,13 @@
 import assert from 'node:assert'
 import fs from 'node:fs'
 import * as path from 'node:path'
-import { pipeline, Writable } from 'node:stream'
-import util from 'node:util'
+import { Writable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 
-// eslint-disable-next-line n/no-extraneous-import
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
 import { Envelope } from '@cucumber/messages'
 
 import Query from './Query'
-
-const asyncPipeline = util.promisify(pipeline)
 
 describe('Acceptance Tests', async () => {
   const sources = [
@@ -281,7 +278,7 @@ describe('Acceptance Tests', async () => {
       it(suiteName + ' -> ' + methodName, async () => {
         const query = new Query()
 
-        await asyncPipeline(
+        await pipeline(
           fs.createReadStream(source, { encoding: 'utf-8' }),
           new NdjsonToMessageStream(),
           new Writable({
