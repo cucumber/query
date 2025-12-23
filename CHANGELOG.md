@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ### Added
 - [Java, JavaScript] Add `Lineage.background()` and `.ruleBackground()` ([#140](https://github.com/cucumber/query/pull/140))
+- [Java] Add `Query.findAllTestCaseStartedOrderBy` and `.findAllTestCaseFinishedOrderBy` ([#114](https://github.com/cucumber/query/pull/114))
 ### Removed
 - [JavaScript] BREAKING CHANGE: Remove defunct legacy methods from `Query` ([#141](https://github.com/cucumber/query/pull/141))
 
