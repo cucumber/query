@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [Java, JavaScript] Add `Lineage.background()` and `.ruleBackground()` ([#140](https://github.com/cucumber/query/pull/140))
 ### Removed
 - [JavaScript] BREAKING CHANGE: Remove defunct legacy methods from `Query` ([#141](https://github.com/cucumber/query/pull/141))
 
