@@ -2,6 +2,7 @@ package io.cucumber.query;
 
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
+import io.cucumber.messages.LocationComparator;
 import io.cucumber.messages.NdjsonToMessageIterable;
 import io.cucumber.messages.types.*;
 import org.junit.jupiter.api.Disabled;
@@ -18,17 +19,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
 import static io.cucumber.query.Jackson.OBJECT_MAPPER;
-import static io.cucumber.query.MessageOrderer.originalOrder;
-import static io.cucumber.query.MessageOrderer.simulateParallelExecution;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
@@ -37,11 +36,14 @@ import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_SUGGESTIONS
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_UNDEFINED_PARAMETER_TYPES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Comparator.nullsFirst;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryAcceptanceTest {
     private static final NdjsonToMessageIterable.Deserializer deserializer = (json) -> OBJECT_MAPPER.readValue(json, Envelope.class);
+    private static final Comparator<Pickle> pickleComparator = nullsFirst(Comparator.comparing(Pickle::getUri)
+            .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator())));
 
     static List<QueryTestCase> acceptance() {
         List<QueryTestCase> testCases = new ArrayList<>();
@@ -73,16 +75,7 @@ public class QueryAcceptanceTest {
     @ParameterizedTest
     @MethodSource("acceptance")
     void test(QueryTestCase testCase) throws IOException {
-        ByteArrayOutputStream bytes = writeQueryResults(testCase, new ByteArrayOutputStream(), originalOrder());
-        String expected = new String(Files.readAllBytes(testCase.expected), UTF_8);
-        String actual = new String(bytes.toByteArray(), UTF_8);
-        assertThat(actual).isEqualTo(expected);
-    }
-
-    @ParameterizedTest
-    @MethodSource("acceptance")
-    void testWithSimulatedParallelExecution(QueryTestCase testCase) throws IOException {
-        ByteArrayOutputStream bytes = writeQueryResults(testCase, new ByteArrayOutputStream(), simulateParallelExecution());
+        ByteArrayOutputStream bytes = writeQueryResults(testCase, new ByteArrayOutputStream());
         String expected = new String(Files.readAllBytes(testCase.expected), UTF_8);
         String actual = new String(bytes.toByteArray(), UTF_8);
         assertThat(actual).isEqualTo(expected);
@@ -93,22 +86,16 @@ public class QueryAcceptanceTest {
     @Disabled
     void updateExpectedFiles(QueryTestCase testCase) throws IOException {
         try (OutputStream out = Files.newOutputStream(testCase.expected)) {
-            writeQueryResults(testCase, out, originalOrder());
+            writeQueryResults(testCase, out);
         }
     }
 
-    private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out, Consumer<List<Envelope>> orderer) throws IOException {
-        List<Envelope> messages = new ArrayList<>();
+    private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out) throws IOException {
+        Repository repository = createRepository();
         try (InputStream in = Files.newInputStream(testCase.source)) {
             try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
-                envelopes.forEach(messages::add);
+                envelopes.forEach(repository::update);
             }
-        }
-        orderer.accept(messages);
-        
-        Repository repository = createRepository();
-        for (Envelope envelope : messages) {
-            repository.update(envelope);
         }
         Query query = new Query(repository);
         Object queryResults = testCase.query.apply(query);
@@ -130,7 +117,7 @@ public class QueryAcceptanceTest {
     }
 
     static Map<String, Function<Query, Object>> createQueries() {
-
+        
         Map<String, Function<Query, Object>> queries = new LinkedHashMap<>();
 
         queries.put("countMostSevereTestStepResultStatus", Query::countMostSevereTestStepResultStatus);
@@ -139,12 +126,13 @@ public class QueryAcceptanceTest {
         queries.put("findAllPickleSteps", (query) -> query.findAllPickleSteps().size());
         queries.put("findAllStepDefinitions", (query) -> query.findAllStepDefinitions().size());
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
-        queries.put("findAllTestCaseStartedInCanonicalOrder", (query) -> query.findAllTestCaseStartedInCanonicalOrder()
+        
+        queries.put("findAllTestCaseStartedOrderBy", (query) -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, pickleComparator)
                 .stream()
                 .map(TestCaseStarted::getId)
                 .collect(toList()));
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
-        queries.put("findAllTestCaseFinishedInCanonicalOrder", (query) -> query.findAllTestCaseFinishedInCanonicalOrder()
+        queries.put("findAllTestCaseFinishedOrderBy", (query) -> query.findAllTestCaseFinishedOrderBy(Query::findPickleBy, pickleComparator)
                 .stream()
                 .map(TestCaseFinished::getTestCaseStartedId)
                 .collect(toList()));

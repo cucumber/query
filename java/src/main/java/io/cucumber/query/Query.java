@@ -37,6 +37,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static java.util.Collections.emptyList;
@@ -103,14 +105,17 @@ public final class Query {
                         .isPresent())
                 .collect(toList());
     }
-    
-    public List<StepDefinition> findAllStepDefinitions(){
+
+    public List<StepDefinition> findAllStepDefinitions() {
         return new ArrayList<>(repository.stepDefinitionById.values());
     }
 
-    public List<TestCaseStarted> findAllTestCaseStartedInCanonicalOrder() {
+    public <T> List<TestCaseStarted> findAllTestCaseStartedOrderBy(BiFunction<Query, TestCaseStarted, Optional<T>> findOrderBy, Comparator<T> order) {
         return findAllTestCaseStarted().stream()
-                .map(createOrderableMessage(this::findPickleBy))
+                .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
+                        .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
+                        .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
+                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
                 .map(OrderableMessage::getMessage)
                 .collect(toList());
     }
@@ -121,23 +126,14 @@ public final class Query {
                 .collect(toList());
     }
 
-    public List<TestCaseFinished> findAllTestCaseFinishedInCanonicalOrder() {
+    public <T> List<TestCaseFinished> findAllTestCaseFinishedOrderBy(BiFunction<Query, TestCaseFinished, Optional<T>> findOrderBy, Comparator<T> order) {
         return findAllTestCaseFinished().stream()
-                .map(createOrderableMessage(this::findPickleBy))
+                .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
+                        .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
+                        .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
+                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
                 .map(OrderableMessage::getMessage)
                 .collect(toList());
-    }
-
-    private <T> Function<T, OrderableMessage<T>> createOrderableMessage(Function<T, Optional<Pickle>> findPickleBy) {
-        return message -> findPickleBy.apply(message)
-                .map(pickle -> {
-                    String uri = pickle.getUri();
-                    Long location = findLocationOf(pickle)
-                            .map(Location::getLine)
-                            .orElse(null);
-                    return new OrderableMessage<>(message, uri, location);
-                })
-                .orElseGet(() -> new OrderableMessage<>(message));
     }
 
     public List<TestStep> findAllTestSteps() {
