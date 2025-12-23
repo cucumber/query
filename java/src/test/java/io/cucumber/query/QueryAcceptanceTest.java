@@ -42,8 +42,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryAcceptanceTest {
     private static final NdjsonToMessageIterable.Deserializer deserializer = (json) -> OBJECT_MAPPER.readValue(json, Envelope.class);
-    private static final Comparator<Pickle> pickleComparator = nullsFirst(Comparator.comparing(Pickle::getUri)
-            .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator())));
+    public static final Comparator<Pickle> pickleComparator = Comparator.comparing(Pickle::getUri)
+            .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator()));
+    private static final Comparator<Pickle> reversePickleComparator = nullsFirst(pickleComparator)
+            .reversed();
 
     static List<QueryTestCase> acceptance() {
         List<QueryTestCase> testCases = new ArrayList<>();
@@ -127,12 +129,12 @@ public class QueryAcceptanceTest {
         queries.put("findAllStepDefinitions", (query) -> query.findAllStepDefinitions().size());
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
         
-        queries.put("findAllTestCaseStartedOrderBy", (query) -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, pickleComparator)
+        queries.put("findAllTestCaseStartedOrderBy", (query) -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, reversePickleComparator)
                 .stream()
                 .map(TestCaseStarted::getId)
                 .collect(toList()));
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
-        queries.put("findAllTestCaseFinishedOrderBy", (query) -> query.findAllTestCaseFinishedOrderBy(Query::findPickleBy, pickleComparator)
+        queries.put("findAllTestCaseFinishedOrderBy", (query) -> query.findAllTestCaseFinishedOrderBy(Query::findPickleBy, reversePickleComparator)
                 .stream()
                 .map(TestCaseFinished::getTestCaseStartedId)
                 .collect(toList()));
