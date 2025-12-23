@@ -1,12 +1,10 @@
 {
   "testCaseStarted" : [
     "PASSED",
-    "FAILED",
-    "UNDEFINED"
+    "FAILED"
   ],
   "testCaseFinished" : [
     "PASSED",
-    "FAILED",
-    "UNDEFINED"
+    "FAILED"
   ]
 }

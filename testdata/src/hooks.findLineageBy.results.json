@@ -1,12 +1,14 @@
 {
   "testCaseStarted" : [
     "Hooks - No tags and a passed step",
-    "Hooks - No tags and a failed step",
-    "Hooks - No tags and a undefined step"
+    "Hooks - No tags and a failed step"
+  ],
+  "testCaseFinished" : [
+    "Hooks - No tags and a passed step",
+    "Hooks - No tags and a failed step"
   ],
   "pickle" : [
     "Hooks - No tags and a passed step",
-    "Hooks - No tags and a failed step",
-    "Hooks - No tags and a undefined step"
+    "Hooks - No tags and a failed step"
   ]
 }

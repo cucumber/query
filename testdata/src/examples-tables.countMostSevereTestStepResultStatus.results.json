@@ -3,7 +3,7 @@
   "PASSED" : 5,
   "SKIPPED" : 0,
   "PENDING" : 0,
-  "UNDEFINED" : 2,
+  "UNDEFINED" : 0,
   "AMBIGUOUS" : 0,
   "FAILED" : 2
 }

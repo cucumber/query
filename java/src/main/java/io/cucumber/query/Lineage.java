@@ -1,9 +1,12 @@
 package io.cucumber.query;
 
+import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Examples;
 import io.cucumber.messages.types.Feature;
+import io.cucumber.messages.types.FeatureChild;
 import io.cucumber.messages.types.GherkinDocument;
 import io.cucumber.messages.types.Rule;
+import io.cucumber.messages.types.RuleChild;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.TableRow;
 
@@ -74,10 +77,32 @@ public final class Lineage {
         return Optional.ofNullable(feature);
     }
 
+    public Optional<Background> background() {
+        if (feature == null) {
+            return Optional.empty();
+        }
+        return feature.getChildren().stream()
+                .map(FeatureChild::getBackground)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
+
     public Optional<Rule> rule() {
         return Optional.ofNullable(rule);
     }
 
+    public Optional<Background> ruleBackground() {
+        if (rule == null) {
+            return Optional.empty();
+        }
+        return rule.getChildren().stream()
+                .map(RuleChild::getBackground)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
+    }
+    
     public Optional<Scenario> scenario() {
         return Optional.ofNullable(scenario);
     }

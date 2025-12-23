@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Solution ITems/">
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Project Path="Cucumber.Query/Cucumber.Query.csproj" />
+  <Project Path="Cucumber.QueryTest/Cucumber.QueryTest.csproj" />
+</Solution>

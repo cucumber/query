@@ -30,6 +30,7 @@ import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepResultStatus;
 import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.types.Timestamp;
+import io.cucumber.messages.types.UndefinedParameterType;
 
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
@@ -102,6 +103,10 @@ public final class Query {
                         .isPresent())
                 .collect(toList());
     }
+    
+    public List<StepDefinition> findAllStepDefinitions(){
+        return new ArrayList<>(repository.stepDefinitionById.values());
+    }
 
     public List<TestCaseStarted> findAllTestCaseStartedInCanonicalOrder() {
         return findAllTestCaseStarted().stream()
@@ -163,6 +168,10 @@ public final class Query {
         return new ArrayList<>(repository.testRunHookFinishedByTestRunHookStartedId.values());
     }
 
+    public List<UndefinedParameterType> findAllUndefinedParameterTypes() {
+        return new ArrayList<>(repository.undefinedParameterTypes);
+    }
+
     public List<Attachment> findAttachmentsBy(TestStepFinished testStepFinished) {
         requireNonNull(testStepFinished);
         return repository.attachmentsByTestCaseStartedId.getOrDefault(testStepFinished.getTestCaseStartedId(), emptyList()).stream()
@@ -182,6 +191,17 @@ public final class Query {
         requireNonNull(testStep);
         return testStep.getHookId()
                 .map(repository.hookById::get);
+    }
+
+    public Optional<Hook> findHookBy(TestRunHookStarted testRunHookStarted) {
+        requireNonNull(testRunHookStarted);
+        return Optional.ofNullable(repository.hookById.get(testRunHookStarted.getHookId()));
+    }
+
+    public Optional<Hook> findHookBy(TestRunHookFinished testRunHookFinished) {
+        requireNonNull(testRunHookFinished);
+        return findTestRunHookStartedBy(testRunHookFinished)
+                .flatMap(this::findHookBy);
     }
 
     public Optional<Meta> findMeta() {
@@ -464,6 +484,11 @@ public final class Query {
 
     public Optional<Lineage> findLineageBy(TestCaseStarted testCaseStarted) {
         return findPickleBy(testCaseStarted)
+                .flatMap(this::findLineageBy);
+    }
+
+    public Optional<Lineage> findLineageBy(TestCaseFinished testCaseFinished) {
+        return findPickleBy(testCaseFinished)
                 .flatMap(this::findLineageBy);
     }
 }

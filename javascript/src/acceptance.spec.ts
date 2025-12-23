@@ -1,16 +1,13 @@
 import assert from 'node:assert'
 import fs from 'node:fs'
 import * as path from 'node:path'
-import { pipeline, Writable } from 'node:stream'
-import util from 'node:util'
+import { Writable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 
-// eslint-disable-next-line n/no-extraneous-import
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
 import { Envelope } from '@cucumber/messages'
 
 import Query from './Query'
-
-const asyncPipeline = util.promisify(pipeline)
 
 describe('Acceptance Tests', async () => {
   const sources = [
@@ -22,6 +19,7 @@ describe('Acceptance Tests', async () => {
     path.join(__dirname, '../../testdata/src/minimal.ndjson'),
     path.join(__dirname, '../../testdata/src/rules.ndjson'),
     path.join(__dirname, '../../testdata/src/examples-tables.ndjson'),
+    path.join(__dirname, '../../testdata/src/unknown-parameter-type.ndjson'),
   ]
   const queries: Queries = {
     countMostSevereTestStepResultStatus: (query: Query) =>
@@ -29,6 +27,7 @@ describe('Acceptance Tests', async () => {
     countTestCasesStarted: (query: Query) => query.countTestCasesStarted(),
     findAllPickles: (query: Query) => query.findAllPickles().length,
     findAllPickleSteps: (query: Query) => query.findAllPickleSteps().length,
+    findAllStepDefinitions: (query: Query) => query.findAllStepDefinitions().length,
     findAllTestCaseStarted: (query: Query) => query.findAllTestCaseStarted().length,
     findAllTestRunHookStarted: (query: Query) => query.findAllTestRunHookStarted().length,
     findAllTestRunHookFinished: (query: Query) => query.findAllTestRunHookFinished().length,
@@ -67,12 +66,27 @@ describe('Acceptance Tests', async () => {
           attachment.contentEncoding,
         ]),
     }),
-    findHookBy: (query: Query) =>
-      query
-        .findAllTestSteps()
-        .map((testStep) => query.findHookBy(testStep))
-        .map((hook) => hook?.id)
-        .filter((value) => !!value),
+
+    findHookBy: (query: Query) => {
+      return {
+        testStep: query
+          .findAllTestSteps()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+        testRunHookStarted: query
+          .findAllTestRunHookStarted()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+        testRunHookFinished: query
+          .findAllTestRunHookFinished()
+          .map((testStep) => query.findHookBy(testStep))
+          .map((hook) => hook?.id)
+          .filter((value) => !!value),
+      }
+    },
+
     findMeta: (query: Query) => query.findMeta()?.implementation?.name,
     findMostSevereTestStepResultBy: (query: Query) => {
       return {
@@ -90,6 +104,7 @@ describe('Acceptance Tests', async () => {
     },
     findLocationOf: (query: Query) =>
       query.findAllPickles().map((pickle) => query.findLocationOf(pickle)),
+
     findPickleBy: (query: Query) => {
       return {
         testCaseStarted: query
@@ -131,7 +146,7 @@ describe('Acceptance Tests', async () => {
       return {
         pickleStep: query
           .findAllPickleSteps()
-          .flatMap((pickleSteps) => query.findSuggestionsBy(pickleSteps))
+          .flatMap((pickleStep) => query.findSuggestionsBy(pickleStep))
           .map((suggestion) => suggestion.id),
         pickle: query
           .findAllPickles()
@@ -247,6 +262,13 @@ describe('Acceptance Tests', async () => {
         .findAllTestCaseStarted()
         .flatMap((testCaseStarted) => query.findTestStepFinishedAndTestStepBy(testCaseStarted))
         .map(([testStepFinished, testStep]) => [testStepFinished.testStepId, testStep.id]),
+    findAllUndefinedParameterTypes: (query: Query) =>
+      query
+        .findAllUndefinedParameterTypes()
+        .map((undefinedParameterType) => [
+          undefinedParameterType.name,
+          undefinedParameterType.expression,
+        ]),
   }
 
   for (const source of sources) {
@@ -256,7 +278,7 @@ describe('Acceptance Tests', async () => {
       it(suiteName + ' -> ' + methodName, async () => {
         const query = new Query()
 
-        await asyncPipeline(
+        await pipeline(
           fs.createReadStream(source, { encoding: 'utf-8' }),
           new NdjsonToMessageStream(),
           new Writable({
