@@ -93,17 +93,17 @@ public class QueryAcceptanceTest {
     }
 
     private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out) throws IOException {
-        Repository repository = createRepository();
         try (InputStream in = Files.newInputStream(testCase.source)) {
             try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
+                Repository repository = createRepository();
                 envelopes.forEach(repository::update);
+                Query query = new Query(repository);
+                Object queryResults = testCase.query.apply(query);
+                DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter()
+                        .withArrayIndenter(SYSTEM_LINEFEED_INSTANCE);
+                OBJECT_MAPPER.writer(prettyPrinter).writeValue(out, queryResults);
             }
         }
-        Query query = new Query(repository);
-        Object queryResults = testCase.query.apply(query);
-        DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter()
-                .withArrayIndenter(SYSTEM_LINEFEED_INSTANCE);
-        OBJECT_MAPPER.writer(prettyPrinter).writeValue(out, queryResults);
         return out;
     }
 
@@ -119,7 +119,7 @@ public class QueryAcceptanceTest {
     }
 
     static Map<String, Function<Query, Object>> createQueries() {
-        
+
         Map<String, Function<Query, Object>> queries = new LinkedHashMap<>();
 
         queries.put("countMostSevereTestStepResultStatus", Query::countMostSevereTestStepResultStatus);
@@ -128,7 +128,7 @@ public class QueryAcceptanceTest {
         queries.put("findAllPickleSteps", (query) -> query.findAllPickleSteps().size());
         queries.put("findAllStepDefinitions", (query) -> query.findAllStepDefinitions().size());
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
-        
+
         queries.put("findAllTestCaseStartedOrderBy", (query) -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, reversePickleComparator)
                 .stream()
                 .map(TestCaseStarted::getId)
