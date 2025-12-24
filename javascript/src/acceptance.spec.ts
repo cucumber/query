@@ -5,9 +5,16 @@ import { Writable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
-import { Envelope } from '@cucumber/messages'
+import { Envelope, Pickle } from '@cucumber/messages'
 
 import Query from './Query'
+
+const reversePickleComparator = (a: Pickle, b: Pickle): number => {
+  if (a.uri !== b.uri) {
+    return b.uri.localeCompare(a.uri)
+  }
+  return b.astNodeIds[0].localeCompare(a.astNodeIds[0])
+}
 
 describe('Acceptance Tests', async () => {
   const sources = [
@@ -29,6 +36,21 @@ describe('Acceptance Tests', async () => {
     findAllPickleSteps: (query: Query) => query.findAllPickleSteps().length,
     findAllStepDefinitions: (query: Query) => query.findAllStepDefinitions().length,
     findAllTestCaseStarted: (query: Query) => query.findAllTestCaseStarted().length,
+    findAllTestCaseStartedOrderBy: (query: Query) =>
+      query
+        .findAllTestCaseStartedOrderBy(
+          (q, testCaseStarted) => q.findPickleBy(testCaseStarted),
+          reversePickleComparator
+        )
+        .map((testCaseStarted) => testCaseStarted.id),
+    findAllTestCaseFinished: (query: Query) => query.findAllTestCaseFinished().length,
+    findAllTestCaseFinishedOrderBy: (query: Query) =>
+      query
+        .findAllTestCaseFinishedOrderBy(
+          (q, testCaseFinished) => q.findPickleBy(testCaseFinished),
+          reversePickleComparator
+        )
+        .map((testCaseFinished) => testCaseFinished.testCaseStartedId),
     findAllTestRunHookStarted: (query: Query) => query.findAllTestRunHookStarted().length,
     findAllTestRunHookFinished: (query: Query) => query.findAllTestRunHookFinished().length,
     findTestRunHookStartedBy: (query: Query) =>
