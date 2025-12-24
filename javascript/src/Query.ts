@@ -323,6 +323,20 @@ export default class Query {
     )
   }
 
+  public findAllTestCaseStartedOrderBy<T>(
+    findOrderBy: (query: Query, testCaseStarted: TestCaseStarted) => T | undefined,
+    order: (a: T, b: T) => number
+  ): ReadonlyArray<TestCaseStarted> {
+    return this.findAllTestCaseStarted()
+  }
+
+  public findAllTestCaseFinishedOrderBy<T>(
+    findOrderBy: (query: Query, testCaseFinished: TestCaseFinished) => T | undefined,
+    order: (a: T, b: T) => number
+  ): ReadonlyArray<TestCaseFinished> {
+    return this.findAllTestCaseFinished()
+  }
+
   public findAllTestSteps(): ReadonlyArray<TestStep> {
     return [...this.testStepById.values()]
   }
