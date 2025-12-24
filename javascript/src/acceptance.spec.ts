@@ -13,7 +13,10 @@ const reversePickleComparator = (a: Pickle, b: Pickle): number => {
   if (a.uri !== b.uri) {
     return b.uri.localeCompare(a.uri)
   }
-  return b.astNodeIds[0].localeCompare(a.astNodeIds[0])
+  if (a.location.line !== b.location.line) {
+    return b.location.line - a.location.line
+  }
+  return b.location.column - a.location.column
 }
 
 describe('Acceptance Tests', async () => {
