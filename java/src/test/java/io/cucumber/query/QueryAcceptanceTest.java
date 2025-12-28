@@ -2,6 +2,7 @@ package io.cucumber.query;
 
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
+import io.cucumber.messages.LocationComparator;
 import io.cucumber.messages.NdjsonToMessageIterable;
 import io.cucumber.messages.types.*;
 import org.junit.jupiter.api.Disabled;
@@ -15,19 +16,36 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
 import static io.cucumber.query.Jackson.OBJECT_MAPPER;
-import static io.cucumber.query.Repository.RepositoryFeature.*;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_STEP_DEFINITIONS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_SUGGESTIONS;
+import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_UNDEFINED_PARAMETER_TYPES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Comparator.nullsFirst;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryAcceptanceTest {
     private static final NdjsonToMessageIterable.Deserializer deserializer = (json) -> OBJECT_MAPPER.readValue(json, Envelope.class);
+    public static final Comparator<Pickle> pickleComparator = Comparator.comparing(Pickle::getUri)
+            .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator()));
+    private static final Comparator<Pickle> reversePickleComparator = nullsFirst(pickleComparator)
+            .reversed();
 
     static List<QueryTestCase> acceptance() {
         List<QueryTestCase> testCases = new ArrayList<>();
@@ -78,9 +96,7 @@ public class QueryAcceptanceTest {
         try (InputStream in = Files.newInputStream(testCase.source)) {
             try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
                 Repository repository = createRepository();
-                for (Envelope envelope : envelopes) {
-                    repository.update(envelope);
-                }
+                envelopes.forEach(repository::update);
                 Query query = new Query(repository);
                 Object queryResults = testCase.query.apply(query);
                 DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter()
@@ -112,7 +128,16 @@ public class QueryAcceptanceTest {
         queries.put("findAllPickleSteps", (query) -> query.findAllPickleSteps().size());
         queries.put("findAllStepDefinitions", (query) -> query.findAllStepDefinitions().size());
         queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
+
+        queries.put("findAllTestCaseStartedOrderBy", (query) -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, reversePickleComparator)
+                .stream()
+                .map(TestCaseStarted::getId)
+                .collect(toList()));
         queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
+        queries.put("findAllTestCaseFinishedOrderBy", (query) -> query.findAllTestCaseFinishedOrderBy(Query::findPickleBy, reversePickleComparator)
+                .stream()
+                .map(TestCaseFinished::getTestCaseStartedId)
+                .collect(toList()));
         queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookStarted().size());
         queries.put("findAllTestRunHookFinished", (query) -> query.findAllTestRunHookFinished().size());
         queries.put("findAllTestSteps", (query) -> query.findAllTestSteps().size());

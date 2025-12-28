@@ -37,6 +37,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +45,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
@@ -82,6 +85,7 @@ public final class Query {
                 .collect(groupingBy(identity(), LinkedHashMap::new, counting())));
         return results;
     }
+
     public int countTestCasesStarted() {
         return findAllTestCaseStarted().size();
     }
@@ -101,14 +105,34 @@ public final class Query {
                         .isPresent())
                 .collect(toList());
     }
-    
-    public List<StepDefinition> findAllStepDefinitions(){
+
+    public List<StepDefinition> findAllStepDefinitions() {
         return new ArrayList<>(repository.stepDefinitionById.values());
+    }
+
+    public <T> List<TestCaseStarted> findAllTestCaseStartedOrderBy(BiFunction<Query, TestCaseStarted, Optional<T>> findOrderBy, Comparator<T> order) {
+        return findAllTestCaseStarted().stream()
+                .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
+                        .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
+                        .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
+                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
+                .map(OrderableMessage::getMessage)
+                .collect(toList());
     }
 
     public List<TestCaseFinished> findAllTestCaseFinished() {
         return repository.testCaseFinishedByTestCaseStartedId.values().stream()
                 .filter(testCaseFinished -> !testCaseFinished.getWillBeRetried())
+                .collect(toList());
+    }
+
+    public <T> List<TestCaseFinished> findAllTestCaseFinishedOrderBy(BiFunction<Query, TestCaseFinished, Optional<T>> findOrderBy, Comparator<T> order) {
+        return findAllTestCaseFinished().stream()
+                .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
+                        .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
+                        .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
+                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
+                .map(OrderableMessage::getMessage)
                 .collect(toList());
     }
 

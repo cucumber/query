@@ -323,6 +323,44 @@ export default class Query {
     )
   }
 
+  public findAllTestCaseStartedOrderBy<T>(
+    findOrderBy: (query: Query, testCaseStarted: TestCaseStarted) => T | undefined,
+    order: (a: T, b: T) => number
+  ): ReadonlyArray<TestCaseStarted> {
+    const withOrderBy = this.findAllTestCaseStarted().map((testCaseStarted) => ({
+      testCaseStarted,
+      orderBy: findOrderBy(this, testCaseStarted),
+    }))
+
+    const sorted = withOrderBy.sort((a, b) => {
+      if (a.orderBy === undefined && b.orderBy === undefined) return 0
+      if (a.orderBy === undefined) return 1
+      if (b.orderBy === undefined) return -1
+      return order(a.orderBy, b.orderBy)
+    })
+
+    return sorted.map((item) => item.testCaseStarted)
+  }
+
+  public findAllTestCaseFinishedOrderBy<T>(
+    findOrderBy: (query: Query, testCaseFinished: TestCaseFinished) => T | undefined,
+    order: (a: T, b: T) => number
+  ): ReadonlyArray<TestCaseFinished> {
+    const withOrderBy = this.findAllTestCaseFinished().map((testCaseFinished) => ({
+      testCaseFinished,
+      orderBy: findOrderBy(this, testCaseFinished),
+    }))
+
+    const sorted = withOrderBy.sort((a, b) => {
+      if (a.orderBy === undefined && b.orderBy === undefined) return 0
+      if (a.orderBy === undefined) return 1
+      if (b.orderBy === undefined) return -1
+      return order(a.orderBy, b.orderBy)
+    })
+
+    return sorted.map((item) => item.testCaseFinished)
+  }
+
   public findAllTestSteps(): ReadonlyArray<TestStep> {
     return [...this.testStepById.values()]
   }
