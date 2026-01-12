@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.LocationComparator;
 import io.cucumber.messages.NdjsonToMessageIterable;
+import io.cucumber.messages.ndjson.Deserializer;
 import io.cucumber.messages.types.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -41,7 +42,6 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QueryAcceptanceTest {
-    private static final NdjsonToMessageIterable.Deserializer deserializer = (json) -> OBJECT_MAPPER.readValue(json, Envelope.class);
     public static final Comparator<Pickle> pickleComparator = Comparator.comparing(Pickle::getUri)
             .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator()));
     private static final Comparator<Pickle> reversePickleComparator = nullsFirst(pickleComparator)
@@ -94,7 +94,7 @@ public class QueryAcceptanceTest {
 
     private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out) throws IOException {
         try (InputStream in = Files.newInputStream(testCase.source)) {
-            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
+            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, new Deserializer())) {
                 Repository repository = createRepository();
                 envelopes.forEach(repository::update);
                 Query query = new Query(repository);

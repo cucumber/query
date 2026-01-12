@@ -1,6 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.NdjsonToMessageIterable;
+import io.cucumber.messages.ndjson.Deserializer;
 import io.cucumber.messages.types.Envelope;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.cucumber.query.Jackson.OBJECT_MAPPER;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
 import static io.cucumber.query.NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
 import static io.cucumber.query.NamingStrategy.ExampleName.PICKLE;
@@ -35,7 +35,6 @@ import static java.nio.file.Files.readAllBytes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NamingStrategyAcceptanceTest {
-    private static final NdjsonToMessageIterable.Deserializer deserializer = (json) -> OBJECT_MAPPER.readValue(json, Envelope.class);
 
     static List<TestCase> acceptance() {
         Map<String, NamingStrategy> strategies = new LinkedHashMap<>();
@@ -67,7 +66,7 @@ public class NamingStrategyAcceptanceTest {
 
     private static void writeResults(NamingStrategy strategy, TestCase testCase, OutputStream out) throws IOException {
         try (InputStream in = Files.newInputStream(testCase.source)) {
-            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
+            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, new Deserializer())) {
                 try (PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
                     Repository repository = createRepository();
                     for (Envelope envelope : envelopes) {
