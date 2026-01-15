@@ -16,7 +16,6 @@
     <url>https://github.com/cucumber/query</url>
 
     <properties>
-        <osgi.bundle-symbolic-name>io.cucumber.query</osgi.bundle-symbolic-name>
         <project.build.outputTimestamp>1761578131</project.build.outputTimestamp>
     </properties>
 
