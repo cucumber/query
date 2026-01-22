@@ -6,7 +6,8 @@
     "Log JSON",
     "Byte arrays are base64-encoded regardless of media type",
     "Attaching PDFs with a different filename",
-    "Attaching URIs"
+    "Attaching URIs",
+    "Attaching during a failed step"
   ],
   "testCaseFinished" : [
     "Strings can be attached with a media type",
@@ -15,7 +16,8 @@
     "Log JSON",
     "Byte arrays are base64-encoded regardless of media type",
     "Attaching PDFs with a different filename",
-    "Attaching URIs"
+    "Attaching URIs",
+    "Attaching during a failed step"
   ],
   "testStepStarted" : [
     "Strings can be attached with a media type",
@@ -24,7 +26,8 @@
     "Log JSON",
     "Byte arrays are base64-encoded regardless of media type",
     "Attaching PDFs with a different filename",
-    "Attaching URIs"
+    "Attaching URIs",
+    "Attaching during a failed step"
   ],
   "testStepFinished" : [
     "Strings can be attached with a media type",
@@ -33,6 +36,7 @@
     "Log JSON",
     "Byte arrays are base64-encoded regardless of media type",
     "Attaching PDFs with a different filename",
-    "Attaching URIs"
+    "Attaching URIs",
+    "Attaching during a failed step"
   ]
 }
