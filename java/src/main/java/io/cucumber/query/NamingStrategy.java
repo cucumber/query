@@ -11,14 +11,14 @@ import static java.util.Objects.requireNonNull;
 /**
  * Names {@link Pickle Pickles} and other elements in a
  * {@link GherkinDocument}.
- * <p>
- * Pickles in a Gherkin document have a name. But represented
+ *
+ * <p>Pickles in a Gherkin document have a name. But represented
  * without the structure of a Gherkin document (e.g. in a flat xml report),
  * these names can lose their meaning. The long naming strategy solves this
  * problem by prefixing an elements name with the names of all its ancestors,
  * optionally including the feature name.
- * <p>
- * Furthermore, Pickles derived from an example can be named in three ways.
+ *
+ * <p>Furthermore, Pickles derived from an example can be named in three ways.
  * Either by their example number (e.g. {@code Example #3.14}) or by their
  * pickle name. If a parameterized pickle name is used, a combination of both
  * can be used.
@@ -41,21 +41,22 @@ import static java.util.Objects.requireNonNull;
  *       |     0 |   1 |    0 |
  * }</pre>
  *
- * With the long strategy, using example numbers and the pickle if
+ * <p>With the long strategy, using example numbers and the pickle if
  * parameterized, the pickles in this example would be named:
+ *
  * <ul>
- *     <li>Examples Tables - Eating <eat> cucumbers - These are passing - #1.1: Eating 5 cucumbers
- *     <li>Examples Tables - Eating <eat> cucumbers - These are passing - #1.2: Eating 6 cucumbers
- *     <li>Examples Tables - Eating <eat> cucumbers - These are failing - #2.1: Eating 20 cucumbers
- *     <li>Examples Tables - Eating <eat> cucumbers - These are failing - #2.2: Eating 1 cucumbers
+ *     <li>{@code Examples Tables - Eating <eat> cucumbers - These are passing - #1.1: Eating 5 cucumbers}
+ *     <li>{@code Examples Tables - Eating <eat> cucumbers - These are passing - #1.2: Eating 6 cucumbers}
+ *     <li>{@code Examples Tables - Eating <eat> cucumbers - These are failing - #2.1: Eating 20 cucumbers}
+ *     <li>{@code Examples Tables - Eating <eat> cucumbers - These are failing - #2.2: Eating 1 cucumbers}
  * </ul>
- * <p>
- * And with the short strategy, using pickle names:
+ *
+ * <p>And with the short strategy, using pickle names:
  * <ul>
- *     <li>Eating 5 cucumbers
- *     <li>Eating 6 cucumbers
- *     <li>Eating 20 cucumbers
- *     <li>Eating 1 cucumbers
+ *     <li>{@code Eating 5 cucumbers}
+ *     <li>{@code Eating 6 cucumbers}
+ *     <li>{@code Eating 20 cucumbers}
+ *     <li>{@code Eating 1 cucumbers}
  * </ul>
  */
 public abstract class NamingStrategy implements LineageReducer<String> {

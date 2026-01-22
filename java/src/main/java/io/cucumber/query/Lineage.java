@@ -20,7 +20,6 @@ import static java.util.Objects.requireNonNull;
  * A structure containing all ancestors of a given
  * {@linkplain GherkinDocument GherkinDocument  element} or
  * {@link  io.cucumber.messages.types.Pickle}.
- * <p>
  *
  * @see LineageReducer
  */
