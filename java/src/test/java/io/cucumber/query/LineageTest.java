@@ -1,6 +1,5 @@
 package io.cucumber.query;
 
-import io.cucumber.messages.NdjsonToMessageIterable;
 import io.cucumber.messages.NdjsonToMessageReader;
 import io.cucumber.messages.ndjson.Deserializer;
 import io.cucumber.messages.types.Background;
@@ -16,11 +15,9 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,16 +37,17 @@ class LineageTest {
         messages.forEach(repository::update);
         Pickle pickle = query.findAllPickles().stream()
                 .findFirst()
-                .get();
-        Lineage lineage = query.findLineageBy(pickle).get();
+                .orElseThrow();
+        Lineage lineage = query.findLineageBy(pickle).orElseThrow();
 
-        GherkinDocument gherkinDocument = messages.stream().filter(envelope -> envelope.getGherkinDocument().isPresent())
+        GherkinDocument gherkinDocument = messages.stream()
                 .map(Envelope::getGherkinDocument)
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
-                .get();
+                .orElseThrow();
         Optional<Feature> feature = gherkinDocument.getFeature();
-        Optional<Scenario> scenario = feature.get().getChildren().get(0).getScenario();
+        Optional<Scenario> scenario = feature.orElseThrow().getChildren().get(0).getScenario();
 
         assertThat(lineage.document()).isEqualTo(gherkinDocument);
         assertThat(lineage.feature()).isEqualTo(feature);
@@ -67,17 +65,18 @@ class LineageTest {
         messages.forEach(repository::update);
         Pickle pickle = query.findAllPickles().stream()
                 .findFirst()
-                .get();
-        Lineage lineage = query.findLineageBy(pickle).get();
+                .orElseThrow();
+        Lineage lineage = query.findLineageBy(pickle).orElseThrow();
 
-        GherkinDocument gherkinDocument = messages.stream().filter(envelope -> envelope.getGherkinDocument().isPresent())
+        GherkinDocument gherkinDocument = messages.stream()
                 .map(Envelope::getGherkinDocument)
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
-                .get();
+                .orElseThrow();
         Optional<Feature> feature = gherkinDocument.getFeature();
-        Optional<Scenario> scenario = feature.get().getChildren().get(0).getScenario();
-        Examples examples = scenario.get().getExamples().get(0);
+        Optional<Scenario> scenario = feature.orElseThrow().getChildren().get(0).getScenario();
+        Examples examples = scenario.orElseThrow().getExamples().get(0);
         TableRow example = examples.getTableBody().get(0);
 
         assertThat(lineage.document()).isEqualTo(gherkinDocument);
@@ -96,18 +95,19 @@ class LineageTest {
         messages.forEach(repository::update);
         Pickle pickle = query.findAllPickles().stream()
                 .findFirst()
-                .get();
-        Lineage lineage = query.findLineageBy(pickle).get();
+                .orElseThrow();
+        Lineage lineage = query.findLineageBy(pickle).orElseThrow();
 
-        GherkinDocument gherkinDocument = messages.stream().filter(envelope -> envelope.getGherkinDocument().isPresent())
+        GherkinDocument gherkinDocument = messages.stream()
                 .map(Envelope::getGherkinDocument)
+                .filter(Optional::isPresent)
                 .map(Optional::get)
                 .findFirst()
-                .get();
+                .orElseThrow();
         Optional<Feature> feature = gherkinDocument.getFeature();
-        Optional<Background> background = feature.get().getChildren().get(0).getBackground();
+        Optional<Background> background = feature.orElseThrow().getChildren().get(0).getBackground();
         Optional<Rule> rule = feature.get().getChildren().get(1).getRule();
-        Optional<Background> ruleBackGround = rule.get().getChildren().get(0).getBackground();
+        Optional<Background> ruleBackGround = rule.orElseThrow().getChildren().get(0).getBackground();
         Optional<Scenario> scenario = rule.get().getChildren().get(1).getScenario();
 
         assertThat(lineage.document()).isEqualTo(gherkinDocument);
