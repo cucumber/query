@@ -6,15 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [15.0.0] - 2026-01-22
 ### Added
 - [Java, JavaScript] Add `Lineage.background()` and `.ruleBackground()` ([#140](https://github.com/cucumber/query/pull/140))
-- [Java, JavaScript] Add `Query.findAllTestCaseStartedOrderBy` and `.findAllTestCaseFinishedOrderBy` ([#114](https://github.com/cucumber/query/pull/114))
-### Removed
-- [JavaScript] BREAKING CHANGE: Remove defunct legacy methods from `Query` ([#141](https://github.com/cucumber/query/pull/141))
 
 ### Changed
 - [Java] Set release version to 17 ([#127](https://github.com/cucumber/query/pull/127))
 - Update dependency `messages` up to v32
+
+### Removed
+- [Java, JavaScript] Add `Query.findAllTestCaseStartedOrderBy` and `.findAllTestCaseFinishedOrderBy` ([#114](https://github.com/cucumber/query/pull/114))
+- [JavaScript] BREAKING CHANGE: Remove defunct legacy methods from `Query` ([#141](https://github.com/cucumber/query/pull/141))
 
 ## [14.7.0] - 2025-12-08
 ### Added
@@ -282,7 +285,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v14.7.0...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v15.0.0...HEAD
+[15.0.0]: https://github.com/cucumber/query/compare/v14.7.0...v15.0.0
 [14.7.0]: https://github.com/cucumber/query/compare/v14.6.0...v14.7.0
 [14.6.0]: https://github.com/cucumber/query/compare/v14.5.0...v14.6.0
 [14.5.0]: https://github.com/cucumber/query/compare/v14.4.0...v14.5.0
