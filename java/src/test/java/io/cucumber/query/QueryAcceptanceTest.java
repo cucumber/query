@@ -2,8 +2,8 @@ package io.cucumber.query;
 
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
-import io.cucumber.messages.NdjsonToMessageIterable;
-import io.cucumber.messages.types.Envelope;
+import io.cucumber.messages.LocationComparator;
+import io.cucumber.messages.NdjsonToMessageReader;
 import io.cucumber.messages.types.Hook;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
@@ -19,6 +19,7 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepStarted;
+import io.cucumber.messages.ndjson.Deserializer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -33,6 +34,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +51,16 @@ import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_SUGGESTIONS
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_UNDEFINED_PARAMETER_TYPES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Comparator.nullsFirst;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class QueryAcceptanceTest {
-    private static final NdjsonToMessageIterable.Deserializer deserializer = json -> OBJECT_MAPPER.readValue(json, Envelope.class);
+    private static final Comparator<Pickle> pickleComparator = Comparator.comparing(Pickle::getUri)
+            .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator()));
+    private static final Comparator<Pickle> reversePickleComparator = nullsFirst(pickleComparator)
+            .reversed();
 
     static List<QueryTestCase> acceptance() {
         List<QueryTestCase> testCases = new ArrayList<>();
@@ -103,14 +109,12 @@ class QueryAcceptanceTest {
 
     private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out) throws IOException {
         try (InputStream in = Files.newInputStream(testCase.source)) {
-            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
-                Repository repository = createRepository();
-                for (Envelope envelope : envelopes) {
-                    repository.update(envelope);
-                }
-                Query query = new Query(repository);
-                Object queryResults = testCase.query.apply(query);
-                DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter()
+            try (var reader = new NdjsonToMessageReader(in, new Deserializer())) {
+                var repository = createRepository();
+                reader.lines().forEach(repository::update);
+                var query = new Query(repository);
+                var queryResults = testCase.query.apply(query);
+                var prettyPrinter = new DefaultPrettyPrinter()
                         .withArrayIndenter(SYSTEM_LINEFEED_INSTANCE);
                 OBJECT_MAPPER.writer(prettyPrinter).writeValue(out, queryResults);
             }
@@ -139,7 +143,16 @@ class QueryAcceptanceTest {
         queries.put("findAllPickleSteps", query -> query.findAllPickleSteps().size());
         queries.put("findAllStepDefinitions", query -> query.findAllStepDefinitions().size());
         queries.put("findAllTestCaseStarted", query -> query.findAllTestCaseStarted().size());
+
+        queries.put("findAllTestCaseStartedOrderBy", query -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, reversePickleComparator)
+                .stream()
+                .map(TestCaseStarted::getId)
+                .collect(toList()));
         queries.put("findAllTestCaseFinished", query -> query.findAllTestCaseFinished().size());
+        queries.put("findAllTestCaseFinishedOrderBy", query -> query.findAllTestCaseFinishedOrderBy(Query::findPickleBy, reversePickleComparator)
+                .stream()
+                .map(TestCaseFinished::getTestCaseStartedId)
+                .collect(toList()));
         queries.put("findAllTestRunHookStarted", query -> query.findAllTestRunHookStarted().size());
         queries.put("findAllTestRunHookFinished", query -> query.findAllTestRunHookFinished().size());
         queries.put("findAllTestSteps", query -> query.findAllTestSteps().size());

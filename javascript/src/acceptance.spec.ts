@@ -1,16 +1,23 @@
 import assert from 'node:assert'
 import fs from 'node:fs'
 import * as path from 'node:path'
-import { pipeline, Writable } from 'node:stream'
-import util from 'node:util'
+import { Writable } from 'node:stream'
+import { pipeline } from 'node:stream/promises'
 
-// eslint-disable-next-line n/no-extraneous-import
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
-import { Envelope } from '@cucumber/messages'
+import { Envelope, Pickle } from '@cucumber/messages'
 
 import Query from './Query'
 
-const asyncPipeline = util.promisify(pipeline)
+const reversePickleComparator = (a: Pickle, b: Pickle): number => {
+  if (a.uri !== b.uri) {
+    return b.uri.localeCompare(a.uri)
+  }
+  if (a.location.line !== b.location.line) {
+    return b.location.line - a.location.line
+  }
+  return b.location.column - a.location.column
+}
 
 describe('Acceptance Tests', async () => {
   const sources = [
@@ -32,6 +39,21 @@ describe('Acceptance Tests', async () => {
     findAllPickleSteps: (query: Query) => query.findAllPickleSteps().length,
     findAllStepDefinitions: (query: Query) => query.findAllStepDefinitions().length,
     findAllTestCaseStarted: (query: Query) => query.findAllTestCaseStarted().length,
+    findAllTestCaseStartedOrderBy: (query: Query) =>
+      query
+        .findAllTestCaseStartedOrderBy(
+          (q, testCaseStarted) => q.findPickleBy(testCaseStarted),
+          reversePickleComparator
+        )
+        .map((testCaseStarted) => testCaseStarted.id),
+    findAllTestCaseFinished: (query: Query) => query.findAllTestCaseFinished().length,
+    findAllTestCaseFinishedOrderBy: (query: Query) =>
+      query
+        .findAllTestCaseFinishedOrderBy(
+          (q, testCaseFinished) => q.findPickleBy(testCaseFinished),
+          reversePickleComparator
+        )
+        .map((testCaseFinished) => testCaseFinished.testCaseStartedId),
     findAllTestRunHookStarted: (query: Query) => query.findAllTestRunHookStarted().length,
     findAllTestRunHookFinished: (query: Query) => query.findAllTestRunHookFinished().length,
     findTestRunHookStartedBy: (query: Query) =>
@@ -281,7 +303,7 @@ describe('Acceptance Tests', async () => {
       it(suiteName + ' -> ' + methodName, async () => {
         const query = new Query()
 
-        await asyncPipeline(
+        await pipeline(
           fs.createReadStream(source, { encoding: 'utf-8' }),
           new NdjsonToMessageStream(),
           new Writable({

@@ -16,7 +16,7 @@
     <url>https://github.com/cucumber/query</url>
 
     <properties>
-        <project.build.outputTimestamp>1761578131</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1765201384</project.build.outputTimestamp>
     </properties>
 
     <scm>
@@ -31,7 +31,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>6.0.1</version>
+                <version>6.0.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>2.20.1</version>
+                <version>2.21.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -59,6 +59,13 @@
             <groupId>io.cucumber</groupId>
             <artifactId>messages</artifactId>
             <version>[32.0.0,33.0.0)</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>messages-ndjson</artifactId>
+            <version>0.4.0</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -91,7 +98,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>

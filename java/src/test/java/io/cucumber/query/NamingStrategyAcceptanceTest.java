@@ -1,7 +1,7 @@
 package io.cucumber.query;
 
-import io.cucumber.messages.NdjsonToMessageIterable;
-import io.cucumber.messages.types.Envelope;
+import io.cucumber.messages.NdjsonToMessageReader;
+import io.cucumber.messages.ndjson.Deserializer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -9,7 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -22,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.cucumber.query.Jackson.OBJECT_MAPPER;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
 import static io.cucumber.query.NamingStrategy.ExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED;
 import static io.cucumber.query.NamingStrategy.ExampleName.PICKLE;
@@ -35,7 +33,6 @@ import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NamingStrategyAcceptanceTest {
-    private static final NdjsonToMessageIterable.Deserializer deserializer = json -> OBJECT_MAPPER.readValue(json, Envelope.class);
 
     static List<TestCase> acceptance() {
         Map<String, NamingStrategy> strategies = new LinkedHashMap<>();
@@ -66,20 +63,17 @@ class NamingStrategyAcceptanceTest {
     }
 
     private static void writeResults(NamingStrategy strategy, TestCase testCase, OutputStream out) throws IOException {
-        try (InputStream in = Files.newInputStream(testCase.source)) {
-            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, deserializer)) {
-                try (PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, UTF_8)))) {
-                    Repository repository = createRepository();
-                    for (Envelope envelope : envelopes) {
-                        repository.update(envelope);
-                    }
-                    Query query = new Query(repository);
+        try (var in = Files.newInputStream(testCase.source)) {
+            try (var reader = new NdjsonToMessageReader(in, new Deserializer())) {
+                try (var writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, UTF_8)))) {
+                    var repository = createRepository();
+                    reader.lines().forEach(repository::update);
+                    var query = new Query(repository);
                     query.findAllPickles().forEach(pickle ->
                             query.findLineageBy(pickle)
                                     .map(lineage -> strategy.reduce(lineage, pickle))
                                     .ifPresent(writer::println));
                 }
-
             }
         }
     }

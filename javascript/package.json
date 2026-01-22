@@ -1,6 +1,6 @@
 {
   "name": "@cucumber/query",
-  "version": "14.6.0",
+  "version": "14.7.0",
   "description": "Cucumber Query - query messages",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
@@ -26,18 +26,15 @@
   },
   "homepage": "https://github.com/cucumber/query#readme",
   "devDependencies": {
-    "@cucumber/compatibility-kit": "^24.0.0",
-    "@cucumber/fake-cucumber": "^18.0.0",
-    "@cucumber/gherkin": "36.1.0",
-    "@cucumber/gherkin-streams": "^6.0.0",
-    "@cucumber/gherkin-utils": "^10.0.0",
-    "@cucumber/messages": "30.1.0",
-    "@eslint/compat": "^1.2.7",
+    "@cucumber/compatibility-kit": "^26.0.0",
+    "@cucumber/message-streams": "^4.0.1",
+    "@cucumber/messages": "32.0.0",
+    "@eslint/compat": "^2.0.0",
     "@eslint/eslintrc": "^3.3.0",
     "@eslint/js": "^9.21.0",
     "@types/lodash.sortby": "^4.7.9",
     "@types/mocha": "10.0.10",
-    "@types/node": "22.19.0",
+    "@types/node": "22.19.7",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
     "ajv": "8.17.1",
@@ -46,8 +43,8 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^17.15.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "glob": "^11.0.0",
-    "globals": "^16.0.0",
+    "glob": "^13.0.0",
+    "globals": "^17.0.0",
     "mocha": "11.7.5",
     "prettier": "^3.5.2",
     "pretty-quick": "4.2.2",
@@ -64,6 +61,6 @@
     "lodash.sortby": "^4.7.0"
   },
   "overrides": {
-    "@cucumber/messages": "30.1.0"
+    "@cucumber/messages": "32.0.0"
   }
 }

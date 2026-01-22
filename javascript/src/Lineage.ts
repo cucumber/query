@@ -1,4 +1,5 @@
 import {
+  Background,
   Examples,
   Feature,
   GherkinDocument,
@@ -11,7 +12,9 @@ import {
 export interface Lineage {
   gherkinDocument?: GherkinDocument
   feature?: Feature
+  background?: Background
   rule?: Rule
+  ruleBackground?: Background
   scenario?: Scenario
   examples?: Examples
   examplesIndex?: number
