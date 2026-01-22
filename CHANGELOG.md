@@ -6,8 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [15.0.1] - 2026-01-22
 ### Fixed
-- [Java] Fix Javadoc formatting issues 
+- [Java] Fix Javadoc formatting issues
 
 ## [15.0.0] - 2026-01-22
 ### Added
@@ -287,7 +289,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v15.0.0...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v15.0.1...HEAD
+[15.0.1]: https://github.com/cucumber/query/compare/v15.0.0...v15.0.1
 [15.0.0]: https://github.com/cucumber/query/compare/v14.7.0...v15.0.0
 [14.7.0]: https://github.com/cucumber/query/compare/v14.6.0...v14.7.0
 [14.6.0]: https://github.com/cucumber/query/compare/v14.5.0...v14.6.0
