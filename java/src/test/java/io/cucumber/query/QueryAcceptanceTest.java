@@ -3,9 +3,23 @@ package io.cucumber.query;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.LocationComparator;
-import io.cucumber.messages.NdjsonToMessageIterable;
+import io.cucumber.messages.NdjsonToMessageReader;
+import io.cucumber.messages.types.Hook;
+import io.cucumber.messages.types.Pickle;
+import io.cucumber.messages.types.PickleStep;
+import io.cucumber.messages.types.Step;
+import io.cucumber.messages.types.StepDefinition;
+import io.cucumber.messages.types.Suggestion;
+import io.cucumber.messages.types.TestCase;
+import io.cucumber.messages.types.TestCaseFinished;
+import io.cucumber.messages.types.TestCaseStarted;
+import io.cucumber.messages.types.TestRunHookFinished;
+import io.cucumber.messages.types.TestRunHookStarted;
+import io.cucumber.messages.types.TestStep;
+import io.cucumber.messages.types.TestStepFinished;
+import io.cucumber.messages.types.TestStepResult;
+import io.cucumber.messages.types.TestStepStarted;
 import io.cucumber.messages.ndjson.Deserializer;
-import io.cucumber.messages.types.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -38,11 +52,12 @@ import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_UNDEFINED_P
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static java.util.Comparator.nullsFirst;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QueryAcceptanceTest {
-    public static final Comparator<Pickle> pickleComparator = Comparator.comparing(Pickle::getUri)
+class QueryAcceptanceTest {
+    private static final Comparator<Pickle> pickleComparator = Comparator.comparing(Pickle::getUri)
             .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator()));
     private static final Comparator<Pickle> reversePickleComparator = nullsFirst(pickleComparator)
             .reversed();
@@ -78,8 +93,8 @@ public class QueryAcceptanceTest {
     @MethodSource("acceptance")
     void test(QueryTestCase testCase) throws IOException {
         ByteArrayOutputStream bytes = writeQueryResults(testCase, new ByteArrayOutputStream());
-        String expected = new String(Files.readAllBytes(testCase.expected), UTF_8);
-        String actual = new String(bytes.toByteArray(), UTF_8);
+        String expected = Files.readString(testCase.expected);
+        String actual = bytes.toString(UTF_8);
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -94,12 +109,12 @@ public class QueryAcceptanceTest {
 
     private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out) throws IOException {
         try (InputStream in = Files.newInputStream(testCase.source)) {
-            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, new Deserializer())) {
-                Repository repository = createRepository();
-                envelopes.forEach(repository::update);
-                Query query = new Query(repository);
-                Object queryResults = testCase.query.apply(query);
-                DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter()
+            try (var reader = new NdjsonToMessageReader(in, new Deserializer())) {
+                var repository = createRepository();
+                reader.lines().forEach(repository::update);
+                var query = new Query(repository);
+                var queryResults = testCase.query.apply(query);
+                var prettyPrinter = new DefaultPrettyPrinter()
                         .withArrayIndenter(SYSTEM_LINEFEED_INSTANCE);
                 OBJECT_MAPPER.writer(prettyPrinter).writeValue(out, queryResults);
             }
@@ -124,34 +139,34 @@ public class QueryAcceptanceTest {
 
         queries.put("countMostSevereTestStepResultStatus", Query::countMostSevereTestStepResultStatus);
         queries.put("countTestCasesStarted", Query::countTestCasesStarted);
-        queries.put("findAllPickles", (query) -> query.findAllPickles().size());
-        queries.put("findAllPickleSteps", (query) -> query.findAllPickleSteps().size());
-        queries.put("findAllStepDefinitions", (query) -> query.findAllStepDefinitions().size());
-        queries.put("findAllTestCaseStarted", (query) -> query.findAllTestCaseStarted().size());
+        queries.put("findAllPickles", query -> query.findAllPickles().size());
+        queries.put("findAllPickleSteps", query -> query.findAllPickleSteps().size());
+        queries.put("findAllStepDefinitions", query -> query.findAllStepDefinitions().size());
+        queries.put("findAllTestCaseStarted", query -> query.findAllTestCaseStarted().size());
 
-        queries.put("findAllTestCaseStartedOrderBy", (query) -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, reversePickleComparator)
+        queries.put("findAllTestCaseStartedOrderBy", query -> query.findAllTestCaseStartedOrderBy(Query::findPickleBy, reversePickleComparator)
                 .stream()
                 .map(TestCaseStarted::getId)
                 .collect(toList()));
-        queries.put("findAllTestCaseFinished", (query) -> query.findAllTestCaseFinished().size());
-        queries.put("findAllTestCaseFinishedOrderBy", (query) -> query.findAllTestCaseFinishedOrderBy(Query::findPickleBy, reversePickleComparator)
+        queries.put("findAllTestCaseFinished", query -> query.findAllTestCaseFinished().size());
+        queries.put("findAllTestCaseFinishedOrderBy", query -> query.findAllTestCaseFinishedOrderBy(Query::findPickleBy, reversePickleComparator)
                 .stream()
                 .map(TestCaseFinished::getTestCaseStartedId)
                 .collect(toList()));
-        queries.put("findAllTestRunHookStarted", (query) -> query.findAllTestRunHookStarted().size());
-        queries.put("findAllTestRunHookFinished", (query) -> query.findAllTestRunHookFinished().size());
-        queries.put("findAllTestSteps", (query) -> query.findAllTestSteps().size());
-        queries.put("findAllTestStepsStarted", (query) -> query.findAllTestStepStarted().size());
-        queries.put("findAllTestStepsFinished", (query) -> query.findAllTestStepFinished().size());
-        queries.put("findAllTestCases", (query) -> query.findAllTestCases().size());
-        queries.put("findAllUndefinedParameterTypes", (query) -> query.findAllUndefinedParameterTypes().stream()
+        queries.put("findAllTestRunHookStarted", query -> query.findAllTestRunHookStarted().size());
+        queries.put("findAllTestRunHookFinished", query -> query.findAllTestRunHookFinished().size());
+        queries.put("findAllTestSteps", query -> query.findAllTestSteps().size());
+        queries.put("findAllTestStepsStarted", query -> query.findAllTestStepStarted().size());
+        queries.put("findAllTestStepsFinished", query -> query.findAllTestStepFinished().size());
+        queries.put("findAllTestCases", query -> query.findAllTestCases().size());
+        queries.put("findAllUndefinedParameterTypes", query -> query.findAllUndefinedParameterTypes().stream()
                 .map(undefinedParameterType -> Arrays.asList(
                         undefinedParameterType.getName(),
                         undefinedParameterType.getExpression()
                 ))
                 .collect(toList()));
 
-        queries.put("findAttachmentsBy", (query) -> {
+        queries.put("findAttachmentsBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testStepFinished", query.findAllTestCaseStarted().stream()
                     .map(query::findTestStepFinishedAndTestStepBy)
@@ -178,7 +193,7 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findHookBy", (query) -> {
+        queries.put("findHookBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testStep", query.findAllTestSteps().stream()
                     .map(query::findHookBy)
@@ -198,7 +213,7 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findLineageBy", (query) -> {
+        queries.put("findLineageBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             NamingStrategy namingStrategy = NamingStrategy.strategy(NamingStrategy.Strategy.LONG).build();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
@@ -222,13 +237,13 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findLocationOf", (query) -> query.findAllPickles().stream()
+        queries.put("findLocationOf", query -> query.findAllPickles().stream()
                 .map(query::findLocationOf)
                 .filter(Optional::isPresent)
                 .collect(toList()));
-        queries.put("findMeta", (query) -> query.findMeta().map(meta -> meta.getImplementation().getName()));
+        queries.put("findMeta", query -> query.findMeta().map(meta -> meta.getImplementation().getName()));
 
-        queries.put("findMostSevereTestStepResultBy", (query) -> {
+        queries.put("findMostSevereTestStepResultBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
                     .map(query::findMostSevereTestStepResultBy)
@@ -245,7 +260,7 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findPickleBy", (query) -> {
+        queries.put("findPickleBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
                     .map(query::findPickleBy)
@@ -266,22 +281,22 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findPickleStepBy", (query) -> query.findAllTestSteps().stream()
+        queries.put("findPickleStepBy", query -> query.findAllTestSteps().stream()
                 .map(query::findPickleStepBy)
                 .map(pickleStep -> pickleStep.map(PickleStep::getText))
                 .filter(Optional::isPresent)
                 .collect(toList()));
-        queries.put("findStepBy", (query) -> query.findAllPickleSteps().stream()
+        queries.put("findStepBy", query -> query.findAllPickleSteps().stream()
                 .map(query::findStepBy)
                 .map(step -> step.map(Step::getText))
                 .collect(toList()));
-        queries.put("findStepDefinitionsBy", (query) -> query.findAllTestSteps().stream()
+        queries.put("findStepDefinitionsBy", query -> query.findAllTestSteps().stream()
                 .map(query::findStepDefinitionsBy)
                 .map(stepDefinitions -> stepDefinitions.stream().map(StepDefinition::getId)
                         .collect(toList()))
                 .collect(toList()));
 
-        queries.put("findSuggestionsBy", (query) -> {
+        queries.put("findSuggestionsBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("pickleStep", query.findAllPickleSteps().stream()
                     .map(query::findSuggestionsBy)
@@ -296,13 +311,13 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findUnambiguousStepDefinitionBy", (query) -> query.findAllTestSteps().stream()
+        queries.put("findUnambiguousStepDefinitionBy", query -> query.findAllTestSteps().stream()
                 .map(query::findUnambiguousStepDefinitionBy)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(StepDefinition::getId));
 
-        queries.put("findTestCaseStartedBy", (query) -> {
+        queries.put("findTestCaseStartedBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
                     .map(query::findTestCaseStartedBy)
@@ -319,7 +334,7 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findTestCaseBy", (query) -> {
+        queries.put("findTestCaseBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
                     .map(query::findTestCaseBy)
@@ -340,7 +355,7 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findTestCaseDurationBy", (query) -> {
+        queries.put("findTestCaseDurationBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
                     .map(query::findTestCaseDurationBy)
@@ -353,22 +368,22 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findTestCaseFinishedBy", (query) -> query.findAllTestCaseStarted().stream()
+        queries.put("findTestCaseFinishedBy", query -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestCaseFinishedBy)
                 .map(testCaseFinished -> testCaseFinished.map(TestCaseFinished::getTestCaseStartedId))
                 .collect(toList()));
-        queries.put("findTestRunDuration", (query) -> query.findTestRunDuration()
+        queries.put("findTestRunDuration", query -> query.findTestRunDuration()
                 .map(Convertor::toMessage));
         queries.put("findTestRunFinished", Query::findTestRunFinished);
         queries.put("findTestRunStarted", Query::findTestRunStarted);
-        queries.put("findTestStepBy", (query) -> query.findAllTestCaseStarted().stream()
+        queries.put("findTestStepBy", query -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepsStartedBy)
                 .flatMap(Collection::stream)
                 .map(query::findTestStepBy)
                 .map(testStep -> testStep.map(TestStep::getId))
                 .collect(toList()));
 
-        queries.put("findTestStepsStartedBy", (query) -> {
+        queries.put("findTestStepsStartedBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
 
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
@@ -384,16 +399,16 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findTestRunHookFinishedBy", (query) -> query.findAllTestRunHookStarted().stream()
+        queries.put("findTestRunHookFinishedBy", query -> query.findAllTestRunHookStarted().stream()
                 .map(query::findTestRunHookFinishedBy)
                 .map(testRunHookFinished -> testRunHookFinished.map(TestRunHookFinished::getTestRunHookStartedId))
                 .collect(toList()));
-        queries.put("findTestRunHookStartedBy", (query) -> query.findAllTestRunHookFinished().stream()
+        queries.put("findTestRunHookStartedBy", query -> query.findAllTestRunHookFinished().stream()
                 .map(query::findTestRunHookStartedBy)
                 .map(testRunHookStarted -> testRunHookStarted.map(TestRunHookStarted::getId))
                 .collect(toList()));
 
-        queries.put("findTestStepByTestStepFinished", (query) -> {
+        queries.put("findTestStepByTestStepFinished", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
 
             results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
@@ -412,11 +427,11 @@ public class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findTestStepsFinishedBy", (query) -> query.findAllTestCaseStarted().stream()
+        queries.put("findTestStepsFinishedBy", query -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepsFinishedBy)
                 .map(testStepFinisheds -> testStepFinisheds.stream().map(TestStepFinished::getTestStepId).collect(toList()))
                 .collect(toList()));
-        queries.put("findTestStepFinishedAndTestStepBy", (query) -> query.findAllTestCaseStarted().stream()
+        queries.put("findTestStepFinishedAndTestStepBy", query -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepFinishedAndTestStepBy)
                 .flatMap(Collection::stream)
                 .map(entry -> asList(entry.getKey().getTestStepId(), entry.getValue().getId()))
@@ -438,7 +453,7 @@ public class QueryAcceptanceTest {
             this.query = query;
             String fileName = source.getFileName().toString();
             this.name = fileName.substring(0, fileName.lastIndexOf(".ndjson"));
-            this.expected = source.getParent().resolve(name + "." + methodName + ".results.json");
+            this.expected = requireNonNull(source.getParent()).resolve(name + "." + methodName + ".results.json");
         }
 
         @Override

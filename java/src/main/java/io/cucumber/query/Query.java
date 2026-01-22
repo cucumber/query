@@ -46,7 +46,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparing;
@@ -115,8 +114,8 @@ public final class Query {
                 .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
                         .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
                         .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
-                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
-                .map(OrderableMessage::getMessage)
+                .sorted(Comparator.comparing(OrderableMessage::orderBy, order))
+                .map(OrderableMessage::message)
                 .collect(toList());
     }
 
@@ -131,8 +130,8 @@ public final class Query {
                 .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
                         .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
                         .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
-                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
-                .map(OrderableMessage::getMessage)
+                .sorted(Comparator.comparing(OrderableMessage::orderBy, order))
+                .map(OrderableMessage::message)
                 .collect(toList());
     }
 
@@ -219,6 +218,10 @@ public final class Query {
     }
 
     public Optional<Location> findLocationOf(Pickle pickle) {
+        Optional<Location> location = pickle.getLocation();
+        if (location.isPresent()) {
+            return location;
+        }
         return findLineageBy(pickle).flatMap(lineage -> {
             if (lineage.example().isPresent()) {
                 return lineage.example().map(TableRow::getLocation);

@@ -5,18 +5,17 @@
     <parent>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-parent</artifactId>
-        <version>4.6.0</version>
+        <version>5.0.0</version>
     </parent>
 
     <artifactId>query</artifactId>
-    <version>14.7.1-SNAPSHOT</version>
+    <version>15.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Cucumber Query</name>
     <description>Given one Cucumber Message, find another</description>
     <url>https://github.com/cucumber/query</url>
 
     <properties>
-        <project.Automatic-Module-Name>io.cucumber.query</project.Automatic-Module-Name>
         <project.build.outputTimestamp>1765201384</project.build.outputTimestamp>
     </properties>
 
@@ -44,6 +43,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-bom</artifactId>
+                <version>3.27.6</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -51,13 +58,13 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>messages</artifactId>
-            <version>[31.0.1,32.0.0)</version>
+            <version>[32.0.0,33.0.0)</version>
         </dependency>
 
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>messages-ndjson</artifactId>
-            <version>0.3.0</version>
+            <version>0.4.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -78,11 +85,10 @@
             <artifactId>jackson-module-parameter-names</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.27.6</version>
             <scope>test</scope>
         </dependency>
 
@@ -92,4 +98,22 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -15,7 +15,11 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-class Lineages {
+final class Lineages {
+    
+    private Lineages(){
+        /* no-op */
+    }
 
     /**
      * Create map of a {@link GherkinDocument} element to its {@link Lineage} in that document.

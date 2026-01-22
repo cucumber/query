@@ -10,6 +10,7 @@ import io.cucumber.query.LineageReducer.Collector;
 import io.cucumber.query.NamingStrategy.ExampleName;
 import io.cucumber.query.NamingStrategy.FeatureName;
 import io.cucumber.query.NamingStrategy.Strategy;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -25,7 +26,7 @@ import static io.cucumber.query.NamingStrategy.Strategy.SHORT;
  *
  * @see NamingStrategy
  */
-class NamingCollector implements Collector<String> {
+final class NamingCollector implements Collector<String> {
 
     // There are at most 5 levels to a feature file.
     private final Deque<String> parts = new ArrayDeque<>(5);
@@ -34,7 +35,7 @@ class NamingCollector implements Collector<String> {
     private final FeatureName featureName;
     private final ExampleName exampleName;
 
-    private String scenarioName;
+    private @Nullable String scenarioName;
     private boolean isExample;
     private int examplesIndex;
 
@@ -48,36 +49,42 @@ class NamingCollector implements Collector<String> {
         this.exampleName = exampleName;
     }
 
+    @Override
     public void add(Feature feature) {
         if (featureName == INCLUDE || strategy == SHORT) {
             parts.add(feature.getName());
         }
     }
 
+    @Override
     public void add(Rule rule) {
         parts.add(rule.getName());
     }
 
+    @Override
     public void add(Scenario scenario) {
         scenarioName = scenario.getName();
         parts.add(scenarioName);
     }
 
+    @Override
     public void add(Examples examples, int index) {
         parts.add(examples.getName());
         this.examplesIndex = index;
     }
 
+    @Override
     public void add(TableRow example, int index) {
         isExample = true;
         parts.add("#" + (examplesIndex + 1) + "." + (index + 1));
     }
 
+    @Override
     public void add(Pickle pickle) {
         String pickleName = pickle.getName();
 
         // Case 0: Pickles with an empty a lineage
-        if (scenarioName == null){
+        if (scenarioName == null) {
             parts.add(pickleName);
             return;
         }
@@ -85,19 +92,19 @@ class NamingCollector implements Collector<String> {
         // Case 1: Pickles from a scenario outline
         if (isExample) {
             switch (exampleName) {
-                case NUMBER:
-                    break;
-                case NUMBER_AND_PICKLE_IF_PARAMETERIZED:
+                case NUMBER -> { }
+                case NUMBER_AND_PICKLE_IF_PARAMETERIZED -> {
                     boolean parameterized = !scenarioName.equals(pickleName);
                     if (parameterized) {
                         String exampleNumber = parts.removeLast();
                         parts.add(exampleNumber + ": " + pickleName);
                     }
-                    break;
-                case PICKLE:
-                    parts.removeLast(); // Remove example number
+                }
+                case PICKLE -> {
+                    parts.removeLast();
+                    // Remove example number
                     parts.add(pickleName);
-                    break;
+                }
             }
         }
         // Case 2: Pickles from a scenario

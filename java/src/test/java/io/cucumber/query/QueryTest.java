@@ -18,9 +18,9 @@ class QueryTest {
 
     @Test
     void retainsInsertionOrderForTestCaseStarted() {
-        TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0L));
-        TestCaseStarted b = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0L));
-        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0L));
+        TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0));
+        TestCaseStarted b = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0));
+        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(1L, 0));
 
         Stream.of(a, b, c)
                 .map(Envelope::of)
@@ -31,10 +31,10 @@ class QueryTest {
 
     @Test
     void omitsTestCaseStartedIfFinishedAndWillBeRetried() {
-        TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0L));
-        TestCaseFinished b = new TestCaseFinished(a.getId(), new Timestamp(0L, 0L), true);
-        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0L));
-        TestCaseFinished d = new TestCaseFinished(c.getId(), new Timestamp(0L, 0L), false);
+        TestCaseStarted a = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0));
+        TestCaseFinished b = new TestCaseFinished(a.getId(), new Timestamp(0L, 0), true);
+        TestCaseStarted c = new TestCaseStarted(0L, randomId(), randomId(), "main", new Timestamp(0L, 0));
+        TestCaseFinished d = new TestCaseFinished(c.getId(), new Timestamp(0L, 0), false);
 
         Stream.of(a, c)
                 .map(Envelope::of)

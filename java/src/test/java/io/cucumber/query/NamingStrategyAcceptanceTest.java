@@ -1,8 +1,7 @@
 package io.cucumber.query;
 
-import io.cucumber.messages.NdjsonToMessageIterable;
+import io.cucumber.messages.NdjsonToMessageReader;
 import io.cucumber.messages.ndjson.Deserializer;
-import io.cucumber.messages.types.Envelope;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -10,7 +9,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -31,10 +29,10 @@ import static io.cucumber.query.NamingStrategy.Strategy.LONG;
 import static io.cucumber.query.NamingStrategy.Strategy.SHORT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.newOutputStream;
-import static java.nio.file.Files.readAllBytes;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class NamingStrategyAcceptanceTest {
+class NamingStrategyAcceptanceTest {
 
     static List<TestCase> acceptance() {
         Map<String, NamingStrategy> strategies = new LinkedHashMap<>();
@@ -61,24 +59,21 @@ public class NamingStrategyAcceptanceTest {
     private static String writeResults(TestCase testCase, NamingStrategy strategy) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         writeResults(strategy, testCase, out);
-        return new String(out.toByteArray(), UTF_8);
+        return out.toString(UTF_8);
     }
 
     private static void writeResults(NamingStrategy strategy, TestCase testCase, OutputStream out) throws IOException {
-        try (InputStream in = Files.newInputStream(testCase.source)) {
-            try (NdjsonToMessageIterable envelopes = new NdjsonToMessageIterable(in, new Deserializer())) {
-                try (PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out)))) {
-                    Repository repository = createRepository();
-                    for (Envelope envelope : envelopes) {
-                        repository.update(envelope);
-                    }
-                    Query query = new Query(repository);
+        try (var in = Files.newInputStream(testCase.source)) {
+            try (var reader = new NdjsonToMessageReader(in, new Deserializer())) {
+                try (var writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, UTF_8)))) {
+                    var repository = createRepository();
+                    reader.lines().forEach(repository::update);
+                    var query = new Query(repository);
                     query.findAllPickles().forEach(pickle ->
                             query.findLineageBy(pickle)
                                     .map(lineage -> strategy.reduce(lineage, pickle))
                                     .ifPresent(writer::println));
                 }
-
             }
         }
     }
@@ -89,12 +84,11 @@ public class NamingStrategyAcceptanceTest {
                 .build();
     }
 
-
     @ParameterizedTest
     @MethodSource("acceptance")
     void test(TestCase testCase) throws IOException {
         String actual = writeResults(testCase, testCase.strategy);
-        String expected = new String(readAllBytes(testCase.expected), UTF_8);
+        String expected = Files.readString(testCase.expected);
         assertThat(actual).isEqualTo(expected);
     }
 
@@ -121,7 +115,7 @@ public class NamingStrategyAcceptanceTest {
             this.strategyName = strategyName;
             String fileName = source.getFileName().toString();
             this.name = fileName.substring(0, fileName.lastIndexOf(".ndjson"));
-            this.expected = source.getParent().resolve(name + ".naming-strategy." + strategyName + ".txt");
+            this.expected = requireNonNull(source.getParent()).resolve(name + ".naming-strategy." + strategyName + ".txt");
         }
 
         @Override
