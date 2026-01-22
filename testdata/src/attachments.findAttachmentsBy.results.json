@@ -1,45 +1,51 @@
 {
   "testStepFinished" : [
     [
-      "37",
-      "50",
+      "42",
+      "57",
       "application/octet-stream",
       "IDENTITY"
     ],
     [
-      "39",
-      "51",
+      "44",
+      "58",
       "text/x.cucumber.log+plain",
       "IDENTITY"
     ],
     [
-      "41",
-      "52",
+      "46",
+      "59",
       "text/x.cucumber.log+plain",
       "IDENTITY"
     ],
     [
-      "43",
-      "53",
+      "48",
+      "60",
       "application/json",
       "IDENTITY"
     ],
     [
-      "45",
-      "54",
+      "50",
+      "61",
       "text/plain",
       "BASE64"
     ],
     [
-      "47",
-      "55",
+      "52",
+      "62",
       "application/pdf",
       "BASE64"
     ],
     [
-      "49",
-      "56",
+      "54",
+      "63",
       "text/uri-list",
+      "IDENTITY"
+    ],
+    [
+      "56",
+      "64",
+      "application/octet-stream",
       "IDENTITY"
     ]
   ],

@@ -5,5 +5,6 @@
   "the following string is attached as \"application/json\":",
   "an array with 10 bytes is attached as \"text/plain\"",
   "a PDF document is attached and renamed",
-  "a link to \"https://cucumber.io\" is attached"
+  "a link to \"https://cucumber.io\" is attached",
+  "the string \"hello\" is attached as \"application/octet-stream\" before a failure"
 ]

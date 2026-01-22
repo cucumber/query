@@ -1,6 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.NdjsonToMessageIterable;
+import io.cucumber.messages.NdjsonToMessageReader;
 import io.cucumber.messages.ndjson.Deserializer;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Envelope;
@@ -120,10 +121,8 @@ class LineageTest {
     }
 
     private static @NonNull List<Envelope> readMessages(Path path) throws IOException {
-        InputStream in = Files.newInputStream(path);
-        NdjsonToMessageIterable messages = new NdjsonToMessageIterable(in, new Deserializer());
-        List<Envelope> e = new ArrayList<>();
-        messages.forEach(e::add);
-        return e;
+        var in = Files.newInputStream(path);
+        var reader = new NdjsonToMessageReader(in, new Deserializer());
+        return reader.lines().toList();
     }
 }

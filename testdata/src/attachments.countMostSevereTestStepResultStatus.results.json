@@ -5,5 +5,5 @@
   "PENDING" : 0,
   "UNDEFINED" : 0,
   "AMBIGUOUS" : 0,
-  "FAILED" : 0
+  "FAILED" : 1
 }
