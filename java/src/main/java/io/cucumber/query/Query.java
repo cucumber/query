@@ -114,8 +114,8 @@ public final class Query {
                 .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
                         .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
                         .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
-                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
-                .map(OrderableMessage::getMessage)
+                .sorted(Comparator.comparing(OrderableMessage::orderBy, order))
+                .map(OrderableMessage::message)
                 .collect(toList());
     }
 
@@ -130,8 +130,8 @@ public final class Query {
                 .map(testCaseStarted -> findOrderBy.apply(this, testCaseStarted)
                         .map(orderBy -> new OrderableMessage<>(testCaseStarted, orderBy))
                         .orElseGet(() -> new OrderableMessage<>(testCaseStarted)))
-                .sorted(Comparator.comparing(OrderableMessage::getOrderBy, order))
-                .map(OrderableMessage::getMessage)
+                .sorted(Comparator.comparing(OrderableMessage::orderBy, order))
+                .map(OrderableMessage::message)
                 .collect(toList());
     }
 
