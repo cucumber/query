@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Removed
 - [JavaScript] BREAKING CHANGE: Remove defunct legacy methods from `Query` ([#141](https://github.com/cucumber/query/pull/141))
 
+### Changed
+- [Java] Set release version to 17 ([#127](https://github.com/cucumber/query/pull/127))
+
 ## [14.7.0] - 2025-12-08
 ### Added
 - [NET] Added .NET port  ([#81](https://github.com/cucumber/query/pull/81))
