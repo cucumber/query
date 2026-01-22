@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - [Java] Set release version to 17 ([#127](https://github.com/cucumber/query/pull/127))
+- Update dependency `messages` up to v32
 
 ## [14.7.0] - 2025-12-08
 ### Added
