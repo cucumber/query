@@ -3,16 +3,18 @@ import importPlugin from "eslint-plugin-import";
 import n from "eslint-plugin-n";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import globals from "globals";
-import tseslint from "typescript-eslint";
+import typescriptEslintPlugin from "@typescript-eslint/eslint-plugin";
+import typescriptParser from "@typescript-eslint/parser";
 
-export default tseslint.config(
+export default [
     js.configs.recommended,
-    tseslint.configs.recommended,
+    ...typescriptEslintPlugin.configs["flat/recommended"],
     importPlugin.flatConfigs.recommended,
     importPlugin.flatConfigs.typescript,
     {
         files: ["**/*.ts"],
         languageOptions: {
+            parser: typescriptParser,
             ecmaVersion: 5,
             sourceType: "module",
             globals: {
@@ -21,6 +23,7 @@ export default tseslint.config(
             },
         },
         plugins: {
+            "@typescript-eslint": typescriptEslintPlugin,
             n,
             "simple-import-sort": simpleImportSort,
         },
@@ -39,4 +42,4 @@ export default tseslint.config(
             "@typescript-eslint/no-non-null-assertion": "off",
         },
     },
-);
+];
