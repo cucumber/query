@@ -5,7 +5,7 @@ import { Writable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
-import { Envelope, Pickle } from '@cucumber/messages'
+import type { Envelope, Pickle } from '@cucumber/messages'
 
 import Query from './Query'
 
@@ -83,8 +83,7 @@ describe('Acceptance Tests', async () => {
         ]),
       testRunHookFinished: query
         .findAllTestRunHookFinished()
-        .map((testRunHookFinished) => query.findAttachmentsBy(testRunHookFinished))
-        .flat()
+        .flatMap((testRunHookFinished) => query.findAttachmentsBy(testRunHookFinished))
         .map((attachment) => [
           attachment.testRunHookStartedId,
           attachment.mediaType,
@@ -300,7 +299,7 @@ describe('Acceptance Tests', async () => {
     for (const methodName in queries) {
       const [suiteName] = path.basename(source).split('.')
 
-      it(suiteName + ' -> ' + methodName, async () => {
+      it(`${suiteName} -> ${methodName}`, async () => {
         const query = new Query()
 
         await pipeline(
@@ -317,10 +316,7 @@ describe('Acceptance Tests', async () => {
 
         const expectedResults = JSON.parse(
           fs.readFileSync(
-            path.join(
-              __dirname,
-              '../../testdata/src/' + suiteName + '.' + methodName + '.results.json'
-            ),
+            path.join(__dirname, `../../testdata/src/${suiteName}.${methodName}.results.json`),
             {
               encoding: 'utf-8',
             }
@@ -334,6 +330,6 @@ describe('Acceptance Tests', async () => {
 })
 
 type Queries = {
-  // eslint-disable-next-line @typescript-eslint/no-wrapper-object-types
+  // biome-ignore lint/complexity/noBannedTypes: query methods can return numbers and strings as well as objects
   [key: string]: (query: Query) => Object
 }

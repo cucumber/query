@@ -1,39 +1,39 @@
-import * as messages from '@cucumber/messages'
+import type * as messages from '@cucumber/messages'
 import {
-  Attachment,
-  Duration,
-  Feature,
-  GherkinDocument,
-  Hook,
-  Location,
-  Meta,
-  Pickle,
-  PickleStep,
-  Rule,
-  Scenario,
-  Step,
-  StepDefinition,
-  Suggestion,
-  TestCase,
-  TestCaseFinished,
-  TestCaseStarted,
-  TestRunFinished,
-  TestRunHookFinished,
-  TestRunHookStarted,
-  TestRunStarted,
-  TestStep,
-  TestStepFinished,
-  TestStepResult,
+  type Attachment,
+  type Duration,
+  type Feature,
+  type GherkinDocument,
+  type Hook,
+  type Location,
+  type Meta,
+  type Pickle,
+  type PickleStep,
+  type Rule,
+  type Scenario,
+  type Step,
+  type StepDefinition,
+  type Suggestion,
+  type TestCase,
+  type TestCaseFinished,
+  type TestCaseStarted,
+  type TestRunFinished,
+  type TestRunHookFinished,
+  type TestRunHookStarted,
+  type TestRunStarted,
+  type TestStep,
+  type TestStepFinished,
+  type TestStepResult,
   TestStepResultStatus,
-  TestStepStarted,
+  type TestStepStarted,
   TimeConversion,
-  UndefinedParameterType,
+  type UndefinedParameterType,
 } from '@cucumber/messages'
 import { ArrayMultimap } from '@teppeis/multimaps'
 import sortBy from 'lodash.sortby'
 
 import { assert, statusOrdinal } from './helpers'
-import { Lineage } from './Lineage'
+import type { Lineage } from './Lineage'
 
 export default class Query {
   private meta: Meta
@@ -189,12 +189,16 @@ export default class Query {
   }
 
   private updateSteps(steps: ReadonlyArray<Step>) {
-    steps.forEach((step) => this.stepById.set(step.id, step))
+    for (const step of steps) {
+      this.stepById.set(step.id, step)
+    }
   }
 
   private updatePickle(pickle: Pickle) {
     this.pickleById.set(pickle.id, pickle)
-    pickle.steps.forEach((pickleStep) => this.pickleStepById.set(pickleStep.id, pickleStep))
+    for (const pickleStep of pickle.steps) {
+      this.pickleStepById.set(pickleStep.id, pickleStep)
+    }
   }
 
   private updateTestRunHookStarted(testRunHookStarted: TestRunHookStarted) {

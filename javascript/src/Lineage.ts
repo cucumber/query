@@ -1,4 +1,4 @@
-import {
+import type {
   Background,
   Examples,
   Feature,
@@ -86,7 +86,7 @@ class BuiltinNamingStrategy implements NamingStrategy {
           break
         case NamingStrategyExampleName.NUMBER_AND_PICKLE_IF_PARAMETERIZED:
           if (lineage.scenario?.name !== pickle.name) {
-            parts.push(exampleNumber + ': ' + pickle.name)
+            parts.push(`${exampleNumber}: ${pickle.name}`)
           } else {
             parts.push(exampleNumber)
           }
