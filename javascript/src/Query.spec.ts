@@ -2,9 +2,9 @@ import assert from 'node:assert'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 
-import { Envelope, TestCaseStarted } from '@cucumber/messages'
+import type { Envelope, TestCaseStarted } from '@cucumber/messages'
 
-import { Lineage } from './Lineage'
+import type { Lineage } from './Lineage'
 import Query from './Query'
 
 describe('Query', () => {
@@ -98,7 +98,9 @@ describe('Query', () => {
         .split('\n')
         .filter((line) => !!line)
         .map((line) => JSON.parse(line))
-      envelopes.forEach((envelope) => cucumberQuery.update(envelope))
+      for (const envelope of envelopes) {
+        cucumberQuery.update(envelope)
+      }
 
       const gherkinDocument = envelopes.find((envelope) => envelope.gherkinDocument).gherkinDocument
       const feature = gherkinDocument.feature
@@ -121,7 +123,9 @@ describe('Query', () => {
         .split('\n')
         .filter((line) => !!line)
         .map((line) => JSON.parse(line))
-      envelopes.forEach((envelope) => cucumberQuery.update(envelope))
+      for (const envelope of envelopes) {
+        cucumberQuery.update(envelope)
+      }
 
       const gherkinDocument = envelopes.find((envelope) => envelope.gherkinDocument).gherkinDocument
       const feature = gherkinDocument.feature
@@ -150,7 +154,9 @@ describe('Query', () => {
         .split('\n')
         .filter((line) => !!line)
         .map((line) => JSON.parse(line))
-      envelopes.forEach((envelope) => cucumberQuery.update(envelope))
+      for (const envelope of envelopes) {
+        cucumberQuery.update(envelope)
+      }
 
       const gherkinDocument = envelopes.find((envelope) => envelope.gherkinDocument).gherkinDocument
       const feature = gherkinDocument.feature
