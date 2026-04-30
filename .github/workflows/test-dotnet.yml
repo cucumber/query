@@ -31,5 +31,5 @@ jobs:
         with:
           dotnet-version: |
             10.0.x
-      - run: dotnet test --solution Cucumber.Query.slnx
+      - run: dotnet test
         working-directory: dotnet
