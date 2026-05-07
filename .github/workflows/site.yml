@@ -20,13 +20,21 @@ jobs:
           node-version: 22.x
           cache: "npm"
           cache-dependency-path: javascript/package-lock.json
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'maven'
       - run: npm ci
         working-directory: javascript
       - run: npm run docs
         working-directory: javascript
+      - run: mvn -B javadoc:javadoc
+        working-directory: java
       - run: |
           mkdir -p _site
           mv javascript/_site _site/javascript
+          mv java/target/reports/apidocs _site/java
       - run: |
           chmod -c -R +rX "_site/" | while read line; do
           echo "::warning title=Invalid file permissions automatically fixed::$line"
