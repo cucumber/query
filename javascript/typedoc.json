@@ -4,5 +4,6 @@
     "GitHub": "https://github.com/cucumber/query"
   },
   "out": "./_site",
-  "readme": "none"
+  "readme": "none",
+  "includeVersion": true
 }
