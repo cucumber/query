@@ -1,9 +1,9 @@
 {
   "entryPoints": ["src/index.ts"],
+  "includeVersion": true,
   "navigationLinks": {
     "GitHub": "https://github.com/cucumber/query"
   },
   "out": "./_site",
-  "readme": "none",
-  "includeVersion": true
+  "readme": "none"
 }
