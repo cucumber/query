@@ -29,21 +29,12 @@ jobs:
         working-directory: javascript
       - run: npm run docs
         working-directory: javascript
-      - run: mvn -B dependency:build-classpath -Dmdep.outputFile=target/classpath.txt -q
-        working-directory: java
-      - run: |
-          javadoc \
-            -d target/apidocs \
-            -quiet \
-            -Xdoclint:none \
-            --module-path "$(cat target/classpath.txt)" \
-            -sourcepath src/main/java \
-            -subpackages io.cucumber.query
+      - run: mvn -B compile javadoc:javadoc -Ddoclint=none -Dquiet=true
         working-directory: java
       - run: |
           mkdir -p _site
           mv javascript/_site _site/javascript
-          mv java/target/apidocs _site/java
+          mv java/target/reports/apidocs _site/java
       - run: |
           chmod -c -R +rX "_site/" | while read line; do
           echo "::warning title=Invalid file permissions automatically fixed::$line"
