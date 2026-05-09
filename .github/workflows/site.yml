@@ -61,10 +61,6 @@ jobs:
         with:
           name: docs-java
           path: _site/java
-      - run: |
-          chmod -c -R +rX "_site/" | while read line; do
-          echo "::warning title=Invalid file permissions automatically fixed::$line"
-          done
       - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
 
   deploy:
