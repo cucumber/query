@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+gem 'cucumber-messages', path: ENV.fetch('CUCUMBER_MESSAGES_RUBY_PATH') if ENV['CUCUMBER_MESSAGES_RUBY_PATH']
+
+gemspec
