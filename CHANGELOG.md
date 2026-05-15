@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [Ruby] Add Ruby implementation of cucumber-query ([#167](https://github.com/cucumber/query/pull/167)).
 
 ## [15.0.1] - 2026-01-22
 ### Fixed
