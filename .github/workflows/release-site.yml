@@ -1,12 +1,10 @@
-name: Site
+name: Release Site
 
 permissions: {}
 
 on:
   push:
-    branches:
-      - main
-      - api-documentation
+    branches: [release/*, api-documentation]
 
 jobs:
   docs-javascript:
@@ -17,9 +15,8 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: 22.x
-          cache: "npm"
-          cache-dependency-path: javascript/package-lock.json
+          node-version: '24.x'
+          package-manager-cache: false
       - run: npm ci
         working-directory: javascript
       - run: npm run docs
@@ -39,7 +36,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-          cache: 'maven'
       - run: mvn -B compile javadoc:javadoc -Ddoclint=none -Dquiet=true
         working-directory: java
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
