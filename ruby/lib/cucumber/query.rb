@@ -220,7 +220,7 @@ module Cucumber
     # This method will be called with 1 of these 2 messages
     #   [TestStepStarted || TestStepFinished]
     def find_test_step_by(message)
-      ensure_only_message_types!(message, %i[test_case_started test_case_finished], '#find_test_step_by')
+      ensure_only_message_types!(message, %i[test_step_started test_step_finished], '#find_test_step_by')
 
       repository.test_step_by_id[message.test_step_id]
     end
