@@ -2,15 +2,16 @@
   "name": "@cucumber/query",
   "version": "15.0.1",
   "description": "Cucumber Query - query messages",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "fix": "biome check --fix --error-on-warnings",
     "lint": "biome check --error-on-warnings",
     "test": "mocha",
-    "prepublishOnly": "tsc --build tsconfig.build.json"
+    "prepublishOnly": "tsc -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
