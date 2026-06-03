@@ -2,15 +2,16 @@
   "name": "@cucumber/query",
   "version": "15.0.1",
   "description": "Cucumber Query - query messages",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "fix": "biome check --fix --error-on-warnings",
     "lint": "biome check --error-on-warnings",
     "test": "mocha",
-    "prepublishOnly": "tsc --build tsconfig.build.json"
+    "prepublishOnly": "tsc -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
     "@cucumber/biome-config": "github:cucumber/biome-config#v0.1.0",
     "@cucumber/message-streams": "^4.0.1",
     "@cucumber/messages": "32.3.1",
+    "@tsconfig/recommended": "^1.0.13",
     "@types/lodash.sortby": "^4.7.9",
     "@types/mocha": "10.0.10",
     "@types/node": "22.19.19",
@@ -41,7 +43,7 @@
     "rimraf": "^6.0.0",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
     "@cucumber/messages": "*"
