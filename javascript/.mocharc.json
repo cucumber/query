@@ -1,6 +1,6 @@
 {
-  "require": ["ts-node/register", "source-map-support/register"],
-  "extension": ["ts", "tsx"],
+  "require": ["ts-node/register"],
+  "extension": ["ts"],
   "recursive": true,
   "spec": ["src/**/*.spec.*"],
   "timeout": 10000
