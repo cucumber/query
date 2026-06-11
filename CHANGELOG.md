@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [16.0.0] - 2026-06-11
 ### Changed
 - [JavaScript] BREAKING CHANGE: Switch to ESM ([#173](https://github.com/cucumber/query/pull/173))
 
@@ -291,7 +293,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v15.0.1...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v16.0.0...HEAD
+[16.0.0]: https://github.com/cucumber/query/compare/v15.0.1...v16.0.0
 [15.0.1]: https://github.com/cucumber/query/compare/v15.0.0...v15.0.1
 [15.0.0]: https://github.com/cucumber/query/compare/v14.7.0...v15.0.0
 [14.7.0]: https://github.com/cucumber/query/compare/v14.6.0...v14.7.0
