@@ -32,8 +32,8 @@ import {
 import { ArrayMultimap } from '@teppeis/multimaps'
 import sortBy from 'lodash.sortby'
 
-import { assert, statusOrdinal } from './helpers'
-import type { Lineage } from './Lineage'
+import { assert, statusOrdinal } from './helpers.js'
+import type { Lineage } from './Lineage.js'
 
 export default class Query {
   private meta: Meta
