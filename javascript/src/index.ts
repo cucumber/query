@@ -1,5 +1,5 @@
-import Query from './Query'
+import Query from './Query.js'
 
-export * from './Lineage'
+export * from './Lineage.js'
 
 export { Query }

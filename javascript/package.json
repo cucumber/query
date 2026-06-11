@@ -2,7 +2,7 @@
   "name": "@cucumber/query",
   "version": "15.0.1",
   "description": "Cucumber Query - query messages",
-  "type": "commonjs",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -10,6 +10,7 @@
     "clean": "rm -rf dist",
     "fix": "biome check --fix --error-on-warnings",
     "lint": "biome check --error-on-warnings",
+    "postbuild": "node -e \"require('.')\"",
     "test": "mocha",
     "prepublishOnly": "tsc -p tsconfig.build.json"
   },

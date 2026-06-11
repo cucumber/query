@@ -7,7 +7,7 @@ import { pipeline } from 'node:stream/promises'
 import { NdjsonToMessageStream } from '@cucumber/message-streams'
 import type { Envelope, Pickle } from '@cucumber/messages'
 
-import Query from './Query'
+import Query from './Query.js'
 
 const reversePickleComparator = (a: Pickle, b: Pickle): number => {
   if (a.uri !== b.uri) {
@@ -21,15 +21,15 @@ const reversePickleComparator = (a: Pickle, b: Pickle): number => {
 
 describe('Acceptance Tests', async () => {
   const sources = [
-    path.join(__dirname, '../../testdata/src/attachments.ndjson'),
-    path.join(__dirname, '../../testdata/src/empty.ndjson'),
-    path.join(__dirname, '../../testdata/src/global-hooks.ndjson'),
-    path.join(__dirname, '../../testdata/src/global-hooks-attachments.ndjson'),
-    path.join(__dirname, '../../testdata/src/hooks.ndjson'),
-    path.join(__dirname, '../../testdata/src/minimal.ndjson'),
-    path.join(__dirname, '../../testdata/src/rules.ndjson'),
-    path.join(__dirname, '../../testdata/src/examples-tables.ndjson'),
-    path.join(__dirname, '../../testdata/src/unknown-parameter-type.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/attachments.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/empty.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/global-hooks.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/global-hooks-attachments.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/hooks.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/minimal.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/rules.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/examples-tables.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/unknown-parameter-type.ndjson'),
   ]
   const queries: Queries = {
     countMostSevereTestStepResultStatus: (query: Query) =>
@@ -316,7 +316,10 @@ describe('Acceptance Tests', async () => {
 
         const expectedResults = JSON.parse(
           fs.readFileSync(
-            path.join(__dirname, `../../testdata/src/${suiteName}.${methodName}.results.json`),
+            path.join(
+              import.meta.dirname,
+              `../../testdata/src/${suiteName}.${methodName}.results.json`
+            ),
             {
               encoding: 'utf-8',
             }

@@ -4,8 +4,8 @@ import path from 'node:path'
 
 import type { Envelope, TestCaseStarted } from '@cucumber/messages'
 
-import type { Lineage } from './Lineage'
-import Query from './Query'
+import type { Lineage } from './Lineage.js'
+import Query from './Query.js'
 
 describe('Query', () => {
   let cucumberQuery: Query
@@ -91,7 +91,7 @@ describe('Query', () => {
   describe('#findLineageBy', () => {
     it('returns correct lineage for a minimal scenario', async () => {
       const envelopes: ReadonlyArray<Envelope> = (
-        await fs.readFile(path.join(__dirname, '../../testdata/src/minimal.ndjson'), {
+        await fs.readFile(path.join(import.meta.dirname, '../../testdata/src/minimal.ndjson'), {
           encoding: 'utf-8',
         })
       )
@@ -116,9 +116,12 @@ describe('Query', () => {
 
     it('returns correct lineage for a pickle from an examples table', async () => {
       const envelopes: ReadonlyArray<Envelope> = (
-        await fs.readFile(path.join(__dirname, '../../testdata/src/examples-tables.ndjson'), {
-          encoding: 'utf-8',
-        })
+        await fs.readFile(
+          path.join(import.meta.dirname, '../../testdata/src/examples-tables.ndjson'),
+          {
+            encoding: 'utf-8',
+          }
+        )
       )
         .split('\n')
         .filter((line) => !!line)
@@ -147,9 +150,12 @@ describe('Query', () => {
 
     it('returns correct lineage for a pickle with background-derived steps', async () => {
       const envelopes: ReadonlyArray<Envelope> = (
-        await fs.readFile(path.join(__dirname, '../../testdata/src/rules-backgrounds.ndjson'), {
-          encoding: 'utf-8',
-        })
+        await fs.readFile(
+          path.join(import.meta.dirname, '../../testdata/src/rules-backgrounds.ndjson'),
+          {
+            encoding: 'utf-8',
+          }
+        )
       )
         .split('\n')
         .filter((line) => !!line)
