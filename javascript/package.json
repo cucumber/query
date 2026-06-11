@@ -51,8 +51,5 @@
   "dependencies": {
     "@teppeis/multimaps": "3.0.0",
     "lodash.sortby": "^4.7.0"
-  },
-  "overrides": {
-    "@cucumber/messages": "33.0.2"
   }
 }
