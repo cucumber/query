@@ -9,6 +9,7 @@ require 'cucumber/messages'
 # see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
 #
 module Cucumber
+  # Provides lookup methods for related Cucumber messages stored in a Repository.
   class Query
     attr_reader :repository
     private :repository
@@ -157,7 +158,7 @@ module Cucumber
       ensure_only_message_types!(test_step, %i[test_step], '#find_step_definitions_by')
 
       ids = test_step.step_definition_ids.nil? ? [] : test_step.step_definition_ids
-      ids.map { |id| repository.step_definition_by_id[id] }.compact
+      ids.filter_map { |id| repository.step_definition_by_id[id] }
     end
 
     # This method will be called with 1 of these 4 messages

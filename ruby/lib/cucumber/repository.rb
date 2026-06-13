@@ -38,27 +38,39 @@ module Cucumber
       @test_steps_finished_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
     end
 
+    UPDATE_HANDLERS = {
+      meta: :update_meta,
+      test_run_started: :update_test_run_started,
+      test_run_finished: :update_test_run_finished,
+      attachment: :update_attachment,
+      gherkin_document: :update_gherkin_document,
+      hook: :update_hook,
+      pickle: :update_pickle,
+      step_definition: :update_step_definition,
+      test_run_hook_started: :update_test_run_hook_started,
+      test_run_hook_finished: :update_test_run_hook_finished,
+      test_case_started: :update_test_case_started,
+      test_case_finished: :update_test_case_finished,
+      test_step_started: :update_test_step_started,
+      test_step_finished: :update_test_step_finished,
+      test_case: :update_test_case
+    }.freeze
+    private_constant :UPDATE_HANDLERS
+
     def update(envelope)
-      return self.meta = envelope.meta if envelope.meta
-      return self.test_run_started = envelope.test_run_started if envelope.test_run_started
-      return self.test_run_finished = envelope.test_run_finished if envelope.test_run_finished
-      return update_attachment(envelope.attachment) if envelope.attachment
-      return update_gherkin_document(envelope.gherkin_document) if envelope.gherkin_document
-      return update_hook(envelope.hook) if envelope.hook
-      return update_pickle(envelope.pickle) if envelope.pickle
-      return update_step_definition(envelope.step_definition) if envelope.step_definition
-      return update_test_run_hook_started(envelope.test_run_hook_started) if envelope.test_run_hook_started
-      return update_test_run_hook_finished(envelope.test_run_hook_finished) if envelope.test_run_hook_finished
-      return update_test_case_started(envelope.test_case_started) if envelope.test_case_started
-      return update_test_case_finished(envelope.test_case_finished) if envelope.test_case_finished
-      return update_test_step_started(envelope.test_step_started) if envelope.test_step_started
-      return update_test_step_finished(envelope.test_step_finished) if envelope.test_step_finished
-      return update_test_case(envelope.test_case) if envelope.test_case
+      UPDATE_HANDLERS.each do |message_name, handler|
+        message = envelope.public_send(message_name)
+        return __send__(handler, message) if message
+      end
 
       nil
     end
 
     private
+
+    def update_meta(meta)
+      self.meta = meta
+    end
 
     def update_attachment(attachment)
       attachments_by_test_case_started_id[attachment.test_case_started_id] << attachment if attachment.test_case_started_id
@@ -115,6 +127,14 @@ module Cucumber
 
     def update_test_case_finished(test_case_finished)
       test_case_finished_by_test_case_started_id[test_case_finished.test_case_started_id] = test_case_finished
+    end
+
+    def update_test_run_started(test_run_started)
+      self.test_run_started = test_run_started
+    end
+
+    def update_test_run_finished(test_run_finished)
+      self.test_run_finished = test_run_finished
     end
 
     def update_test_run_hook_started(test_run_hook_started)

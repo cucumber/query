@@ -1,0 +1,39 @@
+name: Release RubyGems
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - release/*
+
+jobs:
+  publish-rubygem:
+    name: Publish Ruby Gem
+    runs-on: ubuntu-latest
+    environment: Release
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+          working-directory: ruby
+
+      - run: bundle exec rubocop --format simple
+        working-directory: ruby
+
+      - run: bundle exec rspec --format progress
+        working-directory: ruby
+
+      - uses: rubygems/configure-rubygems-credentials@v2.0.0
+
+      - uses: cucumber/action-publish-rubygem@v2.0.0
+        with:
+          working-directory: ruby
