@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - [Ruby] Add initial Ruby implementation and RubyGems release workflow, covering the needs of the rerun formatter only for now ([#98](https://github.com/cucumber/query/pull/98))
 
+## [16.0.0] - 2026-06-11
+### Changed
+- [JavaScript] BREAKING CHANGE: Switch to ESM ([#173](https://github.com/cucumber/query/pull/173))
+
 ## [15.0.1] - 2026-01-22
 ### Fixed
 - [Java] Fix Javadoc formatting issues
@@ -291,7 +295,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v15.0.1...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v16.0.0...HEAD
+[16.0.0]: https://github.com/cucumber/query/compare/v15.0.1...v16.0.0
 [15.0.1]: https://github.com/cucumber/query/compare/v15.0.0...v15.0.1
 [15.0.0]: https://github.com/cucumber/query/compare/v14.7.0...v15.0.0
 [14.7.0]: https://github.com/cucumber/query/compare/v14.6.0...v14.7.0

@@ -32,8 +32,8 @@ import {
 import { ArrayMultimap } from '@teppeis/multimaps'
 import sortBy from 'lodash.sortby'
 
-import { assert, statusOrdinal } from './helpers'
-import type { Lineage } from './Lineage'
+import { assert, statusOrdinal } from './helpers.js'
+import type { Lineage } from './Lineage.js'
 
 export default class Query {
   private meta: Meta
@@ -337,9 +337,15 @@ export default class Query {
     }))
 
     const sorted = withOrderBy.sort((a, b) => {
-      if (a.orderBy === undefined && b.orderBy === undefined) return 0
-      if (a.orderBy === undefined) return 1
-      if (b.orderBy === undefined) return -1
+      if (a.orderBy === undefined && b.orderBy === undefined) {
+        return 0
+      }
+      if (a.orderBy === undefined) {
+        return 1
+      }
+      if (b.orderBy === undefined) {
+        return -1
+      }
       return order(a.orderBy, b.orderBy)
     })
 
@@ -356,9 +362,15 @@ export default class Query {
     }))
 
     const sorted = withOrderBy.sort((a, b) => {
-      if (a.orderBy === undefined && b.orderBy === undefined) return 0
-      if (a.orderBy === undefined) return 1
-      if (b.orderBy === undefined) return -1
+      if (a.orderBy === undefined && b.orderBy === undefined) {
+        return 0
+      }
+      if (a.orderBy === undefined) {
+        return 1
+      }
+      if (b.orderBy === undefined) {
+        return -1
+      }
       return order(a.orderBy, b.orderBy)
     })
 

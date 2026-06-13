@@ -1,16 +1,18 @@
 {
   "name": "@cucumber/query",
-  "version": "15.0.1",
+  "version": "16.0.0",
   "description": "Cucumber Query - query messages",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist",
     "fix": "biome check --fix --error-on-warnings",
     "lint": "biome check --error-on-warnings",
+    "postbuild": "node -e \"require('.')\"",
     "test": "mocha",
-    "prepublishOnly": "tsc --build tsconfig.build.json"
+    "prepublishOnly": "tsc -p tsconfig.build.json"
   },
   "repository": {
     "type": "git",
@@ -27,21 +29,22 @@
   "homepage": "https://github.com/cucumber/query#readme",
   "devDependencies": {
     "@biomejs/biome": "^2.4.13",
-    "@cucumber/biome-config": "github:cucumber/biome-config#v0.1.0",
-    "@cucumber/message-streams": "^4.0.1",
-    "@cucumber/messages": "32.3.1",
+    "@cucumber/biome-config": "github:cucumber/biome-config#v0.2.1",
+    "@cucumber/message-streams": "^5.0.0",
+    "@cucumber/messages": "33.0.2",
+    "@tsconfig/recommended": "^1.0.13",
     "@types/lodash.sortby": "^4.7.9",
     "@types/mocha": "10.0.10",
-    "@types/node": "22.19.19",
+    "@types/node": "22.19.21",
     "ajv": "8.20.0",
     "ajv-cli": "5.0.0",
     "glob": "^13.0.0",
-    "mocha": "11.7.5",
+    "mocha": "11.7.6",
     "pretty-quick": "4.2.2",
     "rimraf": "^6.0.0",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-    "typescript": "5.9.3"
+    "typescript": "6.0.3"
   },
   "peerDependencies": {
     "@cucumber/messages": "*"
@@ -49,8 +52,5 @@
   "dependencies": {
     "@teppeis/multimaps": "3.0.0",
     "lodash.sortby": "^4.7.0"
-  },
-  "overrides": {
-    "@cucumber/messages": "32.3.1"
   }
 }
