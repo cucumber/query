@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cucumber-query (21.0.0)
+    cucumber-query (15.0.1)
       cucumber-messages (> 31, < 33)
 
 GEM
