@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [Ruby] Add initial Ruby implementation and RubyGems release workflow, covering the needs of the rerun formatter only for now ([#98](https://github.com/cucumber/query/pull/98))
 
 ## [15.0.1] - 2026-01-22
 ### Fixed
