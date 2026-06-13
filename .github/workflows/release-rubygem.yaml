@@ -23,8 +23,11 @@ jobs:
       - uses: ruby/setup-ruby@6aaa311d81eba98ae12eaffbcb63296ace0efcde # v1.307.0
         with:
           ruby-version: '3.4'
-          bundler-cache: true
+          bundler-cache: false
           working-directory: ruby
+
+      - run: bundle install
+        working-directory: ruby
 
       - run: bundle exec rubocop --format simple
         working-directory: ruby
