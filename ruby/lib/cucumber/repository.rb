@@ -12,14 +12,6 @@ module Cucumber
                 :test_run_hook_started_by_id, :test_run_hook_finished_by_test_run_hook_started_id,
                 :test_step_by_id, :test_steps_started_by_test_case_started_id, :test_steps_finished_by_test_case_started_id
 
-    # TODO: Missing structs (2)
-    #   final Map<String, List<Suggestion>> suggestionsByPickleStepId = new LinkedHashMap<>();
-    #   final List<UndefinedParameterType> undefinedParameterTypes = new ArrayList<>();
-
-    # TODO: Missing handlers
-    #   Source
-    #
-
     def initialize
       @attachments_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
       @attachments_by_test_run_hook_started_id = Hash.new { |hash, key| hash[key] = [] }
@@ -91,7 +83,6 @@ module Cucumber
     end
 
     def update_gherkin_document(gherkin_document)
-      # TODO: Update lineage at a later date. Java Impl -> lineageById.putAll(Lineages.of(document));
       update_feature(gherkin_document.feature) if gherkin_document.feature
     end
 

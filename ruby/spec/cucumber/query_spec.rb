@@ -29,7 +29,7 @@ queries = {
 
 RSpec.describe Cucumber::Query do
   def testdata_path(name)
-    File.expand_path("../support/#{name}", __dir__)
+    File.expand_path("../../../testdata/src/#{name}", __dir__)
   end
 
   def parse_ndjson_file(path)

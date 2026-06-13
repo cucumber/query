@@ -21,22 +21,8 @@ module Cucumber
       @repository = repository
     end
 
-    # TODO: count methods (1/2) Complete
-    #   Missing: countMostSevereTestStepResultStatus
-
-    # TODO: findAll methods (11/12) Complete
-    #   Missing: findAllUndefinedParameterTypes
-
-    # TODO: find****By methods (16/25) Complete
-    #   Missing: findSuggestionsBy (2 variants)
-    #   Missing: findUnambiguousStepDefinitionBy (1 variant)
-    #   Missing: findTestStepFinishedAndTestStepBy (1 variant)
-    #   Missing: findAttachmentsBy (2 variants)
-    #   Missing: findTestCaseDurationBy (2 variant)
-    #   REDUNDANT: findLineageBy (9 variants!)
-    #   REDUNDANT: findLocationOf (1 variant) - This strictly speaking isn't a findBy but is located within them
-    #   To Review: findMostSevereTestStepResultBy (2 variants)
-    #   To Review: findTestRunDuration (1 variant) - This strictly speaking isn't a findBy but is located within them
+    # This initial Ruby implementation covers the query methods needed by current Ruby consumers.
+    # Additional methods can be added here as those consumers migrate from cucumber-ruby's legacy query helpers.
 
     def count_test_cases_started
       find_all_test_case_started.length
