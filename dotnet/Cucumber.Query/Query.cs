@@ -155,6 +155,8 @@ public class Query
 
     public Location? FindLocationOf(Pickle pickle)
     {
+        if (pickle.Location != null)
+            return pickle.Location;
         var lineage = FindLineageBy(pickle);
         if (lineage == null)
             return null;

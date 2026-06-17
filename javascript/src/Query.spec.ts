@@ -90,14 +90,7 @@ describe('Query', () => {
 
   describe('#findLineageBy', () => {
     it('returns correct lineage for a minimal scenario', async () => {
-      const envelopes: ReadonlyArray<Envelope> = (
-        await fs.readFile(path.join(import.meta.dirname, '../../testdata/src/minimal.ndjson'), {
-          encoding: 'utf-8',
-        })
-      )
-        .split('\n')
-        .filter((line) => !!line)
-        .map((line) => JSON.parse(line))
+      const envelopes = await loadEnvelopes('minimal.ndjson')
       for (const envelope of envelopes) {
         cucumberQuery.update(envelope)
       }
@@ -115,17 +108,7 @@ describe('Query', () => {
     })
 
     it('returns correct lineage for a pickle from an examples table', async () => {
-      const envelopes: ReadonlyArray<Envelope> = (
-        await fs.readFile(
-          path.join(import.meta.dirname, '../../testdata/src/examples-tables.ndjson'),
-          {
-            encoding: 'utf-8',
-          }
-        )
-      )
-        .split('\n')
-        .filter((line) => !!line)
-        .map((line) => JSON.parse(line))
+      const envelopes = await loadEnvelopes('examples-tables.ndjson')
       for (const envelope of envelopes) {
         cucumberQuery.update(envelope)
       }
@@ -149,17 +132,7 @@ describe('Query', () => {
     })
 
     it('returns correct lineage for a pickle with background-derived steps', async () => {
-      const envelopes: ReadonlyArray<Envelope> = (
-        await fs.readFile(
-          path.join(import.meta.dirname, '../../testdata/src/rules-backgrounds.ndjson'),
-          {
-            encoding: 'utf-8',
-          }
-        )
-      )
-        .split('\n')
-        .filter((line) => !!line)
-        .map((line) => JSON.parse(line))
+      const envelopes = await loadEnvelopes('rules-backgrounds.ndjson')
       for (const envelope of envelopes) {
         cucumberQuery.update(envelope)
       }
@@ -184,4 +157,43 @@ describe('Query', () => {
       } satisfies Lineage)
     })
   })
+
+  describe('#findLocationOf', () => {
+    it('falls back to the scenario location when the pickle has no location', async () => {
+      const envelopes = await loadEnvelopes('minimal.ndjson')
+      for (const envelope of envelopes) {
+        cucumberQuery.update(envelope)
+      }
+      const pickle = envelopes.find((envelope) => envelope.pickle).pickle
+
+      assert.deepStrictEqual(
+        cucumberQuery.findLocationOf({ ...pickle, location: undefined }),
+        pickle.location
+      )
+    })
+
+    it('falls back to the example row location when the pickle has no location', async () => {
+      const envelopes = await loadEnvelopes('examples-tables.ndjson')
+      for (const envelope of envelopes) {
+        cucumberQuery.update(envelope)
+      }
+      const pickle = envelopes.find((envelope) => envelope.pickle).pickle
+
+      assert.deepStrictEqual(
+        cucumberQuery.findLocationOf({ ...pickle, location: undefined }),
+        pickle.location
+      )
+    })
+  })
 })
+
+async function loadEnvelopes(filename: string): Promise<ReadonlyArray<Envelope>> {
+  return (
+    await fs.readFile(path.join(import.meta.dirname, '../../testdata/src', filename), {
+      encoding: 'utf-8',
+    })
+  )
+    .split('\n')
+    .filter((line) => !!line)
+    .map((line) => JSON.parse(line))
+}

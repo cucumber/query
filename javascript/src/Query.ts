@@ -443,6 +443,9 @@ export default class Query {
   }
 
   public findLocationOf(pickle: Pickle): Location | undefined {
+    if (pickle.location) {
+      return pickle.location
+    }
     const lineage = this.findLineageBy(pickle)
     if (lineage?.example) {
       return lineage.example.location
