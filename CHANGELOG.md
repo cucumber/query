@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- Prefer Pickle.Location with fallback to Lineage ([#175](https://github.com/cucumber/query/pull/175))
 
 ## [16.0.0] - 2026-06-11
 ### Changed
