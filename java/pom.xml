@@ -9,21 +9,21 @@
     </parent>
 
     <artifactId>query</artifactId>
-    <version>16.0.1</version>
+    <version>16.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Cucumber Query</name>
     <description>Given one Cucumber Message, find another</description>
     <url>https://github.com/cucumber/query</url>
 
     <properties>
-        <project.build.outputTimestamp>1782055352</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1782055360</project.build.outputTimestamp>
     </properties>
 
     <scm>
         <connection>scm:git:git://github.com/cucumber/query.git</connection>
         <developerConnection>scm:git:git@github.com:cucumber/query.git</developerConnection>
         <url>git://github.com/cucumber/query.git</url>
-        <tag>v16.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencyManagement>
