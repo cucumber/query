@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [16.0.1] - 2026-06-21
 ### Fixed
 - [JavaScript] Remove namespace imports from messages
 
@@ -295,7 +297,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v16.0.0...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v16.0.1...HEAD
+[16.0.1]: https://github.com/cucumber/query/compare/v16.0.0...v16.0.1
 [16.0.0]: https://github.com/cucumber/query/compare/v15.0.1...v16.0.0
 [15.0.1]: https://github.com/cucumber/query/compare/v15.0.0...v15.0.1
 [15.0.0]: https://github.com/cucumber/query/compare/v14.7.0...v15.0.0
