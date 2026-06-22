@@ -1,7 +1,7 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.NdjsonToMessageReader;
-import io.cucumber.messages.ndjson.Deserializer;
+import io.cucumber.messages.ndjson.Json;
 import io.cucumber.messages.types.Background;
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Examples;
@@ -25,6 +25,10 @@ import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOC
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LineageTest {
+
+    private static final NdjsonToMessageReader.Deserializer deserializer = Json.instance()
+            .map(json -> json.deserializer(Envelope.class))
+            .orElseThrow()::readValue;
 
     final Repository repository = Repository.builder()
             .feature(INCLUDE_GHERKIN_DOCUMENTS, true)
@@ -122,7 +126,7 @@ class LineageTest {
 
     private static @NonNull List<Envelope> readMessages(Path path) throws IOException {
         var in = Files.newInputStream(path);
-        var reader = new NdjsonToMessageReader(in, new Deserializer());
+        var reader = new NdjsonToMessageReader(in, deserializer);
         return reader.lines().toList();
     }
 }
