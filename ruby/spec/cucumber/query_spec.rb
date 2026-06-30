@@ -44,7 +44,7 @@ RSpec.describe Cucumber::Query do
   #   New items should be added when new queries have been adapted to work with them
   #     AND
   #   When the requisite sample data result files have been created
-  enabled_files = %w[attachments empty hooks minimal rules].freeze
+  enabled_files = %w[attachments empty examples-tables global-hooks hooks minimal rules unknown-parameter-type].freeze
 
   files_in_testdata = Dir.glob(File.expand_path("../../../testdata/src/*.ndjson", __dir__))
   files_in_testdata = files_in_testdata.select do |file|
