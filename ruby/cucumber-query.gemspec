@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/cucumber/query'
   s.platform    = Gem::Platform::RUBY
   s.license     = 'MIT'
-  s.required_ruby_version = '>= 3.2'
+  s.required_ruby_version = '>= 3.3'
   s.required_rubygems_version = '>= 3.2.8'
 
   s.metadata = {
@@ -21,12 +21,12 @@ Gem::Specification.new do |s|
     'source_code_uri' => 'https://github.com/cucumber/query/blob/main/ruby'
   }
 
-  s.add_dependency 'cucumber-messages', '> 31', '< 33'
+  s.add_dependency 'cucumber-messages', '> 31', '< 34'
 
   s.add_development_dependency 'rspec', '~> 3.13'
-  s.add_development_dependency 'rubocop', '~> 1.80.0'
-  s.add_development_dependency 'rubocop-performance', '~> 1.25.0'
-  s.add_development_dependency 'rubocop-rspec', '~> 3.7.0'
+  s.add_development_dependency 'rubocop', '~> 1.88.0'
+  s.add_development_dependency 'rubocop-performance', '~> 1.26.1'
+  s.add_development_dependency 'rubocop-rspec', '~> 3.10.2'
 
   s.files            = Dir['LICENSE', 'VERSION', 'lib/**/*']
   s.rdoc_options     = ['--charset=UTF-8']
