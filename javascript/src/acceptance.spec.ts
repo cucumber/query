@@ -238,12 +238,6 @@ describe('Acceptance Tests', async () => {
     findTestRunDuration: (query: Query) => query.findTestRunDuration(),
     findTestRunFinished: (query: Query) => query.findTestRunFinished(),
     findTestRunStarted: (query: Query) => query.findTestRunStarted(),
-    findTestStepBy: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
-        .map((testStepStarted) => query.findTestStepBy(testStepStarted))
-        .map((testStep) => testStep?.id),
     findTestStepsStartedBy: (query: Query) => {
       return {
         testCaseStarted: query
@@ -260,16 +254,16 @@ describe('Acceptance Tests', async () => {
           ),
       }
     },
-    findTestStepByTestStepFinished: (query: Query) => {
+    findTestStepBy: (query: Query) => {
       return {
-        testCaseStarted: query
+        testStepStarted: query
+          .findAllTestCaseStarted()
+          .flatMap((testCaseStarted) => query.findTestStepsStartedBy(testCaseStarted))
+          .map((testStepStarted) => query.findTestStepBy(testStepStarted))
+          .map((testStep) => testStep?.id),
+        testStepFinished: query
           .findAllTestCaseStarted()
           .flatMap((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
-          .map((testStepFinished) => query.findTestStepBy(testStepFinished))
-          .map((testStep) => testStep?.id),
-        testCaseFinished: query
-          .findAllTestCaseFinished()
-          .flatMap((testCaseFinished) => query.findTestStepsFinishedBy(testCaseFinished))
           .map((testStepFinished) => query.findTestStepBy(testStepFinished))
           .map((testStep) => testStep?.id),
       }

@@ -1,4 +1,10 @@
-[
-  "18",
-  "20"
-]
+{
+  "testStepStarted" : [
+    "18",
+    "20"
+  ],
+  "testStepFinished" : [
+    "18",
+    "20"
+  ]
+}
