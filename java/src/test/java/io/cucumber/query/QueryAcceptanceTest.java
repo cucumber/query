@@ -395,12 +395,6 @@ class QueryAcceptanceTest {
                 .map(Convertor::toMessage));
         queries.put("findTestRunFinished", Query::findTestRunFinished);
         queries.put("findTestRunStarted", Query::findTestRunStarted);
-        queries.put("findTestStepBy", query -> query.findAllTestCaseStarted().stream()
-                .map(query::findTestStepsStartedBy)
-                .flatMap(Collection::stream)
-                .map(query::findTestStepBy)
-                .map(testStep -> testStep.map(TestStep::getId))
-                .collect(toList()));
 
         queries.put("findTestStepsStartedBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
@@ -427,16 +421,16 @@ class QueryAcceptanceTest {
                 .map(testRunHookStarted -> testRunHookStarted.map(TestRunHookStarted::getId))
                 .collect(toList()));
 
-        queries.put("findTestStepByTestStepFinished", query -> {
+        queries.put("findTestStepBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
 
-            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
-                    .map(query::findTestStepsFinishedBy)
+            results.put("testStepStarted", query.findAllTestCaseStarted().stream()
+                    .map(query::findTestStepsStartedBy)
                     .flatMap(Collection::stream)
                     .map(query::findTestStepBy)
                     .map(testStep -> testStep.map(TestStep::getId))
                     .collect(toList()));
-            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+            results.put("testStepFinished", query.findAllTestCaseStarted().stream()
                     .map(query::findTestStepsFinishedBy)
                     .flatMap(Collection::stream)
                     .map(query::findTestStepBy)
