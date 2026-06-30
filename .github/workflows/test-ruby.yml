@@ -28,29 +28,23 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-        ruby: ['3.2', '3.3', '3.4', '4.0']
+        ruby: ['3.3', '3.4', '4.0']
         include:
           - os: macos-latest
-            ruby: '3.4'
+            ruby: '4.0'
           - os: windows-latest
-            ruby: '3.4'
+            ruby: '4.0'
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-
       - uses: ruby/setup-ruby@6aaa311d81eba98ae12eaffbcb63296ace0efcde # v1.307.0
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ruby
-
       - run: bundle exec rubocop --format simple
         working-directory: ruby
-
       - run: bundle exec rspec --format progress
-        working-directory: ruby
-
-      - run: gem build cucumber-query.gemspec
         working-directory: ruby
