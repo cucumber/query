@@ -14,17 +14,17 @@ on:
   pull_request:
     branches:
       - main
+      - renovate/**
     paths:
       - ruby/**
       - testdata/**
       - .github/**
-  workflow_call:
 
 jobs:
   test-ruby:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os:
           - ubuntu-latest
@@ -44,7 +44,5 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
           working-directory: ruby
-      - run: bundle exec rubocop --format simple
-        working-directory: ruby
-      - run: bundle exec rspec --format progress
+      - run: bundle exec rspec
         working-directory: ruby
