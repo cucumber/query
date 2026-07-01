@@ -215,10 +215,6 @@ public class QueryAcceptanceTest
             ["findTestRunDuration"] = q => ConvertTimeSpanToTimestamp(q.FindTestRunDuration())!,
             ["findTestRunFinished"] = q => q.FindTestRunFinished()!,
             ["findTestRunStarted"] = q => q.FindTestRunStarted()!,
-            ["findTestStepBy"] = q => q.FindAllTestCaseStarted()
-                .SelectMany(tcs => q.FindTestStepsStartedBy(tcs))
-                .Select(tss => q.FindTestStepBy(tss)?.Id)
-                .ToList(),
             ["findTestStepsStartedBy"] = q => new Dictionary<string, object>
             {
                 ["testCaseStarted"] = q.FindAllTestCaseStarted()
@@ -234,13 +230,13 @@ public class QueryAcceptanceTest
             ["findTestRunHookStartedBy"] = q => q.FindAllTestRunHookFinished()
                 .Select(trhf => q.FindTestRunHookStartedBy(trhf)?.Id)
                 .ToList(),
-            ["findTestStepByTestStepFinished"] = q => new Dictionary<string, object>
+            ["findTestStepBy"] = q => new Dictionary<string, object>
             {
-                ["testCaseStarted"] = q.FindAllTestCaseStarted()
-                    .SelectMany(tcs => q.FindTestStepsFinishedBy(tcs))
-                    .Select(tsf => q.FindTestStepBy(tsf)?.Id)
+                ["testStepStarted"] = q.FindAllTestCaseStarted()
+                    .SelectMany(tcs => q.FindTestStepsStartedBy(tcs))
+                    .Select(tss => q.FindTestStepBy(tss)?.Id)
                     .ToList(),
-                ["testCaseFinished"] = q.FindAllTestCaseFinished()
+                ["testStepFinished"] = q.FindAllTestCaseStarted()
                     .SelectMany(tcf => q.FindTestStepsFinishedBy(tcf))
                     .Select(tsf => q.FindTestStepBy(tsf)?.Id)
                     .ToList()

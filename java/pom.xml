@@ -5,18 +5,18 @@
     <parent>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-parent</artifactId>
-        <version>5.4.1</version>
+        <version>5.6.0</version>
     </parent>
 
     <artifactId>query</artifactId>
-    <version>16.0.1-SNAPSHOT</version>
+    <version>16.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Cucumber Query</name>
     <description>Given one Cucumber Message, find another</description>
     <url>https://github.com/cucumber/query</url>
 
     <properties>
-        <project.build.outputTimestamp>1781173976</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1782055360</project.build.outputTimestamp>
     </properties>
 
     <scm>
@@ -31,15 +31,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>6.1.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>2.21.4</version>
+                <version>6.1.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -48,6 +40,14 @@
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-bom</artifactId>
                 <version>3.27.7</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>3.2.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>messages-ndjson</artifactId>
-            <version>0.4.1</version>
+            <version>0.5.1</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -75,26 +75,14 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jdk8</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-parameter-names</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
             <scope>test</scope>
         </dependency>
 

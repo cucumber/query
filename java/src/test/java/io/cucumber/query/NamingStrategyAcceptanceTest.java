@@ -1,7 +1,8 @@
 package io.cucumber.query;
 
 import io.cucumber.messages.NdjsonToMessageReader;
-import io.cucumber.messages.ndjson.Deserializer;
+import io.cucumber.messages.ndjson.Json;
+import io.cucumber.messages.types.Envelope;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -34,6 +35,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class NamingStrategyAcceptanceTest {
 
+    private static final NdjsonToMessageReader.Deserializer deserializer = Json.instance()
+            .map(json -> json.deserializer(Envelope.class))
+            .orElseThrow()::readValue;
+
     static List<TestCase> acceptance() {
         Map<String, NamingStrategy> strategies = new LinkedHashMap<>();
         strategies.put("long", NamingStrategy.strategy(LONG).build());
@@ -64,7 +69,7 @@ class NamingStrategyAcceptanceTest {
 
     private static void writeResults(NamingStrategy strategy, TestCase testCase, OutputStream out) throws IOException {
         try (var in = Files.newInputStream(testCase.source)) {
-            try (var reader = new NdjsonToMessageReader(in, new Deserializer())) {
+            try (var reader = new NdjsonToMessageReader(in, deserializer)) {
                 try (var writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, UTF_8)))) {
                     var repository = createRepository();
                     reader.lines().forEach(repository::update);

@@ -1,9 +1,10 @@
 package io.cucumber.query;
 
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.LocationComparator;
 import io.cucumber.messages.NdjsonToMessageReader;
+import io.cucumber.messages.ndjson.Json;
+import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.Hook;
 import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.PickleStep;
@@ -19,10 +20,14 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepStarted;
-import io.cucumber.messages.ndjson.Deserializer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.util.DefaultIndenter;
+import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.databind.cfg.ConstructorDetector;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,8 +46,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.fasterxml.jackson.core.util.DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
-import static io.cucumber.query.Jackson.OBJECT_MAPPER;
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_ABSENT;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_ATTACHMENTS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_GHERKIN_DOCUMENTS;
 import static io.cucumber.query.Repository.RepositoryFeature.INCLUDE_HOOKS;
@@ -57,10 +61,27 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class QueryAcceptanceTest {
+
+    private static final JsonMapper jsonMapper = JsonMapper.builder()
+            .changeDefaultPropertyInclusion(value -> value
+                    .withContentInclusion(NON_ABSENT)
+                    .withValueInclusion(NON_ABSENT)
+            )
+            .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
+            .disable(StreamWriteFeature.AUTO_CLOSE_TARGET)
+            .defaultPrettyPrinter(new DefaultPrettyPrinter()
+                    .withObjectIndenter(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE)
+                    .withArrayIndenter(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE))
+            .build();
+    private static final NdjsonToMessageReader.Deserializer deserializer = Json.instance()
+            .map(json -> json.deserializer(Envelope.class))
+            .orElseThrow()::readValue;
     private static final Comparator<Pickle> pickleComparator = Comparator.comparing(Pickle::getUri)
             .thenComparing(pickle -> pickle.getLocation().orElse(null), nullsFirst(new LocationComparator()));
     private static final Comparator<Pickle> reversePickleComparator = nullsFirst(pickleComparator)
             .reversed();
+
+
 
     static List<QueryTestCase> acceptance() {
         List<QueryTestCase> testCases = new ArrayList<>();
@@ -109,14 +130,12 @@ class QueryAcceptanceTest {
 
     private static <T extends OutputStream> T writeQueryResults(QueryTestCase testCase, T out) throws IOException {
         try (InputStream in = Files.newInputStream(testCase.source)) {
-            try (var reader = new NdjsonToMessageReader(in, new Deserializer())) {
+            try (var reader = new NdjsonToMessageReader(in, deserializer)) {
                 var repository = createRepository();
                 reader.lines().forEach(repository::update);
                 var query = new Query(repository);
                 var queryResults = testCase.query.apply(query);
-                var prettyPrinter = new DefaultPrettyPrinter()
-                        .withArrayIndenter(SYSTEM_LINEFEED_INSTANCE);
-                OBJECT_MAPPER.writer(prettyPrinter).writeValue(out, queryResults);
+                jsonMapper.writerWithDefaultPrettyPrinter().writeValue(out, queryResults);
             }
         }
         return out;
@@ -376,12 +395,6 @@ class QueryAcceptanceTest {
                 .map(Convertor::toMessage));
         queries.put("findTestRunFinished", Query::findTestRunFinished);
         queries.put("findTestRunStarted", Query::findTestRunStarted);
-        queries.put("findTestStepBy", query -> query.findAllTestCaseStarted().stream()
-                .map(query::findTestStepsStartedBy)
-                .flatMap(Collection::stream)
-                .map(query::findTestStepBy)
-                .map(testStep -> testStep.map(TestStep::getId))
-                .collect(toList()));
 
         queries.put("findTestStepsStartedBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
@@ -408,16 +421,16 @@ class QueryAcceptanceTest {
                 .map(testRunHookStarted -> testRunHookStarted.map(TestRunHookStarted::getId))
                 .collect(toList()));
 
-        queries.put("findTestStepByTestStepFinished", query -> {
+        queries.put("findTestStepBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
 
-            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
-                    .map(query::findTestStepsFinishedBy)
+            results.put("testStepStarted", query.findAllTestCaseStarted().stream()
+                    .map(query::findTestStepsStartedBy)
                     .flatMap(Collection::stream)
                     .map(query::findTestStepBy)
                     .map(testStep -> testStep.map(TestStep::getId))
                     .collect(toList()));
-            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+            results.put("testStepFinished", query.findAllTestCaseStarted().stream()
                     .map(query::findTestStepsFinishedBy)
                     .flatMap(Collection::stream)
                     .map(query::findTestStepBy)

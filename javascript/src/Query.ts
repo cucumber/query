@@ -1,7 +1,7 @@
-import type * as messages from '@cucumber/messages'
 import {
   type Attachment,
   type Duration,
+  type Envelope,
   type Feature,
   type GherkinDocument,
   type Hook,
@@ -64,7 +64,7 @@ export default class Query {
     new ArrayMultimap()
   private readonly undefinedParameterTypes: UndefinedParameterType[] = []
 
-  public update(envelope: messages.Envelope) {
+  public update(envelope: Envelope) {
     if (envelope.meta) {
       this.meta = envelope.meta
     }
@@ -443,6 +443,9 @@ export default class Query {
   }
 
   public findLocationOf(pickle: Pickle): Location | undefined {
+    if (pickle.location) {
+      return pickle.location
+    }
     const lineage = this.findLineageBy(pickle)
     if (lineage?.example) {
       return lineage.example.location
