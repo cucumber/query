@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
-require 'cucumber/query'
-
 RSpec.describe Cucumber::Query do
   def testdata_path(name)
     File.expand_path("../../../testdata/src/#{name}", __dir__)
@@ -38,27 +35,25 @@ RSpec.describe Cucumber::Query do
       results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_pickle_by(message).name }
       results
     end
-  }.freeze
+  }
 
-  # This list needs to be tightly controlled.
-  #   New items should be added when new queries have been adapted to work with them
-  #     AND
-  #   When the requisite sample data result files have been created
-  enabled_files = %w[attachments empty examples-tables global-hooks hooks minimal rules unknown-parameter-type].freeze
-
-  files_in_testdata = Dir.glob(File.expand_path("../../../testdata/src/*.ndjson", __dir__))
-  files_in_testdata = files_in_testdata.select do |file|
-    enabled_files.any? do |enabled_file|
-      file.match?("/#{enabled_file}.ndjson")
-    end
-  end
-  filenames_in_testdata = files_in_testdata.map { |file| file.split('/').last.split('.').first }
+  sources = %w[
+    attachments
+    empty
+    examples-tables
+    global-hooks
+    global-hooks-attachments
+    hooks
+    minimal
+    rules
+    unknown-parameter-type
+  ]
 
   subject(:query) { described_class.new(repository) }
 
   let(:repository) { Cucumber::Repository.new }
 
-  filenames_in_testdata.product(queries.to_a).each do |source_name, (query_name, query_proc)|
+  sources.product(queries.to_a).each do |source_name, (query_name, query_proc)|
     describe "Query: '#{query_name}'. testdata source: '#{source_name}'" do
       let(:source) { testdata_path("#{source_name}.ndjson") }
       let(:expected_results_file) { testdata_path("#{source_name}.#{query_name}.results.json") }
