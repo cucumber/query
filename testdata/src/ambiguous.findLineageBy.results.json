@@ -1,0 +1,32 @@
+{
+  "testCaseStarted" : [
+    "Attachments - Strings can be attached with a media type",
+    "Attachments - Log text",
+    "Attachments - Log ANSI coloured text",
+    "Attachments - Log JSON",
+    "Attachments - Byte arrays are base64-encoded regardless of media type",
+    "Attachments - Attaching PDFs with a different filename",
+    "Attachments - Attaching URIs",
+    "Attachments - Attaching during a failed step"
+  ],
+  "testCaseFinished" : [
+    "Attachments - Strings can be attached with a media type",
+    "Attachments - Log text",
+    "Attachments - Log ANSI coloured text",
+    "Attachments - Log JSON",
+    "Attachments - Byte arrays are base64-encoded regardless of media type",
+    "Attachments - Attaching PDFs with a different filename",
+    "Attachments - Attaching URIs",
+    "Attachments - Attaching during a failed step"
+  ],
+  "pickle" : [
+    "Attachments - Strings can be attached with a media type",
+    "Attachments - Log text",
+    "Attachments - Log ANSI coloured text",
+    "Attachments - Log JSON",
+    "Attachments - Byte arrays are base64-encoded regardless of media type",
+    "Attachments - Attaching PDFs with a different filename",
+    "Attachments - Attaching URIs",
+    "Attachments - Attaching during a failed step"
+  ]
+}
