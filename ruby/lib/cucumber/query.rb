@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
-require 'cucumber/repository'
 require 'cucumber/messages'
+
+require_relative 'repository'
 
 # Given one Cucumber Message, find another.
 #
 # Queries can be made while the test run is incomplete - and this will naturally return incomplete results
-# see <a href="https://github.com/cucumber/messages?tab=readme-ov-file#message-overview">Cucumber Messages - Message Overview</a>
+# see {Cucumber Messages - Message Overview}[https://github.com/cucumber/messages?tab=readme-ov-file#message-overview]
 #
 module Cucumber
-  # Provides lookup methods for related Cucumber messages stored in a Repository.
+  # Provides lookup methods for related Cucumber messages stored in the `Repository` class.
   class Query
     attr_reader :repository
     private :repository
@@ -105,11 +106,9 @@ module Cucumber
         find_test_steps_finished_by(message)
           .map(&:test_step_result)
           .max_by { |test_step_result| test_step_result_rankings[test_step_result.status] }
-        # Java code: "PREVIOUS".max(comparing(TestStepResult::getStatus, new TestStepResultStatusComparator()));
       else
         test_case_started_message = find_test_case_started_by(message)
         test_case_started_message && find_most_severe_test_step_result_by(test_case_started_message)
-        # Java code: return findTestCaseStartedBy(testCaseFinished).flatMap(this::findMostSevereTestStepResultBy);
       end
     end
 
