@@ -22,9 +22,6 @@ module Cucumber
       @repository = repository
     end
 
-    # This initial Ruby implementation covers the query methods needed by current Ruby consumers.
-    # Additional methods can be added here as those consumers migrate from cucumber-ruby's legacy query helpers.
-
     def count_test_cases_started
       find_all_test_case_started.length
     end
@@ -125,7 +122,13 @@ module Cucumber
     def find_pickle_by(message)
       ensure_only_message_types!(
         message,
-        [Cucumber::Messages::TestCase, Cucumber::Messages::TestCaseStarted, Cucumber::Messages::TestCaseFinished, Cucumber::Messages::TestStepStarted, Cucumber::Messages::TestStepFinished],
+        [
+          Cucumber::Messages::TestCase,
+          Cucumber::Messages::TestCaseStarted,
+          Cucumber::Messages::TestCaseFinished,
+          Cucumber::Messages::TestStepStarted,
+          Cucumber::Messages::TestStepFinished
+        ],
         '#find_pickle_by'
       )
 
@@ -175,7 +178,12 @@ module Cucumber
     def find_test_case_by(message)
       ensure_only_message_types!(
         message,
-        [Cucumber::Messages::TestCaseStarted, Cucumber::Messages::TestCaseFinished, Cucumber::Messages::TestStepStarted, Cucumber::Messages::TestStepFinished],
+        [
+          Cucumber::Messages::TestCaseStarted,
+          Cucumber::Messages::TestCaseFinished,
+          Cucumber::Messages::TestStepStarted,
+          Cucumber::Messages::TestStepFinished
+        ],
         '#find_test_case_by'
       )
 
@@ -250,7 +258,6 @@ module Cucumber
     # This method will be called with 1 of these 2 messages
     #   [TestStepStarted || TestStepFinished]
     def find_test_step_by(message)
-      # ensure_only_message_types!(message, %i[test_step_started test_step_finished], '#find_test_step_by')
       ensure_only_message_types!(
         message,
         [Cucumber::Messages::TestStepStarted, Cucumber::Messages::TestStepFinished],
