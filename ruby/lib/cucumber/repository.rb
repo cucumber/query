@@ -30,32 +30,10 @@ module Cucumber
       @test_steps_finished_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
     end
 
-    UPDATE_HANDLERS = {
-      meta: :update_meta,
-      test_run_started: :update_test_run_started,
-      test_run_finished: :update_test_run_finished,
-      attachment: :update_attachment,
-      gherkin_document: :update_gherkin_document,
-      hook: :update_hook,
-      pickle: :update_pickle,
-      step_definition: :update_step_definition,
-      test_run_hook_started: :update_test_run_hook_started,
-      test_run_hook_finished: :update_test_run_hook_finished,
-      test_case_started: :update_test_case_started,
-      test_case_finished: :update_test_case_finished,
-      test_step_started: :update_test_step_started,
-      test_step_finished: :update_test_step_finished,
-      test_case: :update_test_case
-    }.freeze
-    private_constant :UPDATE_HANDLERS
-
     def update(envelope)
-      UPDATE_HANDLERS.each do |message_name, handler|
-        message = envelope.public_send(message_name)
-        return __send__(handler, message) if message
-      end
-
-      nil
+      message_category = envelope.type[:contained_message]
+      message_value = envelope.public_send(message_category)
+      send("update_#{message_category}", message_value)
     end
 
     private
