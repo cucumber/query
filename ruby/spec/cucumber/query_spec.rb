@@ -52,7 +52,7 @@ RSpec.describe Cucumber::Query do
       file.match?("/#{enabled_file}.ndjson")
     end
   end
-  filenames_in_testdata = files_in_testdata.map { it.split('/').last.split('.').first }
+  filenames_in_testdata = files_in_testdata.map { |file| file.split('/').last.split('.').first }
 
   subject(:query) { described_class.new(repository) }
 
