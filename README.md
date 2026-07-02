@@ -14,6 +14,9 @@
   <a href="https://central.sonatype.com/artifact/io.cucumber/query">
     <img src="https://img.shields.io/maven-central/v/io.cucumber/query.svg?label=Maven%20Central&color=dark-green" alt="maven-central">
   </a>
+  <a href="https://rubygems.org/gems/cucumber-query">
+    <img src="https://img.shields.io/gem/v/cucumber-query.svg?color=dark-green" alt="rubygems">
+  </a>
   <a href="https://github.com/cucumber/query/actions/workflows/release-github.yaml">
     <img src="https://github.com/cucumber/query/actions/workflows/release-github.yaml/badge.svg" alt="build">
   </a>
@@ -38,3 +41,4 @@ is rendering the [GherkinDocument](https://github.com/cucumber/messages/blob/mai
 
 The Query library makes this easy by providing a function to look up the
 status of a step, a scenario or an entire file.
+
