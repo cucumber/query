@@ -12,8 +12,8 @@ RSpec.describe Cucumber::Query do
   queries = {
     'findAllPickles' => ->(query) { query.find_all_pickles.length },
     'findAllTestCases' => ->(query) { query.find_all_test_cases.length },
-    'findAllTestRunHookStarted' => ->(query) { query.find_all_test_run_hook_started },
-    'findAllTestRunHookFinished' => ->(query) { query.find_all_test_run_hook_finished },
+    'findAllTestRunHookStarted' => ->(query) { query.find_all_test_run_hook_started.length },
+    'findAllTestRunHookFinished' => ->(query) { query.find_all_test_run_hook_finished.length },
     'findAllTestSteps' => ->(query) { query.find_all_test_steps.length },
     'findMeta' => ->(query) { query.find_meta },
     'findPickleBy' => lambda do |query|
