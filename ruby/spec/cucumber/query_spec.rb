@@ -10,7 +10,9 @@ RSpec.describe Cucumber::Query do
   end
 
   queries = {
+    'countTestCasesStarted' => ->(query) { query.count_test_cases_started },
     'findAllPickles' => ->(query) { query.find_all_pickles.length },
+    'findAllStepDefinitions' => ->(query) { query.find_all_step_definitions.length },
     'findAllTestCases' => ->(query) { query.find_all_test_cases.length },
     'findAllTestRunHookStarted' => ->(query) { query.find_all_test_run_hook_started.length },
     'findAllTestRunHookFinished' => ->(query) { query.find_all_test_run_hook_finished.length },
