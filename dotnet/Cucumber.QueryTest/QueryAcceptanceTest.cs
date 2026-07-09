@@ -53,8 +53,8 @@ public class QueryAcceptanceTest
             ["findAllTestRunHookStarted"] = q => q.FindAllTestRunHookStarted().Count(),
             ["findAllTestRunHookFinished"] = q => q.FindAllTestRunHookFinished().Count(),
             ["findAllTestSteps"] = q => q.FindAllTestSteps().Count(),
-            ["findAllTestStepsStarted"] = q => q.FindAllTestStepStarted().Count(),
-            ["findAllTestStepsFinished"] = q => q.FindAllTestStepFinished().Count(),
+            ["findAllTestStepStarted"] = q => q.FindAllTestStepStarted().Count(),
+            ["findAllTestStepFinished"] = q => q.FindAllTestStepFinished().Count(),
             ["findAllTestCases"] = q => q.FindAllTestCases().Count(),
             ["findAllUndefinedParameterTypes"] = q => q.FindAllUndefinedParameterTypes()
                 .Select(upt => new object?[]

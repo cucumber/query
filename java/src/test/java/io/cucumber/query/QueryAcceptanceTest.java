@@ -175,8 +175,8 @@ class QueryAcceptanceTest {
         queries.put("findAllTestRunHookStarted", query -> query.findAllTestRunHookStarted().size());
         queries.put("findAllTestRunHookFinished", query -> query.findAllTestRunHookFinished().size());
         queries.put("findAllTestSteps", query -> query.findAllTestSteps().size());
-        queries.put("findAllTestStepsStarted", query -> query.findAllTestStepStarted().size());
-        queries.put("findAllTestStepsFinished", query -> query.findAllTestStepFinished().size());
+        queries.put("findAllTestStepStarted", query -> query.findAllTestStepStarted().size());
+        queries.put("findAllTestStepFinished", query -> query.findAllTestStepFinished().size());
         queries.put("findAllTestCases", query -> query.findAllTestCases().size());
         queries.put("findAllUndefinedParameterTypes", query -> query.findAllUndefinedParameterTypes().stream()
                 .map(undefinedParameterType -> Arrays.asList(
