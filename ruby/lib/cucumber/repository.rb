@@ -38,6 +38,30 @@ module Cucumber
 
     private
 
+    # Missing handlers
+
+    def method_missing(method_name, *args, &)
+      if method_name.to_s.start_with?('update_')
+        Kernel.warn("Attempting to update the repository with #{method_name}. Please raise this as a missing message handler")
+        Kernel.warn('Create an issue here: https://github.com/cucumber/query/issues')
+        nil
+      else
+        super
+      end
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      method_name.to_s.start_with?('update_') || super
+    end
+
+    def update_source(_source)
+      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
+    end
+
+    def update_undefined_parameter_type(_undefined_parameter_type)
+      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
+    end
+
     def update_meta(meta)
       self.meta = meta
     end
