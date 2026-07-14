@@ -44,6 +44,9 @@ RSpec.describe Cucumber::Query do
       results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_pickle_by(message).name }
       results
     end,
+    'findPickleStepBy' => ->(query) { query.find_all_test_steps.filter_map { |message| query.find_pickle_step_by(message)&.text } },
+    'findStepBy' => ->(query) { query.find_all_pickle_steps.map { |message| query.find_step_by(message).text } },
+    'findStepDefinitionsBy' => ->(query) { query.find_all_test_steps.map { |message| query.find_step_definitions_by(message).map(&:id) } },
     'findTestCaseBy' => lambda do |query|
       results = {}
       results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_test_case_by(message).id }
