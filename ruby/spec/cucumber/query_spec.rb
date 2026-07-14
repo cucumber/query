@@ -22,6 +22,13 @@ RSpec.describe Cucumber::Query do
     'findAllTestStepStarted' => ->(query) { query.find_all_test_step_started.length },
     'findAllTestStepFinished' => ->(query) { query.find_all_test_step_finished.length },
     'findAllTestSteps' => ->(query) { query.find_all_test_steps.length },
+    'findHookBy' => lambda do |query|
+      results = {}
+      results['testStep'] = query.find_all_test_steps.filter_map { |message| query.find_hook_by(message)&.id }
+      results['testRunHookStarted'] = query.find_all_test_run_hook_started.filter_map { |message| query.find_hook_by(message)&.id }
+      results['testRunHookFinished'] = query.find_all_test_run_hook_finished.filter_map { |message| query.find_hook_by(message)&.id }
+      results
+    end,
     'findMeta' => ->(query) { query.find_meta.implementation.name },
     'findPickleBy' => lambda do |query|
       results = {}
