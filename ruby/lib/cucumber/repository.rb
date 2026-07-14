@@ -62,6 +62,14 @@ module Cucumber
       :no_op # Not Implemented Yet. But method will be inherently called from `#update`
     end
 
+    def update_suggestion(_suggestion)
+      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
+    end
+
+    def update_feature(_feature)
+      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
+    end
+
     def update_meta(meta)
       self.meta = meta
     end
@@ -69,19 +77,6 @@ module Cucumber
     def update_attachment(attachment)
       attachments_by_test_case_started_id[attachment.test_case_started_id] << attachment if attachment.test_case_started_id
       attachments_by_test_run_hook_started_id[attachment.test_run_hook_started_id] << attachment if attachment.test_run_hook_started_id
-    end
-
-    def update_feature(feature)
-      feature.children.each do |feature_child|
-        update_steps(feature_child.background.steps) if feature_child.background
-        update_scenario(feature_child.scenario) if feature_child.scenario
-        next unless feature_child.rule
-
-        feature_child.rule.children.each do |rule_child|
-          update_steps(rule_child.background.steps) if rule_child.background
-          update_scenario(rule_child.scenario) if rule_child.scenario
-        end
-      end
     end
 
     def update_gherkin_document(gherkin_document)

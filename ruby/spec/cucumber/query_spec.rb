@@ -10,14 +10,32 @@ RSpec.describe Cucumber::Query do
   end
 
   queries = {
-    'countTestCasesStarted' => ->(query) { query.count_test_cases_started },
+    'countTestCasesStarted' => lambda(&:count_test_cases_started),
     'findAllPickles' => ->(query) { query.find_all_pickles.length },
+    'findAllPickleSteps' => ->(query) { query.find_all_pickle_steps.length },
     'findAllStepDefinitions' => ->(query) { query.find_all_step_definitions.length },
+    'findAllTestCaseStarted' => ->(query) { query.find_all_test_case_started.length },
+    'findAllTestCaseFinished' => ->(query) { query.find_all_test_case_finished.length },
     'findAllTestCases' => ->(query) { query.find_all_test_cases.length },
     'findAllTestRunHookStarted' => ->(query) { query.find_all_test_run_hook_started.length },
     'findAllTestRunHookFinished' => ->(query) { query.find_all_test_run_hook_finished.length },
+    'findAllTestStepStarted' => ->(query) { query.find_all_test_step_started.length },
+    'findAllTestStepFinished' => ->(query) { query.find_all_test_step_finished.length },
     'findAllTestSteps' => ->(query) { query.find_all_test_steps.length },
+    'findHookBy' => lambda do |query|
+      results = {}
+      results['testStep'] = query.find_all_test_steps.filter_map { |message| query.find_hook_by(message)&.id }
+      results['testRunHookStarted'] = query.find_all_test_run_hook_started.filter_map { |message| query.find_hook_by(message)&.id }
+      results['testRunHookFinished'] = query.find_all_test_run_hook_finished.filter_map { |message| query.find_hook_by(message)&.id }
+      results
+    end,
     'findMeta' => ->(query) { query.find_meta.implementation.name },
+    'findMostSevereTestStepResultBy' => lambda do |query|
+      results = {}
+      results['testCaseStarted'] = query.find_all_test_case_started.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status }
+      results['testCaseFinished'] = query.find_all_test_case_finished.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status }
+      results
+    end,
     'findPickleBy' => lambda do |query|
       results = {}
       results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_pickle_by(message).name }
