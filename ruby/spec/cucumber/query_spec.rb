@@ -30,6 +30,12 @@ RSpec.describe Cucumber::Query do
       results
     end,
     'findMeta' => ->(query) { query.find_meta.implementation.name },
+    'findMostSevereTestStepResultBy' => lambda do |query|
+      results = {}
+      results['testCaseStarted'] = query.find_all_test_case_started.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status }
+      results['testCaseFinished'] = query.find_all_test_case_finished.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status }
+      results
+    end,
     'findPickleBy' => lambda do |query|
       results = {}
       results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_pickle_by(message).name }
