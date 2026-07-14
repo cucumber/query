@@ -62,6 +62,10 @@ module Cucumber
       :no_op # Not Implemented Yet. But method will be inherently called from `#update`
     end
 
+    def update_suggestion(_suggestion)
+      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
+    end
+
     def update_meta(meta)
       self.meta = meta
     end
