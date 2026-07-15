@@ -219,6 +219,7 @@ module Cucumber
       if repository.test_run_started.nil? || repository.test_run_finished.nil?
         nil
       else
+        # TODO: This needs a fix re-adding in to cast the data correctly
         timestamp_to_time(repository.test_run_finished.timestamp) - timestamp_to_time(repository.test_run_started.timestamp)
       end
     end

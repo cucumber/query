@@ -55,6 +55,15 @@ RSpec.describe Cucumber::Query do
       results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_case_by(message).id }
       results
     end,
+    'findTestCaseStartedBy' => lambda do |query|
+      results = {}
+      results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_test_case_started_by(message).id }
+      results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_case_started_by(message).id }
+      results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_case_started_by(message).id }
+      results
+    end,
+    'findTestCaseFinishedBy' => ->(query) { query.find_all_test_case_started.map { |message| query.find_test_case_finished_by(message).test_case_started_id } },
+    'findTestRunDuration' => lambda(&:find_test_run_duration),
     'findTestStepBy' => lambda do |query|
       results = {}
       results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_step_by(message).id }
