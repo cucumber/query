@@ -86,6 +86,9 @@ RSpec.describe Cucumber::Query do
       results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_step_by(message).id }
       results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_step_by(message).id }
       results
+    end,
+    'findAllUndefinedParameterTypes' => lambda do |query|
+      query.find_all_undefined_parameter_types.map { |message| [message.name, message.expression] }
     end
   }
 
