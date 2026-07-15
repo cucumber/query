@@ -219,7 +219,8 @@ module Cucumber
       if repository.test_run_started.nil? || repository.test_run_finished.nil?
         nil
       else
-        timestamp_to_time(repository.test_run_finished.timestamp) - timestamp_to_time(repository.test_run_started.timestamp)
+        float_time = timestamp_to_time(repository.test_run_finished.timestamp) - timestamp_to_time(repository.test_run_started.timestamp)
+        seconds_to_duration(float_time)
       end
     end
 

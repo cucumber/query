@@ -44,12 +44,41 @@ RSpec.describe Cucumber::Query do
       results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_pickle_by(message).name }
       results
     end,
+    'findPickleStepBy' => ->(query) { query.find_all_test_steps.filter_map { |message| query.find_pickle_step_by(message)&.text } },
+    'findStepBy' => ->(query) { query.find_all_pickle_steps.map { |message| query.find_step_by(message).text } },
+    'findStepDefinitionsBy' => ->(query) { query.find_all_test_steps.map { |message| query.find_step_definitions_by(message).map(&:id) } },
     'findTestCaseBy' => lambda do |query|
       results = {}
       results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_test_case_by(message).id }
       results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_test_case_by(message).id }
       results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_case_by(message).id }
       results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_case_by(message).id }
+      results
+    end,
+    'findTestCaseStartedBy' => lambda do |query|
+      results = {}
+      results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_test_case_started_by(message).id }
+      results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_case_started_by(message).id }
+      results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_case_started_by(message).id }
+      results
+    end,
+    'findTestCaseFinishedBy' => ->(query) { query.find_all_test_case_started.map { |message| query.find_test_case_finished_by(message).test_case_started_id } },
+    'findTestRunDuration' => lambda(&:find_test_run_duration),
+    'findTestRunHookStartedBy' => ->(query) { query.find_all_test_run_hook_started.map(&:id) },
+    'findTestRunHookFinishedBy' => ->(query) { query.find_all_test_run_hook_finished.map(&:test_run_hook_started_id) },
+    'findTestRunStarted' => lambda do |query|
+      results = {}
+      message = query.find_test_run_started
+      results['id'] = message.id
+      results['timestamp'] = { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
+      results
+    end,
+    'findTestRunFinished' => lambda do |query|
+      results = {}
+      message = query.find_test_run_finished
+      results['success'] = message.success
+      results['testRunStartedId'] = message.test_run_started_id
+      results['timestamp'] = { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
       results
     end,
     'findTestStepBy' => lambda do |query|
