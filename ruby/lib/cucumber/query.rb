@@ -77,6 +77,10 @@ module Cucumber
       repository.test_step_by_id.values
     end
 
+    def find_all_undefined_parameter_types
+      repository.undefined_parameter_types
+    end
+
     # This method will be called with 1 of these 3 messages
     #   [TestStep || TestRunHookStarted || TestRunHookFinished]
     def find_hook_by(message)
