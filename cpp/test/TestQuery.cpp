@@ -89,11 +89,19 @@ namespace
 
     void CountTestCasesStarted(const cucumber::query::Query& query, const nlohmann::json& expected)
     {
-        FAIL();
+        const auto actual = query.CountTestCasesStarted();
+        EXPECT_THAT(actual, testing::Eq(expected.get<std::size_t>()));
+    }
+
+    void FindAllPickles(const cucumber::query::Query& query, const nlohmann::json& expected)
+    {
+        const auto actual = query.FindAllPickles();
+        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
     }
 
     const std::unordered_map<std::string_view, void (*)(const cucumber::query::Query&, const nlohmann::json&)> functionMap{
         { "countTestCasesStarted", &CountTestCasesStarted },
+        { "findAllPickles", &FindAllPickles },
     };
 
     struct AcceptanceTest : testing::Test
