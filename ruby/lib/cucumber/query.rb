@@ -22,22 +22,27 @@ module Cucumber
       @repository = repository
     end
 
+    # @return [Integer]
     def count_test_cases_started
       find_all_test_case_started.length
     end
 
+    # @return [Array<Pickle>]
     def find_all_pickles
       repository.pickle_by_id.values
     end
 
+    # @return [Array<PickleStep>]
     def find_all_pickle_steps
       repository.pickle_step_by_id.values
     end
 
+    # @return [Array<StepDefinition>]
     def find_all_step_definitions
       repository.step_definition_by_id.values
     end
 
+    # @return [Array<TestCaseStarted>]
     # This finds all test cases from the following conditions (UNION)
     #   -> Test cases that have started, but not yet finished
     #   -> Test cases that have started, finished, but that will NOT be retried
@@ -48,37 +53,44 @@ module Cucumber
       end
     end
 
+    # @return [Array<TestCaseFinished>]
     # This finds all test cases that have finished AND will not be retried
     def find_all_test_case_finished
       repository.test_case_finished_by_test_case_started_id.values.reject(&:will_be_retried)
     end
 
+    # @return [Array<TestCase>]
     def find_all_test_cases
       repository.test_case_by_id.values
     end
 
+    # @return [Array<TestRunHookStarted>]
     def find_all_test_run_hook_started
       repository.test_run_hook_started_by_id.values
     end
 
+    # @return [Array<TestRunHookFinished>]
     def find_all_test_run_hook_finished
       repository.test_run_hook_finished_by_test_run_hook_started_id.values
     end
 
+    # @return [Array<TestStepStarted>]
     def find_all_test_step_started
       repository.test_steps_started_by_test_case_started_id.values.flatten
     end
 
+    # @return [Array<TestStepFinished>]
     def find_all_test_step_finished
       repository.test_steps_finished_by_test_case_started_id.values.flatten
     end
 
+    # @return [Array<TestSteps>]
     def find_all_test_steps
       repository.test_step_by_id.values
     end
 
-    # This method will be called with 1 of these 3 messages
-    #   [TestStep || TestRunHookStarted || TestRunHookFinished]
+    # @param (message) [TestStep, TestRunHookStarted, TestRunHookFinished]
+    # @return [Array<Hook>, nil]
     def find_hook_by(message)
       ensure_only_message_types!(
         message,
@@ -88,18 +100,19 @@ module Cucumber
 
       if message.is_a?(Cucumber::Messages::TestRunHookFinished)
         test_run_hook_started_message = find_test_run_hook_started_by(message)
-        test_run_hook_started_message ? find_hook_by(test_run_hook_started_message) : nil
+        test_run_hook_started_message && find_hook_by(test_run_hook_started_message)
       else
         repository.hook_by_id[message.hook_id]
       end
     end
 
+    # @return [Meta]
     def find_meta
       repository.meta
     end
 
-    # This method will be called with 1 of these 2 messages
-    #   [TestCaseStarted || TestCaseFinished]
+    # @param (message) [TestCaseStarted, TestCaseFinished]
+    # @return [String, nil]
     def find_most_severe_test_step_result_by(message)
       ensure_only_message_types!(
         message,
@@ -117,8 +130,8 @@ module Cucumber
       end
     end
 
-    # This method will be called with 1 of these 5 messages
-    #   [TestCase || TestCaseStarted || TestCaseFinished || TestStepStarted || TestStepFinished]
+    # @param (message) [TestCase, TestCaseStarted, TestCaseFinished, TestStepStarted, TestStepFinished]
+    # @return [Pickle]
     def find_pickle_by(message)
       ensure_only_message_types!(
         message,
@@ -136,45 +149,45 @@ module Cucumber
       repository.pickle_by_id[test_case_message.pickle_id]
     end
 
-    # This method will be called with only 1 message
-    #   [TestStep]
-    def find_pickle_step_by(test_step)
+    # @param (message) [TestStep]
+    # @return [PickleStep]
+    def find_pickle_step_by(message)
       ensure_only_message_types!(
-        test_step,
+        message,
         [Cucumber::Messages::TestStep],
         '#find_pickle_step_by'
       )
 
-      repository.pickle_step_by_id[test_step.pickle_step_id]
+      repository.pickle_step_by_id[message.pickle_step_id]
     end
 
-    # This method will be called with only 1 message
-    #   [PickleStep]
-    def find_step_by(pickle_step)
+    # @param (message) [PickleStep]
+    # @return [Step]
+    def find_step_by(message)
       ensure_only_message_types!(
-        pickle_step,
+        message,
         [Cucumber::Messages::PickleStep],
         '#find_step_by'
       )
 
-      repository.step_by_id[pickle_step.ast_node_ids.first]
+      repository.step_by_id[message.ast_node_ids.first]
     end
 
-    # This method will be called with only 1 message
-    #   [TestStep]
-    def find_step_definitions_by(test_step)
+    # @param (message) [TestStep]
+    # @return [Array<StepDefinition>]
+    def find_step_definitions_by(message)
       ensure_only_message_types!(
-        test_step,
+        message,
         [Cucumber::Messages::TestStep],
         '#find_step_definitions_by'
       )
 
-      ids = test_step.step_definition_ids.nil? ? [] : test_step.step_definition_ids
+      ids = message.step_definition_ids.nil? ? [] : message.step_definition_ids
       ids.filter_map { |id| repository.step_definition_by_id[id] }
     end
 
-    # This method will be called with 1 of these 4 messages
-    #   [TestCaseStarted || TestCaseFinished || TestStepStarted || TestStepFinished]
+    # @param (message) [TestCaseStarted, TestCaseFinished, TestStepStarted, TestStepFinished]
+    # @return [TestCase]
     def find_test_case_by(message)
       ensure_only_message_types!(
         message,
@@ -191,8 +204,8 @@ module Cucumber
       repository.test_case_by_id[test_case_started_message.test_case_id]
     end
 
-    # This method will be called with 1 of these 3 messages
-    #   [TestCaseFinished || TestStepStarted || TestStepFinished]
+    # @param (message) [TestCaseFinished, TestStepStarted, TestStepFinished]
+    # @return [TestCaseStarted]
     def find_test_case_started_by(message)
       ensure_only_message_types!(
         message,
@@ -203,8 +216,8 @@ module Cucumber
       repository.test_case_started_by_id[message.test_case_started_id]
     end
 
-    # This method will be called with only 1 message
-    #   [TestCaseStarted]
+    # @param (message) [TestCaseStarted]
+    # @return [TestCaseFinished]
     def find_test_case_finished_by(test_case_started)
       ensure_only_message_types!(
         test_case_started,
@@ -215,6 +228,7 @@ module Cucumber
       repository.test_case_finished_by_test_case_started_id[test_case_started.id]
     end
 
+    # @return [Hash<String, Integer>, nil]
     def find_test_run_duration
       if repository.test_run_started.nil? || repository.test_run_finished.nil?
         nil
@@ -224,40 +238,42 @@ module Cucumber
       end
     end
 
-    # This method will be called with only 1 message
-    #   [TestRunHookFinished]
-    def find_test_run_hook_started_by(test_run_hook_finished)
+    # @param (message) [TestRunHookFinished]
+    # @return [TestRunHookStarted]
+    def find_test_run_hook_started_by(message)
       ensure_only_message_types!(
-        test_run_hook_finished,
+        message,
         [Cucumber::Messages::TestRunHookFinished],
         '#find_test_run_hook_started_by'
       )
 
-      repository.test_run_hook_started_by_id[test_run_hook_finished.test_run_hook_started_id]
+      repository.test_run_hook_started_by_id[message.test_run_hook_started_id]
     end
 
-    # This method will be called with only 1 message
-    #   [TestRunHookStarted]
-    def find_test_run_hook_finished_by(test_run_hook_started)
+    # @param (message) [TestRunHookStarted]
+    # @return [TestRunHookFinished]
+    def find_test_run_hook_finished_by(message)
       ensure_only_message_types!(
-        test_run_hook_started,
+        message,
         [Cucumber::Messages::TestRunHookStarted],
         '#find_test_run_hook_finished_by'
       )
 
-      repository.test_run_hook_finished_by_test_run_hook_started_id[test_run_hook_started.id]
+      repository.test_run_hook_finished_by_test_run_hook_started_id[message.id]
     end
 
+    # @return [TestRunStarted]
     def find_test_run_started
       repository.test_run_started
     end
 
+    # @return [TestRunFinished]
     def find_test_run_finished
       repository.test_run_finished
     end
 
-    # This method will be called with 1 of these 2 messages
-    #   [TestStepStarted || TestStepFinished]
+    # @param (message) [TestStepStarted, TestStepFinished]
+    # @return [TestStep]
     def find_test_step_by(message)
       ensure_only_message_types!(
         message,
@@ -268,8 +284,8 @@ module Cucumber
       repository.test_step_by_id[message.test_step_id]
     end
 
-    # This method will be called with 1 of these 2 messages
-    #   [TestCaseStarted || TestCaseFinished]
+    # @param (message) [TestCaseStarted, TestCaseFinished]
+    # @return [Array<TestStep>]
     def find_test_steps_started_by(message)
       ensure_only_message_types!(
         message,
@@ -281,8 +297,8 @@ module Cucumber
       repository.test_steps_started_by_test_case_started_id.fetch(key, [])
     end
 
-    # This method will be called with 1 of these 2 messages
-    #   [TestCaseStarted || TestCaseFinished]
+    # @param (message) [TestCaseStarted, TestCaseFinished]
+    # @return [Array<TestStep>]
     def find_test_steps_finished_by(message)
       ensure_only_message_types!(
         message,
