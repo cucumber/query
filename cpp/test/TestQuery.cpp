@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include <cstring>
 #include <cucumber/messages/Envelope.hpp>
+#include <cucumber/messages/TestStepResultStatus.hpp>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -87,6 +88,18 @@ namespace
         return str;
     }
 
+    void CountMostSevereTestStepResultStatus(const cucumber::query::Query& query, const nlohmann::json& expected)
+    {
+        const auto allResults = query.CountMostSevereTestStepResultStatus();
+        nlohmann::json actual;
+        for (const auto& [status, count] : allResults)
+        {
+            actual[to_string(status)] = count;
+        }
+
+        EXPECT_THAT(actual, testing::Eq(expected));
+    }
+
     void CountTestCasesStarted(const cucumber::query::Query& query, const nlohmann::json& expected)
     {
         const auto actual = query.CountTestCasesStarted();
@@ -99,9 +112,17 @@ namespace
         EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
     }
 
+    void FindAllPickleSteps(const cucumber::query::Query& query, const nlohmann::json& expected)
+    {
+        const auto actual = query.FindAllPickleSteps();
+        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+    }
+
     const std::unordered_map<std::string_view, void (*)(const cucumber::query::Query&, const nlohmann::json&)> functionMap{
+        { "countMostSevereTestStepResultStatus", &CountMostSevereTestStepResultStatus },
         { "countTestCasesStarted", &CountTestCasesStarted },
         { "findAllPickles", &FindAllPickles },
+        { "findAllPickleSteps", &FindAllPickleSteps },
     };
 
     struct AcceptanceTest : testing::Test

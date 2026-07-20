@@ -10,10 +10,14 @@
 #include <cucumber/messages/GherkinDocument.hpp>
 #include <cucumber/messages/Pickle.hpp>
 #include <cucumber/messages/Rule.hpp>
-#include <functional>
+#include <cucumber/messages/TestCase.hpp>
+#include <cucumber/messages/TestStepFinished.hpp>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
+#include <utility>
+#include <variant>
 #include <vector>
 
 namespace cucumber::query
@@ -53,11 +57,11 @@ namespace cucumber::query
 
         [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseFinished>> FindAllTestCaseFinished() const;
 
-        template<typename TFind, typename Cmp>
-        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseStarted>> FindAllTestCaseStartedOrderBy(TFind findOrderBy, Cmp order) const;
+        // template<typename TFind, typename Cmp>
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseStarted>> FindAllTestCaseStartedOrderBy(TFind findOrderBy, Cmp order) const;
 
-        template<typename TFind, typename Cmp>
-        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseFinished>> FindAllTestCaseFinishedOrderBy(TFind findOrderBy, Cmp order) const;
+        // template<typename TFind, typename Cmp>
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseFinished>> FindAllTestCaseFinishedOrderBy(TFind findOrderBy, Cmp order) const;
 
         // FindAllTestSteps()
         //     : ReadonlyArray<TestStep> const;
@@ -137,9 +141,8 @@ namespace cucumber::query
         // FindTestRunStarted()
         //     : TestRunStarted | undefined const;
 
-        // FindTestStepBy(element : TestStepStarted | TestStepFinished)
-        //     : TestStep | undefined
-        // {}
+        std::optional<std::shared_ptr<const messages::TestStep>> FindTestStepBy(
+            std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
         // FindTestStepsStartedBy(element : TestCaseStarted | TestCaseFinished)
         //     : ReadonlyArray<TestStepStarted> const;
@@ -147,8 +150,8 @@ namespace cucumber::query
         // FindTestStepsFinishedBy(element : TestCaseStarted | TestCaseFinished)
         //     : ReadonlyArray<TestStepFinished> const;
 
-        // FindTestStepFinishedAndTestStepBy(testCaseStarted : TestCaseStarted)
-        //     : ReadonlyArray<[ TestStepFinished, TestStep ]> const;
+        std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> FindTestStepFinishedAndTestStepBy(
+            const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const;
 
         // FindLineageBy(element : Pickle | TestCaseStarted | TestCaseFinished)
         //     : Lineage | undefined const;
@@ -167,9 +170,11 @@ namespace cucumber::query
         /////////////
         /////////////
 
+        void UpdateTestCase(std::shared_ptr<const messages::TestCase> testCase);
         void UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted);
-
         /////////////
+
+        void UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished);
         /////////////
         /////////////
 
@@ -181,24 +186,24 @@ namespace cucumber::query
         std::unordered_map<std::string, std::unique_ptr<const Lineage>> lineageById;
         std::unordered_map<std::string, std::shared_ptr<const messages::Step>> stepById;
         std::unordered_map<std::string, std::shared_ptr<const messages::Pickle>> pickleById;
-        //   private readonly pickleStepById: Map<string, PickleStep> = new Map()
+        std::unordered_map<std::string, std::shared_ptr<const messages::PickleStep>> pickleStepById;
         //   private readonly hookById: Map<string, Hook> = new Map()
-        //   private readonly stepDefinitionById: Map<string, StepDefinition> = new Map()
-        //   private readonly testCaseById: Map<string, TestCase> = new Map()
-        //   private readonly testStepById: Map<string, TestStep> = new Map()
+        std::unordered_map<std::string, std::shared_ptr<const messages::StepDefinition>> stepDefinitionById;
+        std::unordered_map<std::string, std::shared_ptr<const messages::TestCase>> testCaseById;
+        std::unordered_map<std::string, std::shared_ptr<const messages::TestStep>> testStepById;
         std::unordered_map<std::string, std::shared_ptr<const messages::TestCaseFinished>> testCaseFinishedByTestCaseStartedId;
-        //   private readonly testRunHookStartedById: Map<string, TestRunHookStarted> = new Map()
-        //   private readonly testRunHookFinishedByTestRunHookStartedId: Map<string, TestRunHookFinished> =
+        //   private readonly testRunHookStartedById: std::unordered_map<std::string, std::shared_ptr<const messages::TestRunHookStarted> = new Map()
+        //   private readonly testRunHookFinishedByTestRunHookStartedId: std::unordered_map<std::string, std::shared_ptr<const messages::TestRunHookFinished> =
         //     new Map()
-        //   private readonly testStepStartedByTestCaseStartedId: ArrayMultimap<string, TestStepStarted> =
+        //   private readonly testStepStartedByTestCaseStartedId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::TestStepStarted> =
         //     new ArrayMultimap()
-        //   private readonly testStepFinishedByTestCaseStartedId: ArrayMultimap<string, TestStepFinished> =
+        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::TestStepFinished>>> testStepFinishedByTestCaseStartedId;
         //     new ArrayMultimap()
-        //   private readonly attachmentsByTestCaseStartedId: ArrayMultimap<string, Attachment> =
+        //   private readonly attachmentsByTestCaseStartedId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::Attachment> =
         //     new ArrayMultimap()
-        //   private readonly attachmentsByTestRunHookStartedId: ArrayMultimap<string, Attachment> =
+        //   private readonly attachmentsByTestRunHookStartedId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::Attachment> =
         //     new ArrayMultimap()
-        //   private readonly suggestionsByPickleStepId: ArrayMultimap<string, Suggestion> =
+        //   private readonly suggestionsByPickleStepId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::Suggestion> =
         //     new ArrayMultimap()
         //   private readonly undefinedParameterTypes: UndefinedParameterType[] = []
     };

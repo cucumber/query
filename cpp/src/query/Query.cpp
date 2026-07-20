@@ -1,14 +1,36 @@
 #include "cucumber/query/Query.hpp"
 #include "cucumber/messages/All.hpp"
+#include <algorithm>
 #include <cstddef>
+#include <cstdlib>
 #include <cucumber/messages/TestStepResultStatus.hpp>
 #include <memory>
+#include <optional>
+#include <stdexcept>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace cucumber::query
 {
+    namespace
+    {
+        template<class C>
+        auto MapValuesToVector(const C& container)
+        {
+            std::vector<typename C::mapped_type> result;
+            result.reserve(container.size());
+
+            for (const auto& [key, value] : container)
+            {
+                result.push_back(value);
+            }
+
+            return result;
+        }
+    }
 
     Lineage Lineage::operator+(const Lineage& other) const
     {
@@ -60,10 +82,10 @@ namespace cucumber::query
         // {
         //     this.updateTestRunHookFinished(envelope.testRunHookFinished)
         // }
-        // if (envelope.testCase)
-        // {
-        //     this.updateTestCase(envelope.testCase)
-        // }
+        if (envelope.testCase.has_value())
+        {
+            UpdateTestCase(envelope.testCase.value());
+        }
         if (envelope.testCaseStarted.has_value())
         {
             UpdateTestCaseStarted(envelope.testCaseStarted.value());
@@ -76,10 +98,10 @@ namespace cucumber::query
         // {
         //     this.updateAttachment(envelope.attachment)
         // }
-        // if (envelope.testStepFinished)
-        // {
-        //     this.updateTestStepFinished(envelope.testStepFinished)
-        // }
+        if (envelope.testStepFinished.has_value())
+        {
+            UpdateTestStepFinished(envelope.testStepFinished.value());
+        }
         // if (envelope.testCaseFinished)
         // {
         //     this.updateTestCaseFinished(envelope.testCaseFinished)
@@ -100,7 +122,29 @@ namespace cucumber::query
 
     std::unordered_map<messages::TestStepResultStatus, std::size_t> Query::CountMostSevereTestStepResultStatus() const
     {
-        return {};
+        std::unordered_map<messages::TestStepResultStatus, std::size_t> result{
+            { messages::TestStepResultStatus::AMBIGUOUS, 0 },
+            { messages::TestStepResultStatus::FAILED, 0 },
+            { messages::TestStepResultStatus::PASSED, 0 },
+            { messages::TestStepResultStatus::PENDING, 0 },
+            { messages::TestStepResultStatus::SKIPPED, 0 },
+            { messages::TestStepResultStatus::UNDEFINED, 0 },
+            { messages::TestStepResultStatus::UNKNOWN, 0 },
+        };
+
+        for (const auto& testCaseStarted : FindAllTestCaseStarted())
+        {
+            auto allFinishedSteps = FindTestStepFinishedAndTestStepBy(testCaseStarted);
+            std::sort(allFinishedSteps.begin(), allFinishedSteps.end(),
+                [](const auto& lhs, const auto& rhs)
+                {
+                    using underlying_type = std::underlying_type_t<messages::TestStepResultStatus>;
+                    return static_cast<underlying_type>(lhs.first->testStepResult->status) > static_cast<underlying_type>(rhs.first->testStepResult->status);
+                });
+            ++result[allFinishedSteps.front().first->testStepResult->status];
+        }
+
+        return result;
     }
 
     std::size_t Query::CountTestCasesStarted() const
@@ -110,25 +154,17 @@ namespace cucumber::query
 
     std::vector<std::shared_ptr<const messages::Pickle>> Query::FindAllPickles() const
     {
-        std::vector<std::shared_ptr<const messages::Pickle>> result;
-        result.reserve(pickleById.size());
-
-        for (const auto& [pickleId, pickle] : pickleById)
-        {
-            result.push_back(pickle);
-        }
-
-        return result;
+        return MapValuesToVector(pickleById);
     }
 
     std::vector<std::shared_ptr<const messages::PickleStep>> Query::FindAllPickleSteps() const
     {
-        return {};
+        return MapValuesToVector(pickleStepById);
     }
 
     std::vector<std::shared_ptr<const messages::StepDefinition>> Query::FindAllStepDefinitions() const
     {
-        return {};
+        return MapValuesToVector(stepDefinitionById);
     }
 
     std::vector<std::shared_ptr<const messages::TestCaseStarted>> Query::FindAllTestCaseStarted() const
@@ -167,6 +203,44 @@ namespace cucumber::query
     // {
     //     return testCaseStartedById.size();
     // }
+
+    std::optional<std::shared_ptr<const messages::TestStep>> Query::FindTestStepBy(
+        std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
+    {
+        try
+        {
+            return std::visit(
+                [this](const auto& item)
+                {
+                    return testStepById.at(item->testStepId);
+                },
+                element);
+        }
+        catch (const std::out_of_range&)
+        {
+            return std::nullopt;
+        }
+    }
+
+    std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> Query::FindTestStepFinishedAndTestStepBy(
+        const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
+    {
+        std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> result;
+
+        const auto& testStepsFinished = testStepFinishedByTestCaseStartedId.at(testCaseStarted->id);
+
+        for (const auto& testStepFinished : testStepsFinished)
+        {
+            const auto& testStep = FindTestStepBy(testStepFinished);
+            if (!testStep)
+            {
+                throw std::out_of_range{ "Expected to find TestStep by TestStepFinished" };
+            }
+            result.emplace_back(testStepFinished, *testStep);
+        }
+
+        return result;
+    }
 
     /////////////////////////////
     /////////////////////////////
@@ -253,20 +327,39 @@ namespace cucumber::query
 
     void Query::UpdatePickle(std::shared_ptr<const messages::Pickle> pickle)
     {
-        pickleById[pickle->id] = std::move(pickle);
-        // for (const pickleStep of pickle.steps) {
-        //   this.pickleStepById.set(pickleStep.id, pickleStep)
+        auto&& entry = pickleById[pickle->id] = std::move(pickle);
+        for (const auto& pickleStep : entry->steps)
+        {
+            pickleStepById[pickleStep->id] = pickleStep;
+        }
     }
 
     /////////////////////////////
     /////////////////////////////
     /////////////////////////////
+
+    void Query::UpdateTestCase(std::shared_ptr<const messages::TestCase> testCase)
+    {
+        for (const auto& testStep : testCase->testSteps)
+        {
+            testStepById[testStep->id] = testStep;
+        }
+        testCaseById[testCase->id] = std::move(testCase);
+    }
 
     void Query::UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted)
     {
         testCaseStartedById[testCaseStarted->id] = std::move(testCaseStarted);
     }
 
+    /////////////////////////////
+
+    void Query::UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished)
+    {
+        testStepFinishedByTestCaseStartedId[testStepFinished->testCaseStartedId].push_back(std::move(testStepFinished));
+    }
+
+    /////////////////////////////
     /////////////////////////////
     /////////////////////////////
     /////////////////////////////
