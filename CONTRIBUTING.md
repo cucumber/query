@@ -11,6 +11,7 @@ Currently, the list is:
 - Java (reference)
 - JavaScript
 - C# (.NET)
+- Ruby
 
 Java is the reference implementation in the sense that it is responsible for
 generating the fixtures that are used in the acceptance tests to verify all
@@ -18,8 +19,8 @@ implementations.
 
 So your playbook for adding a method would be something like:
 
-1. Add the method in `Query.Java` with test(s) in `QueryTest.java`
-2. Extend `QueryAcceptanceTest.java` to include verifications for the new
+1. Add the method in `main/**/query/Query.java` with test(s) in `test/**/query/QueryTest.java`
+2. Extend `test/**/query/QueryAcceptanceTest.java` to include verifications for the new
    method
 3. Run `QueryAcceptanceTest::updateExpectedQueryResultFiles` to regenerate the
    fixtures
