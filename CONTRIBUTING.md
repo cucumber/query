@@ -39,5 +39,7 @@ an inexact science. This table defines all the decisions we've made so far:
 | `Map<K, V>`   | `Record<K, V>`       | `Dictionary<K, V>` | `Hash<K, V>`  |
 
 [^1]: See <https://github.com/sindresorhus/meta/discussions/7>
-[^2]: This only applies to `Lineage` which is something that was never ported and not required in Ruby. `Lineage`
-was only needed whilst `Pickle` did not contain the location attribute (Which was later added)
+
+[^2]: This only applies to `Lineage` which is something that was never ported and not required
+in Ruby. `Lineage` as a concept was only needed whilst `Pickle` did not contain the location
+attribute (Which was later added)
