@@ -89,6 +89,11 @@ module Cucumber
       repository.test_step_by_id.values
     end
 
+    # @return [Array<UndefinedParameterType>]
+    def find_all_undefined_parameter_types
+      repository.undefined_parameter_types
+    end
+
     # @param (message) [TestStep, TestRunHookStarted, TestRunHookFinished]
     # @return [Array<Hook>, nil]
     def find_hook_by(message)
