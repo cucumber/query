@@ -30,15 +30,11 @@ So your playbook for adding a method would be something like:
 Choosing which type to use in another language based on what we did in Java is
 an inexact science. This table defines all the decisions we've made so far:
 
-| Java          | JavaScript           | C#                 | Ruby          |
-|---------------|----------------------|--------------------|---------------|
-| `Optional<T>` | `T \| undefined`[^1] | `T?`               | `true\|false` |
-| `List<T>`     | `ReadonlyArray<T>`   | `List<T>`          | `N/A` [^2]    |
-| `Map<K, V>`   | `Map<K, V>`          | `Dictionary<K, V>` | `Hash<K, V>`  |
-| `Map<K, V>`   | `Record<K, V>`       | `Dictionary<K, V>` | `Hash<K, V>`  |
+| Java          | JavaScript           | C#                 | Ruby         |
+|---------------|----------------------|--------------------|--------------|
+| `Optional<T>` | `T \| undefined`[^1] | `T?`               | `T \| nil`   |
+| `List<T>`     | `ReadonlyArray<T>`   | `List<T>`          | `Array<T>`   |
+| `Map<K, V>`   | `Map<K, V>`          | `Dictionary<K, V>` | `Hash<K, V>` |
+| `Map<K, V>`   | `Record<K, V>`       | `Dictionary<K, V>` | `Hash<K, V>` |
 
 [^1]: See <https://github.com/sindresorhus/meta/discussions/7>
-
-[^2]: This only applies to `Lineage` which is something that was never ported and not required
-in Ruby. `Lineage` as a concept was only needed whilst `Pickle` did not contain the location
-attribute (Which was later added)
