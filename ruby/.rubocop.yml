@@ -1,5 +1,3 @@
-inherit_from: .rubocop_todo.yml
-
 plugins:
   - rubocop-performance
   - rubocop-rspec
@@ -24,5 +22,7 @@ Gemspec/RequireMFA:
 Layout/LineLength:
   Max: 200
 
-Metrics/MethodLength:
-  CountAsOne: ['array', 'hash', 'heredoc']
+# The metric portion of rubocop is not useful for us in this repo - as we have a few large classes which are structured
+# in a way that is easy to read and maintain, but high in terms of metric count for rubocop
+Metrics:
+  Enabled: false
