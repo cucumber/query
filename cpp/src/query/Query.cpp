@@ -30,6 +30,16 @@ namespace cucumber::query
 
             return result;
         }
+
+        // helper type for the visitor #4
+        template<class... Ts>
+        struct overloaded : Ts...
+        {
+            using Ts::operator()...;
+        };
+        // explicit deduction guide (not needed as of C++20)
+        template<class... Ts>
+        overloaded(Ts...) -> overloaded<Ts...>;
     }
 
     Lineage Lineage::operator+(const Lineage& other) const
@@ -66,10 +76,10 @@ namespace cucumber::query
         // {
         //     this.hookById.set(envelope.hook.id, envelope.hook)
         // }
-        // if (envelope.stepDefinition)
-        // {
-        //     this.stepDefinitionById.set(envelope.stepDefinition.id, envelope.stepDefinition)
-        // }
+        if (envelope.stepDefinition.has_value())
+        {
+            stepDefinitionById[envelope.stepDefinition.value()->id] = envelope.stepDefinition.value();
+        }
         // if (envelope.testRunStarted)
         // {
         //     this.testRunStarted = envelope.testRunStarted
@@ -102,10 +112,10 @@ namespace cucumber::query
         {
             UpdateTestStepFinished(envelope.testStepFinished.value());
         }
-        // if (envelope.testCaseFinished)
-        // {
-        //     this.updateTestCaseFinished(envelope.testCaseFinished)
-        // }
+        if (envelope.testCaseFinished.has_value())
+        {
+            UpdateTestCaseFinished(envelope.testCaseFinished.value());
+        }
         // if (envelope.testRunFinished)
         // {
         //     this.testRunFinished = envelope.testRunFinished
@@ -135,13 +145,17 @@ namespace cucumber::query
         for (const auto& testCaseStarted : FindAllTestCaseStarted())
         {
             auto allFinishedSteps = FindTestStepFinishedAndTestStepBy(testCaseStarted);
-            std::sort(allFinishedSteps.begin(), allFinishedSteps.end(),
-                [](const auto& lhs, const auto& rhs)
-                {
-                    using underlying_type = std::underlying_type_t<messages::TestStepResultStatus>;
-                    return static_cast<underlying_type>(lhs.first->testStepResult->status) > static_cast<underlying_type>(rhs.first->testStepResult->status);
-                });
-            ++result[allFinishedSteps.front().first->testStepResult->status];
+            if (!allFinishedSteps.empty())
+            {
+                std::sort(allFinishedSteps.begin(), allFinishedSteps.end(),
+                    [](const auto& lhs, const auto& rhs)
+                    {
+                        using underlying_type = std::underlying_type_t<messages::TestStepResultStatus>;
+                        return static_cast<underlying_type>(lhs.first->testStepResult->status) > static_cast<underlying_type>(rhs.first->testStepResult->status);
+                    });
+
+                ++result[allFinishedSteps.front().first->testStepResult->status];
+            }
         }
 
         return result;
@@ -190,7 +204,7 @@ namespace cucumber::query
 
         for (const auto& [testCaseStartedId, testCaseFinished] : testCaseFinishedByTestCaseStartedId)
         {
-            if (testCaseFinished->willBeRetried)
+            if (!testCaseFinished->willBeRetried)
             {
                 result.push_back(testCaseFinished);
             }
@@ -199,10 +213,68 @@ namespace cucumber::query
         return result;
     }
 
-    // [[nodiscard]] std::size_t Query::CountTestCasesStarted() const
-    // {
-    //     return testCaseStartedById.size();
-    // }
+    std::optional<std::shared_ptr<const messages::Pickle>> Query::FindPickleBy(
+        std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element) const
+    {
+        const auto testCase = std::visit(
+            [this](const auto& element)
+            {
+                return FindTestCaseBy(element);
+            },
+            element);
+
+        try
+        {
+            return pickleById.at(testCase.value()->pickleId);
+        }
+        catch (const std::out_of_range&)
+        {
+            return std::nullopt;
+        }
+    }
+
+    std::optional<std::shared_ptr<const messages::TestCase>> Query::FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
+        std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
+            element) const
+    {
+        const auto testCaseStarted = std::visit(
+            overloaded{
+                [](std::shared_ptr<const messages::TestCaseStarted> element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+                {
+                    return element;
+                },
+                [this](auto element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+                {
+                    return FindTestCaseStartedBy(element);
+                },
+            },
+            element);
+
+        try
+        {
+            return testCaseById.at(testCaseStarted.value()->testCaseId);
+        }
+        catch (const std::out_of_range&)
+        {
+            return std::nullopt;
+        }
+    }
+
+    std::optional<std::shared_ptr<const messages::TestCaseStarted>> Query::FindTestCaseStartedBy(
+        std::variant<std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
+    {
+        return std::visit(
+            [this](const auto& item) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+            {
+                const auto iter = testCaseStartedById.find(item->testCaseStartedId);
+                if (iter != testCaseStartedById.end())
+                {
+                    return iter->second;
+                }
+                return std::nullopt;
+            },
+            element);
+    }
 
     std::optional<std::shared_ptr<const messages::TestStep>> Query::FindTestStepBy(
         std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
@@ -226,19 +298,20 @@ namespace cucumber::query
         const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
     {
         std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> result;
+        const auto testStepsFinishedIter = testStepFinishedByTestCaseStartedId.find(testCaseStarted->id);
 
-        const auto& testStepsFinished = testStepFinishedByTestCaseStartedId.at(testCaseStarted->id);
-
-        for (const auto& testStepFinished : testStepsFinished)
+        if (testStepsFinishedIter != testStepFinishedByTestCaseStartedId.end())
         {
-            const auto& testStep = FindTestStepBy(testStepFinished);
-            if (!testStep)
+            for (const auto& testStepFinished : testStepsFinishedIter->second)
             {
-                throw std::out_of_range{ "Expected to find TestStep by TestStepFinished" };
+                const auto& testStep = FindTestStepBy(testStepFinished);
+                if (!testStep)
+                {
+                    throw std::out_of_range{ "Expected to find TestStep by TestStepFinished" };
+                }
+                result.emplace_back(testStepFinished, *testStep);
             }
-            result.emplace_back(testStepFinished, *testStep);
         }
-
         return result;
     }
 
@@ -357,6 +430,11 @@ namespace cucumber::query
     void Query::UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished)
     {
         testStepFinishedByTestCaseStartedId[testStepFinished->testCaseStartedId].push_back(std::move(testStepFinished));
+    }
+
+    void Query::UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished)
+    {
+        testCaseFinishedByTestCaseStartedId[testCaseFinished->testCaseStartedId] = std::move(testCaseFinished);
     }
 
     /////////////////////////////

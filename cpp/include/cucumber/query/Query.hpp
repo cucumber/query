@@ -5,6 +5,7 @@
 #include "cucumber/messages/Envelope.hpp"
 #include "cucumber/messages/TestCaseStarted.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
+#include <algorithm>
 #include <cstddef>
 #include <cucumber/messages/Feature.hpp>
 #include <cucumber/messages/GherkinDocument.hpp>
@@ -12,6 +13,8 @@
 #include <cucumber/messages/Rule.hpp>
 #include <cucumber/messages/TestCase.hpp>
 #include <cucumber/messages/TestStepFinished.hpp>
+#include <iostream>
+#include <iterator>
 #include <memory>
 #include <optional>
 #include <string>
@@ -57,8 +60,8 @@ namespace cucumber::query
 
         [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseFinished>> FindAllTestCaseFinished() const;
 
-        // template<typename TFind, typename Cmp>
-        // [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseStarted>> FindAllTestCaseStartedOrderBy(TFind findOrderBy, Cmp order) const;
+        template<typename TFind, typename Cmp>
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseStarted>> FindAllTestCaseStartedOrderBy(TFind findOrderBy, Cmp order) const;
 
         // template<typename TFind, typename Cmp>
         // [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseFinished>> FindAllTestCaseFinishedOrderBy(TFind findOrderBy, Cmp order) const;
@@ -96,8 +99,8 @@ namespace cucumber::query
         // FindLocationOf(pickle : Pickle)
         //     : Location | undefined const;
 
-        // FindPickleBy(element : TestCaseStarted | TestCaseFinished | TestStepStarted)
-        //     : Pickle | undefined const;
+        std::optional<std::shared_ptr<const messages::Pickle>> FindPickleBy(
+            std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element) const;
 
         // FindPickleStepBy(testStep : TestStep)
         //     : PickleStep | undefined const;
@@ -114,14 +117,15 @@ namespace cucumber::query
         // FindUnambiguousStepDefinitionBy(testStep : TestStep)
         //     : StepDefinition | undefined const;
 
-        // FindTestCaseBy(element : TestCaseStarted | TestCaseFinished | TestStepStarted | TestStepFinished)
-        //     : TestCase | undefined const;
+        std::optional<std::shared_ptr<const messages::TestCase>> FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
+            std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
+                element) const;
 
         // FindTestCaseDurationBy(element : TestCaseStarted | TestCaseFinished)
         //     : Duration | undefined const;
 
-        // FindTestCaseStartedBy(element : TestCaseFinished | TestStepStarted | TestStepFinished)
-        //     : TestCaseStarted | undefined const;
+        std::optional<std::shared_ptr<const messages::TestCaseStarted>> FindTestCaseStartedBy(
+            std::variant<std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
         // FindTestCaseFinishedBy(testCaseStarted : TestCaseStarted)
         //     : TestCaseFinished | undefined const;
@@ -175,6 +179,7 @@ namespace cucumber::query
         /////////////
 
         void UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished);
+        void UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished);
         /////////////
         /////////////
 
@@ -207,6 +212,52 @@ namespace cucumber::query
         //     new ArrayMultimap()
         //   private readonly undefinedParameterTypes: UndefinedParameterType[] = []
     };
+
+    template<typename Transform, typename Cmp>
+    [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseStarted>> Query::FindAllTestCaseStartedOrderBy(Transform findOrderBy, Cmp order) const
+    {
+        using TransformResult = decltype(findOrderBy(std::declval<const Query&>(), std::declval<std::shared_ptr<const messages::TestCaseStarted>>()));
+
+        const auto allTestCaseStarted = FindAllTestCaseStarted();
+
+        std::vector<std::pair<std::shared_ptr<const messages::TestCaseStarted>, TransformResult>> transformed;
+        transformed.reserve(allTestCaseStarted.size());
+
+        auto withOrderBy = std::transform(allTestCaseStarted.begin(), allTestCaseStarted.end(), std::back_inserter(transformed),
+            [&](const auto& testCaseStarted) -> std::pair<std::shared_ptr<const messages::TestCaseStarted>, TransformResult>
+            {
+                return { testCaseStarted, findOrderBy(*this, testCaseStarted) };
+            });
+
+        std::sort(transformed.begin(), transformed.end(),
+            [&](const auto& lhs, const auto& rhs)
+            {
+                if (!lhs.second.has_value() && !rhs.second.has_value())
+                {
+                    return false;
+                }
+                if (!lhs.second.has_value())
+                {
+                    return true;
+                }
+                if (!rhs.second.has_value())
+                {
+                    return false;
+                }
+
+                return order(lhs.second.value(), rhs.second.value()) < 0;
+            });
+
+        std::vector<std::shared_ptr<const messages::TestCaseStarted>> result;
+        result.reserve(allTestCaseStarted.size());
+        std::transform(transformed.begin(), transformed.end(), std::back_inserter(result),
+            [](const auto& pair)
+            {
+                return pair.first;
+            });
+
+        return result;
+    }
 }
 
 #endif
