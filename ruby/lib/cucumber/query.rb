@@ -223,14 +223,14 @@ module Cucumber
 
     # @param message [TestCaseStarted]
     # @return [TestCaseFinished]
-    def find_test_case_finished_by(test_case_started)
+    def find_test_case_finished_by(message)
       ensure_only_message_types!(
-        test_case_started,
+        message,
         [Cucumber::Messages::TestCaseStarted],
         '#find_test_case_finished_by'
       )
 
-      repository.test_case_finished_by_test_case_started_id[test_case_started.id]
+      repository.test_case_finished_by_test_case_started_id[message.id]
     end
 
     # @return [Hash<String, Integer>, nil]
