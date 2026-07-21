@@ -22,9 +22,8 @@ So your playbook for adding a method would be something like:
 1. Add the method in `main/**/query/Query.java` with test(s) in `test/**/query/QueryTest.java`
 2. Extend `test/**/query/QueryAcceptanceTest.java` to include verifications for the new
    method
-3. Run `QueryAcceptanceTest::updateExpectedQueryResultFiles` to regenerate the
-   fixtures
-4. Implement other languages
+3. Regenerate the testdata (See instructions below)
+4. Implement other languages as required, using the acceptance tests to verify correctness
 
 ## Types
 
