@@ -10,7 +10,8 @@ module Cucumber
                 :step_by_id, :step_definition_by_id,
                 :test_case_by_id, :test_case_started_by_id, :test_case_finished_by_test_case_started_id,
                 :test_run_hook_started_by_id, :test_run_hook_finished_by_test_run_hook_started_id,
-                :test_step_by_id, :test_steps_started_by_test_case_started_id, :test_steps_finished_by_test_case_started_id
+                :test_step_by_id, :test_steps_started_by_test_case_started_id, :test_steps_finished_by_test_case_started_id,
+                :undefined_parameter_types
 
     def initialize
       @attachments_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
@@ -28,6 +29,7 @@ module Cucumber
       @test_step_by_id = {}
       @test_steps_started_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
       @test_steps_finished_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
+      @undefined_parameter_types = []
     end
 
     def update(envelope)
@@ -58,13 +60,11 @@ module Cucumber
       :no_op # Not Implemented Yet. But method will be inherently called from `#update`
     end
 
-    def update_undefined_parameter_type(_undefined_parameter_type)
-      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
-    end
-
     def update_suggestion(_suggestion)
       :no_op # Not Implemented Yet. But method will be inherently called from `#update`
     end
+
+    # Defined handlers
 
     def update_attachment(attachment)
       attachments_by_test_case_started_id[attachment.test_case_started_id] << attachment if attachment.test_case_started_id
@@ -148,6 +148,10 @@ module Cucumber
 
     def update_test_step_finished(test_step_finished)
       test_steps_finished_by_test_case_started_id[test_step_finished.test_case_started_id] << test_step_finished
+    end
+
+    def update_undefined_parameter_type(undefined_parameter_type)
+      undefined_parameter_types << undefined_parameter_type
     end
   end
 end
