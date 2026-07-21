@@ -14,8 +14,8 @@ module Cucumber
                 :undefined_parameter_types
 
     def initialize
-      @attachments_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
-      @attachments_by_test_run_hook_started_id = Hash.new { |hash, key| hash[key] = [] }
+      @attachments_by_test_case_started_id = _hash_with_array_default
+      @attachments_by_test_run_hook_started_id = _hash_with_array_default
       @hook_by_id = {}
       @pickle_by_id = {}
       @pickle_step_by_id = {}
@@ -27,8 +27,8 @@ module Cucumber
       @test_run_hook_started_by_id = {}
       @test_run_hook_finished_by_test_run_hook_started_id = {}
       @test_step_by_id = {}
-      @test_steps_started_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
-      @test_steps_finished_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
+      @test_steps_started_by_test_case_started_id = _hash_with_array_default
+      @test_steps_finished_by_test_case_started_id = _hash_with_array_default
       @undefined_parameter_types = []
     end
 
@@ -75,12 +75,7 @@ module Cucumber
       feature.children.each do |feature_child|
         update_steps(feature_child.background.steps) if feature_child.background
         update_scenario(feature_child.scenario) if feature_child.scenario
-        next unless feature_child.rule
-
-        feature_child.rule.children.each do |rule_child|
-          update_steps(rule_child.background.steps) if rule_child.background
-          update_scenario(rule_child.scenario) if rule_child.scenario
-        end
+        feature_child.rule&.children&.each { |rule_child| _update_feature_rule(rule_child) }
       end
     end
 
@@ -152,6 +147,15 @@ module Cucumber
 
     def update_undefined_parameter_type(undefined_parameter_type)
       undefined_parameter_types << undefined_parameter_type
+    end
+
+    def _update_feature_rule(rule_child)
+      update_steps(rule_child.background.steps) if rule_child.background
+      update_scenario(rule_child.scenario) if rule_child.scenario
+    end
+
+    def _hash_with_array_default
+      Hash.new { |hash, key| hash[key] = [] }
     end
   end
 end
