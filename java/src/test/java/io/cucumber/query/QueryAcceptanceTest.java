@@ -20,7 +20,8 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepStarted;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.core.StreamWriteFeature;
@@ -82,7 +83,6 @@ class QueryAcceptanceTest {
             .reversed();
 
 
-
     static List<QueryTestCase> acceptance() {
         List<QueryTestCase> testCases = new ArrayList<>();
 
@@ -112,6 +112,7 @@ class QueryAcceptanceTest {
 
     @ParameterizedTest
     @MethodSource("acceptance")
+    @DisabledIfEnvironmentVariable(named = "UPDATE_SAMPLES", matches = "true")
     void test(QueryTestCase testCase) throws IOException {
         ByteArrayOutputStream bytes = writeQueryResults(testCase, new ByteArrayOutputStream());
         String expected = Files.readString(testCase.expected);
@@ -121,7 +122,7 @@ class QueryAcceptanceTest {
 
     @ParameterizedTest
     @MethodSource("acceptance")
-    @Disabled
+    @EnabledIfEnvironmentVariable(named = "UPDATE_SAMPLES", matches = "true")
     void updateExpectedFiles(QueryTestCase testCase) throws IOException {
         try (OutputStream out = Files.newOutputStream(testCase.expected)) {
             writeQueryResults(testCase, out);

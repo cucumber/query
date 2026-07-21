@@ -25,6 +25,15 @@ So your playbook for adding a method would be something like:
    fixtures
 4. Implement other languages
 
+## Regenerate test data
+
+The Java implementation can also regenerate all the samples. Use:
+
+```shell
+cd java
+UPDATE_SAMPLES=true mvn test
+```
+
 ## Types
 
 Choosing which type to use in another language based on what we did in Java is
