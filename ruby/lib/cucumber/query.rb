@@ -94,7 +94,7 @@ module Cucumber
       repository.undefined_parameter_types
     end
 
-    # @param (message) [TestStep, TestRunHookStarted, TestRunHookFinished]
+    # @param message [TestStep, TestRunHookStarted, TestRunHookFinished]
     # @return [Array<Hook>, nil]
     def find_hook_by(message)
       ensure_only_message_types!(
@@ -135,7 +135,7 @@ module Cucumber
       end
     end
 
-    # @param (message) [TestCase, TestCaseStarted, TestCaseFinished, TestStepStarted, TestStepFinished]
+    # @param message [TestCase, TestCaseStarted, TestCaseFinished, TestStepStarted, TestStepFinished]
     # @return [Pickle]
     def find_pickle_by(message)
       ensure_only_message_types!(
@@ -154,7 +154,7 @@ module Cucumber
       repository.pickle_by_id[test_case_message.pickle_id]
     end
 
-    # @param (message) [TestStep]
+    # @param message [TestStep]
     # @return [PickleStep]
     def find_pickle_step_by(message)
       ensure_only_message_types!(
@@ -166,7 +166,7 @@ module Cucumber
       repository.pickle_step_by_id[message.pickle_step_id]
     end
 
-    # @param (message) [PickleStep]
+    # @param message [PickleStep]
     # @return [Step]
     def find_step_by(message)
       ensure_only_message_types!(
@@ -178,7 +178,7 @@ module Cucumber
       repository.step_by_id[message.ast_node_ids.first]
     end
 
-    # @param (message) [TestStep]
+    # @param message [TestStep]
     # @return [Array<StepDefinition>]
     def find_step_definitions_by(message)
       ensure_only_message_types!(
@@ -191,7 +191,7 @@ module Cucumber
       ids.filter_map { |id| repository.step_definition_by_id[id] }
     end
 
-    # @param (message) [TestCaseStarted, TestCaseFinished, TestStepStarted, TestStepFinished]
+    # @param message [TestCaseStarted, TestCaseFinished, TestStepStarted, TestStepFinished]
     # @return [TestCase]
     def find_test_case_by(message)
       ensure_only_message_types!(
@@ -209,7 +209,7 @@ module Cucumber
       repository.test_case_by_id[test_case_started_message.test_case_id]
     end
 
-    # @param (message) [TestCaseFinished, TestStepStarted, TestStepFinished]
+    # @param message [TestCaseFinished, TestStepStarted, TestStepFinished]
     # @return [TestCaseStarted]
     def find_test_case_started_by(message)
       ensure_only_message_types!(
@@ -221,7 +221,7 @@ module Cucumber
       repository.test_case_started_by_id[message.test_case_started_id]
     end
 
-    # @param (message) [TestCaseStarted]
+    # @param message [TestCaseStarted]
     # @return [TestCaseFinished]
     def find_test_case_finished_by(test_case_started)
       ensure_only_message_types!(
@@ -243,7 +243,7 @@ module Cucumber
       end
     end
 
-    # @param (message) [TestRunHookFinished]
+    # @param message [TestRunHookFinished]
     # @return [TestRunHookStarted]
     def find_test_run_hook_started_by(message)
       ensure_only_message_types!(
@@ -255,7 +255,7 @@ module Cucumber
       repository.test_run_hook_started_by_id[message.test_run_hook_started_id]
     end
 
-    # @param (message) [TestRunHookStarted]
+    # @param message [TestRunHookStarted]
     # @return [TestRunHookFinished]
     def find_test_run_hook_finished_by(message)
       ensure_only_message_types!(
@@ -277,7 +277,7 @@ module Cucumber
       repository.test_run_finished
     end
 
-    # @param (message) [TestStepStarted, TestStepFinished]
+    # @param message [TestStepStarted, TestStepFinished]
     # @return [TestStep]
     def find_test_step_by(message)
       ensure_only_message_types!(
@@ -289,7 +289,7 @@ module Cucumber
       repository.test_step_by_id[message.test_step_id]
     end
 
-    # @param (message) [TestCaseStarted, TestCaseFinished]
+    # @param message [TestCaseStarted, TestCaseFinished]
     # @return [Array<TestStep>]
     def find_test_steps_started_by(message)
       ensure_only_message_types!(
@@ -302,7 +302,7 @@ module Cucumber
       repository.test_steps_started_by_test_case_started_id.fetch(key, [])
     end
 
-    # @param (message) [TestCaseStarted, TestCaseFinished]
+    # @param message [TestCaseStarted, TestCaseFinished]
     # @return [Array<TestStep>]
     def find_test_steps_finished_by(message)
       ensure_only_message_types!(
