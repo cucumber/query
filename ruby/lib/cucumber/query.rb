@@ -84,7 +84,7 @@ module Cucumber
       repository.test_steps_finished_by_test_case_started_id.values.flatten
     end
 
-    # @return [Array<TestSteps>]
+    # @return [Array<TestStep>]
     def find_all_test_steps
       repository.test_step_by_id.values
     end
@@ -116,8 +116,8 @@ module Cucumber
       repository.meta
     end
 
-    # @param (message) [TestCaseStarted, TestCaseFinished]
-    # @return [String, nil]
+    # @param message [TestCaseStarted, TestCaseFinished]
+    # @return [TestStepResult, nil]
     def find_most_severe_test_step_result_by(message)
       ensure_only_message_types!(
         message,
