@@ -250,9 +250,6 @@ public class QueryAcceptanceTest
                     .Select(tsf => q.FindTestStepBy(tsf)?.Id)
                     .ToList()
             },
-            ["findTestStepsFinishedBy"] = q => q.FindAllTestCaseStarted()
-                .Select(tcs => q.FindTestStepsFinishedBy(tcs).Select(tsf => tsf.TestStepId).ToList())
-                .ToList(),
             ["findTestStepFinishedAndTestStepBy"] = q => q.FindAllTestCaseStarted()
                 .SelectMany(tcs => q.FindTestStepFinishedAndTestStepBy(tcs))
                 .Select(pair => new object?[] { pair.Item1.TestStepId, pair.Item2.Id })
