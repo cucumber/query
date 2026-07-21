@@ -19,3 +19,10 @@ Gemspec/DevelopmentDependencies:
 # Disabled on our repo's to enable polyglot-release
 Gemspec/RequireMFA:
   Enabled: false
+
+# A line length of 200 covers most violations in the repo while still being a more up-to-date length given today's screen sizes
+Layout/LineLength:
+  Max: 200
+
+Metrics/MethodLength:
+  CountAsOne: ['array', 'hash', 'heredoc']
