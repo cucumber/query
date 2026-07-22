@@ -1,9 +1,9 @@
 #include "cucumber/query/Query.hpp"
 #include "cucumber/messages/All.hpp"
+#include "cucumber/messages/TestStepResultStatus.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
-#include <cucumber/messages/TestStepResultStatus.hpp>
 #include <memory>
 #include <optional>
 #include <stdexcept>
@@ -84,14 +84,14 @@ namespace cucumber::query
         // {
         //     this.testRunStarted = envelope.testRunStarted
         // }
-        // if (envelope.testRunHookStarted)
-        // {
-        //     this.updateTestRunHookStarted(envelope.testRunHookStarted)
-        // }
-        // if (envelope.testRunHookFinished)
-        // {
-        //     this.updateTestRunHookFinished(envelope.testRunHookFinished)
-        // }
+        if (envelope.testRunHookStarted.has_value())
+        {
+            UpdateTestRunHookStarted(envelope.testRunHookStarted.value());
+        }
+        if (envelope.testRunHookFinished.has_value())
+        {
+            UpdateTestRunHookFinished(envelope.testRunHookFinished.value());
+        }
         if (envelope.testCase.has_value())
         {
             UpdateTestCase(envelope.testCase.value());
@@ -211,6 +211,16 @@ namespace cucumber::query
         }
 
         return result;
+    }
+
+    std::vector<std::shared_ptr<const messages::TestCase>> Query::FindAllTestCases() const
+    {
+        return MapValuesToVector(testCaseById);
+    }
+
+    [[nodiscard]] std::vector<std::shared_ptr<const messages::TestRunHookFinished>> Query::FindAllTestRunHookFinished() const
+    {
+        return MapValuesToVector(testRunHookFinishedByTestRunHookStartedId);
     }
 
     std::optional<std::shared_ptr<const messages::Pickle>> Query::FindPickleBy(
@@ -405,6 +415,16 @@ namespace cucumber::query
         {
             pickleStepById[pickleStep->id] = pickleStep;
         }
+    }
+
+    void Query::UpdateTestRunHookStarted(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted)
+    {
+        testRunHookStartedById[testRunHookStarted->id] = testRunHookStarted;
+    }
+
+    void Query::UpdateTestRunHookFinished(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished)
+    {
+        testRunHookFinishedByTestRunHookStartedId[testRunHookFinished->testRunHookStartedId] = testRunHookFinished;
     }
 
     /////////////////////////////

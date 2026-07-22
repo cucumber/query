@@ -1,3 +1,8 @@
+#include "cucumber/messages/Envelope.hpp"
+#include "cucumber/messages/Pickle.hpp"
+#include "cucumber/messages/TestCaseFinished.hpp"
+#include "cucumber/messages/TestCaseStarted.hpp"
+#include "cucumber/messages/TestStepResultStatus.hpp"
 #include "cucumber/query/Query.hpp"
 #include "nlohmann/json.hpp"
 #include "nlohmann/json_fwd.hpp"
@@ -5,10 +10,6 @@
 #include "gtest/gtest.h"
 #include <cstdint>
 #include <cstring>
-#include <cucumber/messages/Envelope.hpp>
-#include <cucumber/messages/Pickle.hpp>
-#include <cucumber/messages/TestCaseStarted.hpp>
-#include <cucumber/messages/TestStepResultStatus.hpp>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -50,6 +51,19 @@ namespace
     {
         std::filesystem::path ndjson;
         std::set<std::filesystem::path, std::less<>> json;
+    };
+
+    std::int32_t ReversePickleComparator(const std::shared_ptr<const cucumber::messages::Pickle>& lhs, const std::shared_ptr<const cucumber::messages::Pickle>& rhs)
+    {
+        if (lhs->uri != rhs->uri)
+        {
+            return static_cast<std::int32_t>(lhs->uri.compare(rhs->uri));
+        }
+        if (lhs->location.has_value() && rhs->location.has_value() && lhs->location.value()->line != rhs->location.value()->line)
+        {
+            return static_cast<std::int32_t>(rhs->location.value()->line) - static_cast<std::int32_t>(lhs->location.value()->line);
+        }
+        return static_cast<std::int32_t>(rhs->location.value()->column.value()) - static_cast<std::int32_t>(lhs->location.value()->column.value());
     };
 
     TestData GetTestFiles()
@@ -134,26 +148,43 @@ namespace
         EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
     }
 
+    void FindAllTestCaseFinishedOrderBy(const cucumber::query::Query& query, const nlohmann::json& expected)
+    {
+        auto findOrderBy = [](const cucumber::query::Query& query, std::shared_ptr<const cucumber::messages::TestCaseFinished> testCaseFinished)
+        {
+            return query.FindPickleBy(testCaseFinished);
+        };
+
+        const auto allResults = query.FindAllTestCaseFinishedOrderBy(findOrderBy, ReversePickleComparator);
+        nlohmann::json actual;
+        for (const auto& testCaseFinished : allResults)
+        {
+            actual.push_back(testCaseFinished->testCaseStartedId);
+        }
+
+        EXPECT_THAT(actual, testing::Eq(expected));
+    }
+
+    void FindAllTestCases(const cucumber::query::Query& query, const nlohmann::json& expected)
+    {
+        const auto actual = query.FindAllTestCases();
+        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+    }
+
+    void FindAllTestCaseStarted(const cucumber::query::Query& query, const nlohmann::json& expected)
+    {
+        const auto actual = query.FindAllTestCaseStarted();
+        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+    }
+
     void FindAllTestCaseStartedOrderBy(const cucumber::query::Query& query, const nlohmann::json& expected)
     {
         auto findOrderBy = [](const cucumber::query::Query& query, std::shared_ptr<const cucumber::messages::TestCaseStarted> testCaseStarted)
         {
             return query.FindPickleBy(testCaseStarted);
         };
-        auto reversePickleComparator = [](const std::shared_ptr<const cucumber::messages::Pickle>& lhs, const std::shared_ptr<const cucumber::messages::Pickle>& rhs)
-        {
-            if (lhs->uri != rhs->uri)
-            {
-                return static_cast<std::int32_t>(lhs->uri.compare(rhs->uri));
-            }
-            if (lhs->location.has_value() && rhs->location.has_value() && lhs->location.value()->line != rhs->location.value()->line)
-            {
-                return static_cast<std::int32_t>(rhs->location.value()->line) - static_cast<std::int32_t>(lhs->location.value()->line);
-            }
-            return static_cast<std::int32_t>(rhs->location.value()->column.value()) - static_cast<std::int32_t>(lhs->location.value()->column.value());
-        };
 
-        const auto allResults = query.FindAllTestCaseStartedOrderBy(findOrderBy, reversePickleComparator);
+        const auto allResults = query.FindAllTestCaseStartedOrderBy(findOrderBy, ReversePickleComparator);
         nlohmann::json actual;
         for (const auto& testCaseStarted : allResults)
         {
@@ -163,6 +194,12 @@ namespace
         EXPECT_THAT(actual, testing::Eq(expected));
     }
 
+    void FindAllTestRunHookFinished(const cucumber::query::Query& query, const nlohmann::json& expected)
+    {
+        const auto actual = query.FindAllTestRunHookFinished();
+        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+    }
+
     const std::unordered_map<std::string_view, void (*)(const cucumber::query::Query&, const nlohmann::json&)> functionMap{
         { "countMostSevereTestStepResultStatus", &CountMostSevereTestStepResultStatus },
         { "countTestCasesStarted", &CountTestCasesStarted },
@@ -170,10 +207,11 @@ namespace
         { "findAllPickleSteps", &FindAllPickleSteps },
         { "findAllStepDefinitions", &FindAllStepDefinitions },
         { "findAllTestCaseFinished", &FindAllTestCaseFinished },
-        // { "findAllTestCaseFinishedOrderBy", &FindAllTestCaseFinishedOrderBy },
-        // { "findAllTestCases", &findAllTestCases },
-        // { "findAllTestCaseStarted", &findAllTestCaseStarted },
+        { "findAllTestCaseFinishedOrderBy", &FindAllTestCaseFinishedOrderBy },
+        { "findAllTestCases", &FindAllTestCases },
+        { "findAllTestCaseStarted", &FindAllTestCaseStarted },
         { "findAllTestCaseStartedOrderBy", &FindAllTestCaseStartedOrderBy },
+        { "findAllTestRunHookFinished", &FindAllTestRunHookFinished },
 
     };
 
