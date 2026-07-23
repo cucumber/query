@@ -137,6 +137,7 @@ class QueryAcceptanceTest {
                 var query = new Query(repository);
                 var queryResults = testCase.query.apply(query);
                 jsonMapper.writerWithDefaultPrettyPrinter().writeValue(out, queryResults);
+                out.write(System.lineSeparator().getBytes(UTF_8));
             }
         }
         return out;
