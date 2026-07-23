@@ -106,7 +106,7 @@ namespace
         return str;
     }
 
-    void CountMostSevereTestStepResultStatus(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json CountMostSevereTestStepResultStatus(const cucumber::query::Query& query)
     {
         const auto allResults = query.CountMostSevereTestStepResultStatus();
         nlohmann::json actual;
@@ -115,40 +115,40 @@ namespace
             actual[to_string(status)] = count;
         }
 
-        EXPECT_THAT(actual, testing::Eq(expected));
+        return actual;
     }
 
-    void CountTestCasesStarted(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json CountTestCasesStarted(const cucumber::query::Query& query)
     {
         const auto actual = query.CountTestCasesStarted();
-        EXPECT_THAT(actual, testing::Eq(expected.get<std::size_t>()));
+        return actual;
     }
 
-    void FindAllPickles(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllPickles(const cucumber::query::Query& query)
     {
         const auto actual = query.FindAllPickles();
-        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+        return actual.size();
     }
 
-    void FindAllPickleSteps(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllPickleSteps(const cucumber::query::Query& query)
     {
         const auto actual = query.FindAllPickleSteps();
-        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+        return actual.size();
     }
 
-    void FindAllStepDefinitions(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllStepDefinitions(const cucumber::query::Query& query)
     {
         const auto actual = query.FindAllStepDefinitions();
-        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+        return actual.size();
     }
 
-    void FindAllTestCaseFinished(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllTestCaseFinished(const cucumber::query::Query& query)
     {
         const auto actual = query.FindAllTestCaseFinished();
-        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+        return actual.size();
     }
 
-    void FindAllTestCaseFinishedOrderBy(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllTestCaseFinishedOrderBy(const cucumber::query::Query& query)
     {
         auto findOrderBy = [](const cucumber::query::Query& query, std::shared_ptr<const cucumber::messages::TestCaseFinished> testCaseFinished)
         {
@@ -162,22 +162,22 @@ namespace
             actual.push_back(testCaseFinished->testCaseStartedId);
         }
 
-        EXPECT_THAT(actual, testing::Eq(expected));
+        return actual;
     }
 
-    void FindAllTestCases(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllTestCases(const cucumber::query::Query& query)
     {
         const auto actual = query.FindAllTestCases();
-        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+        return actual.size();
     }
 
-    void FindAllTestCaseStarted(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllTestCaseStarted(const cucumber::query::Query& query)
     {
         const auto actual = query.FindAllTestCaseStarted();
-        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+        return actual.size();
     }
 
-    void FindAllTestCaseStartedOrderBy(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllTestCaseStartedOrderBy(const cucumber::query::Query& query)
     {
         auto findOrderBy = [](const cucumber::query::Query& query, std::shared_ptr<const cucumber::messages::TestCaseStarted> testCaseStarted)
         {
@@ -191,16 +191,16 @@ namespace
             actual.push_back(testCaseStarted->id);
         }
 
-        EXPECT_THAT(actual, testing::Eq(expected));
+        return actual;
     }
 
-    void FindAllTestRunHookFinished(const cucumber::query::Query& query, const nlohmann::json& expected)
+    nlohmann::json FindAllTestRunHookFinished(const cucumber::query::Query& query)
     {
         const auto actual = query.FindAllTestRunHookFinished();
-        EXPECT_THAT(actual.size(), testing::Eq(expected.get<std::size_t>()));
+        return actual.size();
     }
 
-    const std::unordered_map<std::string_view, void (*)(const cucumber::query::Query&, const nlohmann::json&)> functionMap{
+    const std::unordered_map<std::string_view, nlohmann::json (*)(const cucumber::query::Query&)> functionMap{
         { "countMostSevereTestStepResultStatus", &CountMostSevereTestStepResultStatus },
         { "countTestCasesStarted", &CountTestCasesStarted },
         { "findAllPickles", &FindAllPickles },
@@ -233,7 +233,7 @@ namespace
                 GTEST_SKIP() << "No function registered for test case: " << testCaseName;
             }
 
-            // loadQuery
+            // load Query with messages
             {
                 std::ifstream ifstream{ input };
                 std::string line;
@@ -248,7 +248,7 @@ namespace
 
             {
                 std::ifstream ifstream{ expected };
-                functionMap.at(testCaseName)(query, nlohmann::json::parse(ifstream));
+                EXPECT_THAT(functionMap.at(testCaseName)(query), testing::Eq(nlohmann::json::parse(ifstream)));
             }
         }
 
