@@ -105,7 +105,7 @@ module Cucumber
     end
 
     def update_suggestion(suggestion)
-      suggestions_by_pickle_step_id[suggestion.pickle_step_id] << suggestion if suggestion.pickle_step_id
+      suggestions_by_pickle_step_id[suggestion.pickle_step_id] << suggestion
     end
 
     def update_test_case(test_case)
