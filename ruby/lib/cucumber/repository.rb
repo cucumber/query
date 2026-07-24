@@ -97,7 +97,7 @@ module Cucumber
     end
 
     def update_source(_source)
-      # This deliberate doesn't perform any handling. `Source` as a message is not stored or required
+      # This deliberately doesn't perform any handling. `Source` as a message is not stored or required
       #   - See `GherkinDocument` for a more "parsed" form of an AST representation
       :no_op
     end
