@@ -50,6 +50,12 @@ RSpec.describe Cucumber::Query do
     'findPickleStepBy' => ->(query) { query.find_all_test_steps.filter_map { |message| query.find_pickle_step_by(message)&.text } },
     'findStepBy' => ->(query) { query.find_all_pickle_steps.map { |message| query.find_step_by(message).text } },
     'findStepDefinitionsBy' => ->(query) { query.find_all_test_steps.map { |message| query.find_step_definitions_by(message).map(&:id) } },
+    'findSuggestionsBy' => lambda do |query|
+      results = {}
+      results['pickleStep'] = query.find_all_pickle_steps.filter_map { |message| query.find_suggestions_by(message).map(&:id) }.flatten
+      results['pickle'] = query.find_all_pickles.filter_map { |message| query.find_suggestions_by(message).map(&:id) }.flatten
+      results
+    end,
     'findTestCaseBy' => lambda do |query|
       results = {}
       results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_test_case_by(message).id }

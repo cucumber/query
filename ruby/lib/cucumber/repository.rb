@@ -7,6 +7,7 @@ module Cucumber
     attr_reader :attachments_by_test_case_started_id, :attachments_by_test_run_hook_started_id,
                 :hook_by_id,
                 :pickle_by_id, :pickle_step_by_id,
+                :suggestions_by_pickle_step_id,
                 :step_by_id, :step_definition_by_id,
                 :test_case_by_id, :test_case_started_by_id, :test_case_finished_by_test_case_started_id,
                 :test_run_hook_started_by_id, :test_run_hook_finished_by_test_run_hook_started_id,
@@ -21,6 +22,7 @@ module Cucumber
       @pickle_step_by_id = {}
       @step_by_id = {}
       @step_definition_by_id = {}
+      @suggestions_by_pickle_step_id = _hash_with_array_default
       @test_case_by_id = {}
       @test_case_started_by_id = {}
       @test_case_finished_by_test_case_started_id = {}
@@ -40,8 +42,6 @@ module Cucumber
 
     private
 
-    # Missing handlers
-
     def method_missing(method_name, *args, &)
       if method_name.to_s.start_with?('update_')
         Kernel.warn("Attempting to update the repository with #{method_name}. Please raise this as a missing message handler")
@@ -55,12 +55,6 @@ module Cucumber
     def respond_to_missing?(method_name, include_private = false)
       method_name.to_s.start_with?('update_') || super
     end
-
-    def update_suggestion(_suggestion)
-      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
-    end
-
-    # Defined handlers
 
     def update_attachment(attachment)
       attachments_by_test_case_started_id[attachment.test_case_started_id] << attachment if attachment.test_case_started_id
@@ -108,6 +102,10 @@ module Cucumber
 
     def update_step_definition(step_definition)
       step_definition_by_id[step_definition.id] = step_definition
+    end
+
+    def update_suggestion(suggestion)
+      suggestions_by_pickle_step_id[suggestion.pickle_step_id] << suggestion
     end
 
     def update_test_case(test_case)

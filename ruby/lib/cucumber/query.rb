@@ -191,6 +191,22 @@ module Cucumber
       ids.filter_map { |id| repository.step_definition_by_id[id] }
     end
 
+    # @param message [Pickle, PickleStep]
+    # @return [Array<Suggestion>]
+    def find_suggestions_by(message)
+      ensure_only_message_types!(
+        message,
+        [Cucumber::Messages::Pickle, Cucumber::Messages::PickleStep],
+        '#find_suggestions_by'
+      )
+
+      if message.is_a?(Cucumber::Messages::PickleStep)
+        repository.suggestions_by_pickle_step_id[message.id]
+      else
+        message.steps.flat_map { |pickle_step| find_suggestions_by(pickle_step) }
+      end
+    end
+
     # @param message [TestCaseStarted, TestCaseFinished, TestStepStarted, TestStepFinished]
     # @return [TestCase]
     def find_test_case_by(message)
