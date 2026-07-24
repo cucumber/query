@@ -56,10 +56,6 @@ module Cucumber
       method_name.to_s.start_with?('update_') || super
     end
 
-    def update_source(_source)
-      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
-    end
-
     def update_suggestion(_suggestion)
       :no_op # Not Implemented Yet. But method will be inherently called from `#update`
     end
@@ -98,6 +94,12 @@ module Cucumber
 
     def update_scenario(scenario)
       update_steps(scenario.steps)
+    end
+
+    def update_source(_source)
+      # This deliberate doesn't perform any handling. `Source` as a message is not stored or required
+      #   - See `GherkinDocument` for a more "parsed" form of an AST representation
+      :no_op
     end
 
     def update_steps(steps)
