@@ -8,7 +8,6 @@ require_relative 'repository'
 #
 # Queries can be made while the test run is incomplete - and this will naturally return incomplete results
 # see {Cucumber Messages - Message Overview}[https://github.com/cucumber/messages?tab=readme-ov-file#message-overview]
-#
 module Cucumber
   # Provides lookup methods for related Cucumber messages stored in the `Repository` class.
   class Query
