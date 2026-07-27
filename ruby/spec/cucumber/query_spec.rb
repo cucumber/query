@@ -74,19 +74,21 @@ RSpec.describe Cucumber::Query do
     'findTestRunHookStartedBy' => ->(query) { query.find_all_test_run_hook_started.map(&:id) },
     'findTestRunHookFinishedBy' => ->(query) { query.find_all_test_run_hook_finished.map(&:test_run_hook_started_id) },
     'findTestRunStarted' => lambda do |query|
-      message = query.find_test_run_started
-      {
-        'id' => message.id,
-        'timestamp' => { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
-      }
+      query.find_test_run_started.then do |message|
+        {
+          'id' => message.id,
+          'timestamp' => { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
+        }
+      end
     end,
     'findTestRunFinished' => lambda do |query|
-      message = query.find_test_run_finished
-      {
-        'success' => message.success,
-        'testRunStartedId' => message.test_run_started_id,
-        'timestamp' => { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
-      }
+      query.find_test_run_finished.then do |message|
+        {
+          'success' => message.success,
+          'testRunStartedId' => message.test_run_started_id,
+          'timestamp' => { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
+        }
+      end
     end,
     'findTestStepBy' => lambda do |query|
       {
