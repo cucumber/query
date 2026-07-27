@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- [Ruby] Add initial Ruby implementation and RubyGems release workflow, covering the needs of the rerun formatter only for now ([#98](https://github.com/cucumber/query/pull/98) [#188](https://github.com/cucumber/query/pull/188) [#189](https://github.com/cucumber/query/pull/189) [#190](https://github.com/cucumber/query/pull/190))
+- [Ruby] Add initial Ruby implementation and RubyGems release workflow ([#98](https://github.com/cucumber/query/pull/98) [#188](https://github.com/cucumber/query/pull/188) [#189](https://github.com/cucumber/query/pull/189) [#190](https://github.com/cucumber/query/pull/190) [#197](https://github.com/cucumber/query/pull/197))
 
 ### Changed
 - Prefer Pickle.Location with fallback to Lineage ([#175](https://github.com/cucumber/query/pull/175))
