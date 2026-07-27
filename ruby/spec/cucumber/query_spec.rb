@@ -22,91 +22,89 @@ RSpec.describe Cucumber::Query do
     'findAllTestStepStarted' => ->(query) { query.find_all_test_step_started.length },
     'findAllTestStepFinished' => ->(query) { query.find_all_test_step_finished.length },
     'findAllTestSteps' => ->(query) { query.find_all_test_steps.length },
-    'findAllUndefinedParameterTypes' => lambda do |query|
-      query.find_all_undefined_parameter_types.map { |message| [message.name, message.expression] }
-    end,
+    'findAllUndefinedParameterTypes' => ->(query) { query.find_all_undefined_parameter_types.map { |message| [message.name, message.expression] } },
     'findHookBy' => lambda do |query|
-      results = {}
-      results['testStep'] = query.find_all_test_steps.filter_map { |message| query.find_hook_by(message)&.id }
-      results['testRunHookStarted'] = query.find_all_test_run_hook_started.filter_map { |message| query.find_hook_by(message)&.id }
-      results['testRunHookFinished'] = query.find_all_test_run_hook_finished.filter_map { |message| query.find_hook_by(message)&.id }
-      results
+      {
+        'testStep' => query.find_all_test_steps.filter_map { |message| query.find_hook_by(message)&.id },
+        'testRunHookStarted' => query.find_all_test_run_hook_started.filter_map { |message| query.find_hook_by(message)&.id },
+        'testRunHookFinished' => query.find_all_test_run_hook_finished.filter_map { |message| query.find_hook_by(message)&.id }
+      }
     end,
     'findMeta' => ->(query) { query.find_meta.implementation.name },
     'findMostSevereTestStepResultBy' => lambda do |query|
-      results = {}
-      results['testCaseStarted'] = query.find_all_test_case_started.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status }
-      results['testCaseFinished'] = query.find_all_test_case_finished.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status }
-      results
+      {
+        'testCaseStarted' => query.find_all_test_case_started.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status },
+        'testCaseFinished' => query.find_all_test_case_finished.filter_map { |message| query.find_most_severe_test_step_result_by(message)&.status }
+      }
     end,
     'findPickleBy' => lambda do |query|
-      results = {}
-      results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_pickle_by(message).name }
-      results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_pickle_by(message).name }
-      results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_pickle_by(message).name }
-      results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_pickle_by(message).name }
-      results
+      {
+        'testCaseStarted' => query.find_all_test_case_started.map { |message| query.find_pickle_by(message).name },
+        'testCaseFinished' => query.find_all_test_case_finished.map { |message| query.find_pickle_by(message).name },
+        'testStepStarted' => query.find_all_test_step_started.map { |message| query.find_pickle_by(message).name },
+        'testStepFinished' => query.find_all_test_step_finished.map { |message| query.find_pickle_by(message).name }
+      }
     end,
     'findPickleStepBy' => ->(query) { query.find_all_test_steps.filter_map { |message| query.find_pickle_step_by(message)&.text } },
     'findStepBy' => ->(query) { query.find_all_pickle_steps.map { |message| query.find_step_by(message).text } },
     'findStepDefinitionsBy' => ->(query) { query.find_all_test_steps.map { |message| query.find_step_definitions_by(message).map(&:id) } },
     'findSuggestionsBy' => lambda do |query|
-      results = {}
-      results['pickleStep'] = query.find_all_pickle_steps.filter_map { |message| query.find_suggestions_by(message).map(&:id) }.flatten
-      results['pickle'] = query.find_all_pickles.filter_map { |message| query.find_suggestions_by(message).map(&:id) }.flatten
-      results
+      {
+        'pickleStep' => query.find_all_pickle_steps.filter_map { |message| query.find_suggestions_by(message).map(&:id) }.flatten,
+        'pickle' => query.find_all_pickles.filter_map { |message| query.find_suggestions_by(message).map(&:id) }.flatten
+      }
     end,
     'findTestCaseBy' => lambda do |query|
-      results = {}
-      results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_test_case_by(message).id }
-      results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_test_case_by(message).id }
-      results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_case_by(message).id }
-      results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_case_by(message).id }
-      results
+      {
+        'testCaseStarted' => query.find_all_test_case_started.map { |message| query.find_test_case_by(message).id },
+        'testCaseFinished' => query.find_all_test_case_finished.map { |message| query.find_test_case_by(message).id },
+        'testStepStarted' => query.find_all_test_step_started.map { |message| query.find_test_case_by(message).id },
+        'testStepFinished' => query.find_all_test_step_finished.map { |message| query.find_test_case_by(message).id }
+      }
     end,
     'findTestCaseStartedBy' => lambda do |query|
-      results = {}
-      results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_test_case_started_by(message).id }
-      results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_case_started_by(message).id }
-      results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_case_started_by(message).id }
-      results
+      {
+        'testCaseFinished' => query.find_all_test_case_finished.map { |message| query.find_test_case_started_by(message).id },
+        'testStepStarted' => query.find_all_test_step_started.map { |message| query.find_test_case_started_by(message).id },
+        'testStepFinished' => query.find_all_test_step_finished.map { |message| query.find_test_case_started_by(message).id }
+      }
     end,
     'findTestCaseFinishedBy' => ->(query) { query.find_all_test_case_started.map { |message| query.find_test_case_finished_by(message).test_case_started_id } },
     'findTestRunDuration' => lambda(&:find_test_run_duration),
     'findTestRunHookStartedBy' => ->(query) { query.find_all_test_run_hook_started.map(&:id) },
     'findTestRunHookFinishedBy' => ->(query) { query.find_all_test_run_hook_finished.map(&:test_run_hook_started_id) },
     'findTestRunStarted' => lambda do |query|
-      results = {}
       message = query.find_test_run_started
-      results['id'] = message.id
-      results['timestamp'] = { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
-      results
+      {
+        'id' => message.id,
+        'timestamp' => { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
+      }
     end,
     'findTestRunFinished' => lambda do |query|
-      results = {}
       message = query.find_test_run_finished
-      results['success'] = message.success
-      results['testRunStartedId'] = message.test_run_started_id
-      results['timestamp'] = { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
-      results
+      {
+        'success' => message.success,
+        'testRunStartedId' => message.test_run_started_id,
+        'timestamp' => { 'nanos' => message.timestamp.nanos, 'seconds' => message.timestamp.seconds }
+      }
     end,
     'findTestStepBy' => lambda do |query|
-      results = {}
-      results['testStepStarted'] = query.find_all_test_step_started.map { |message| query.find_test_step_by(message).id }
-      results['testStepFinished'] = query.find_all_test_step_finished.map { |message| query.find_test_step_by(message).id }
-      results
+      {
+        'testStepStarted' => query.find_all_test_step_started.map { |message| query.find_test_step_by(message).id },
+        'testStepFinished' => query.find_all_test_step_finished.map { |message| query.find_test_step_by(message).id }
+      }
     end,
     'findTestStepsStartedBy' => lambda do |query|
-      results = {}
-      results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_test_steps_started_by(message).map(&:test_step_id) }
-      results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_test_steps_started_by(message).map(&:test_step_id) }
-      results
+      {
+        'testCaseStarted' => query.find_all_test_case_started.map { |message| query.find_test_steps_started_by(message).map(&:test_step_id) },
+        'testCaseFinished' => query.find_all_test_case_finished.map { |message| query.find_test_steps_started_by(message).map(&:test_step_id) }
+      }
     end,
     'findTestStepsFinishedBy' => lambda do |query|
-      results = {}
-      results['testCaseStarted'] = query.find_all_test_case_started.map { |message| query.find_test_steps_finished_by(message).map(&:test_step_id) }
-      results['testCaseFinished'] = query.find_all_test_case_finished.map { |message| query.find_test_steps_finished_by(message).map(&:test_step_id) }
-      results
+      {
+        'testCaseStarted' => query.find_all_test_case_started.map { |message| query.find_test_steps_finished_by(message).map(&:test_step_id) },
+        'testCaseFinished' => query.find_all_test_case_finished.map { |message| query.find_test_steps_finished_by(message).map(&:test_step_id) }
+      }
     end
   }
 
