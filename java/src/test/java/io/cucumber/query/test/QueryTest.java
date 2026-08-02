@@ -1,9 +1,11 @@
-package io.cucumber.query;
+package io.cucumber.query.test;
 
 import io.cucumber.messages.types.Envelope;
 import io.cucumber.messages.types.TestCaseFinished;
 import io.cucumber.messages.types.TestCaseStarted;
 import io.cucumber.messages.types.Timestamp;
+import io.cucumber.query.Query;
+import io.cucumber.query.Repository;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

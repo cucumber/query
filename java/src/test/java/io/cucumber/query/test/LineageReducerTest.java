@@ -1,4 +1,4 @@
-package io.cucumber.query;
+package io.cucumber.query.test;
 
 import io.cucumber.messages.NdjsonToMessageReader;
 import io.cucumber.messages.ndjson.Json;
@@ -10,7 +10,10 @@ import io.cucumber.messages.types.Pickle;
 import io.cucumber.messages.types.Rule;
 import io.cucumber.messages.types.Scenario;
 import io.cucumber.messages.types.TableRow;
+import io.cucumber.query.LineageReducer;
 import io.cucumber.query.LineageReducer.Collector;
+import io.cucumber.query.Query;
+import io.cucumber.query.Repository;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

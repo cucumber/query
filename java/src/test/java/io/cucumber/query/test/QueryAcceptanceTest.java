@@ -1,4 +1,4 @@
-package io.cucumber.query;
+package io.cucumber.query.test;
 
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.LocationComparator;
@@ -20,6 +20,9 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepStarted;
+import io.cucumber.query.NamingStrategy;
+import io.cucumber.query.Query;
+import io.cucumber.query.Repository;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
