@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [16.1.1] - 2026-08-05
 ### Fixed
 - [Java] Use version range for `org.jspecify:jspecify`
 
@@ -306,7 +308,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v16.1.0...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v16.1.1...HEAD
+[16.1.1]: https://github.com/cucumber/query/compare/v16.1.0...v16.1.1
 [16.1.0]: https://github.com/cucumber/query/compare/v16.0.1...v16.1.0
 [16.0.1]: https://github.com/cucumber/query/compare/v16.0.0...v16.0.1
 [16.0.0]: https://github.com/cucumber/query/compare/v15.0.1...v16.0.0
