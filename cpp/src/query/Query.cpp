@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
@@ -17,10 +18,10 @@ namespace cucumber::query
 {
     namespace
     {
-        template<class C>
-        auto MapValuesToVector(const C& container)
+        template<typename T>
+        auto MapValuesToVector(const std::unordered_map<std::string, T>& container)
         {
-            std::vector<typename C::mapped_type> result;
+            std::vector<T> result;
             result.reserve(container.size());
 
             for (const auto& [key, value] : container)
@@ -31,7 +32,20 @@ namespace cucumber::query
             return result;
         }
 
-        // helper type for the visitor #4
+        template<class T>
+        auto MapValuesToVector(const std::unordered_map<std::string, std::vector<T>>& container)
+        {
+            std::vector<T> result;
+            result.reserve(container.size());
+
+            for (const auto& [key, value] : container)
+            {
+                result.insert(result.end(), value.begin(), value.end());
+            }
+
+            return result;
+        }
+
         template<class... Ts>
         struct overloaded : Ts...
         {
@@ -100,14 +114,14 @@ namespace cucumber::query
         {
             UpdateTestCaseStarted(envelope.testCaseStarted.value());
         }
-        // if (envelope.testStepStarted)
-        // {
-        //     this.updateTestStepStarted(envelope.testStepStarted)
-        // }
-        // if (envelope.attachment)
-        // {
-        //     this.updateAttachment(envelope.attachment)
-        // }
+        if (envelope.testStepStarted.has_value())
+        {
+            testStepStartedByTestCaseStartedId[envelope.testStepStarted.value()->testCaseStartedId].push_back(envelope.testStepStarted.value());
+        }
+        if (envelope.attachment.has_value())
+        {
+            UpdateAttachment(envelope.attachment.value());
+        }
         if (envelope.testStepFinished.has_value())
         {
             UpdateTestStepFinished(envelope.testStepFinished.value());
@@ -124,10 +138,10 @@ namespace cucumber::query
         // {
         //     this.updateSuggestion(envelope.suggestion)
         // }
-        // if (envelope.undefinedParameterType)
-        // {
-        //     this.updateUndefinedParameterType(envelope.undefinedParameterType)
-        // }
+        if (envelope.undefinedParameterType.has_value())
+        {
+            undefinedParameterTypes.push_back(envelope.undefinedParameterType.value());
+        }
     }
 
     std::unordered_map<messages::TestStepResultStatus, std::size_t> Query::CountMostSevereTestStepResultStatus() const
@@ -213,14 +227,71 @@ namespace cucumber::query
         return result;
     }
 
+    std::vector<std::shared_ptr<const messages::TestStep>> Query::FindAllTestSteps() const
+    {
+        return MapValuesToVector(testStepById);
+    }
+
     std::vector<std::shared_ptr<const messages::TestCase>> Query::FindAllTestCases() const
     {
         return MapValuesToVector(testCaseById);
     }
 
-    [[nodiscard]] std::vector<std::shared_ptr<const messages::TestRunHookFinished>> Query::FindAllTestRunHookFinished() const
+    std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindAllTestStepStarted() const
+    {
+        return MapValuesToVector(testStepStartedByTestCaseStartedId);
+    }
+
+    std::vector<std::shared_ptr<const messages::TestStepFinished>> Query::FindAllTestStepFinished() const
+    {
+        return MapValuesToVector(testStepFinishedByTestCaseStartedId);
+    }
+
+    std::vector<std::shared_ptr<const messages::TestRunHookStarted>> Query::FindAllTestRunHookStarted() const
+    {
+        return MapValuesToVector(testRunHookStartedById);
+    }
+
+    std::vector<std::shared_ptr<const messages::TestRunHookFinished>> Query::FindAllTestRunHookFinished() const
     {
         return MapValuesToVector(testRunHookFinishedByTestRunHookStartedId);
+    }
+
+    std::vector<std::shared_ptr<const messages::UndefinedParameterType>> Query::FindAllUndefinedParameterTypes() const
+    {
+        return undefinedParameterTypes;
+    }
+
+    std::vector<std::shared_ptr<const messages::Attachment>> Query::FindAttachmentsBy(
+        std::variant<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestRunHookFinished>> element) const
+    {
+        return std::visit(
+            overloaded{
+                [this](const std::shared_ptr<const messages::TestStepFinished>& element)
+                {
+                    std::vector<std::shared_ptr<const messages::Attachment>> result;
+                    if (attachmentsByTestCaseStartedId.find(element->testCaseStartedId) != attachmentsByTestCaseStartedId.end())
+                    {
+                        for (const auto& attachment : attachmentsByTestCaseStartedId.at(element->testCaseStartedId))
+                        {
+                            if (attachment->testStepId == element->testStepId)
+                            {
+                                result.push_back(attachment);
+                            }
+                        }
+                    }
+                    return result;
+                },
+                [this](const std::shared_ptr<const messages::TestRunHookFinished>& element)
+                {
+                    if (attachmentsByTestRunHookStartedId.find(element->testRunHookStartedId) != attachmentsByTestRunHookStartedId.end())
+                    {
+                        return attachmentsByTestRunHookStartedId.at(element->testRunHookStartedId);
+                    }
+                    return std::vector<std::shared_ptr<const messages::Attachment>>{};
+                },
+            },
+            element);
     }
 
     std::optional<std::shared_ptr<const messages::Pickle>> Query::FindPickleBy(
@@ -302,6 +373,27 @@ namespace cucumber::query
         {
             return std::nullopt;
         }
+    }
+
+    std::vector<std::shared_ptr<const messages::TestStepFinished>> Query::FindTestStepsFinishedBy(
+        std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
+    {
+        const auto& optionalTestCaseStarted = std::visit(overloaded{ [this](const std::shared_ptr<const messages::TestCaseFinished>& element)
+                                                             {
+                                                                 return FindTestCaseStartedBy(element);
+                                                             },
+                                                             [](const auto& element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+                                                             {
+                                                                 return element;
+                                                             } },
+            element);
+
+        if (optionalTestCaseStarted.has_value() && testStepFinishedByTestCaseStartedId.find(optionalTestCaseStarted.value()->id) != testStepFinishedByTestCaseStartedId.end())
+        {
+            return testStepFinishedByTestCaseStartedId.at(optionalTestCaseStarted.value()->id);
+        }
+
+        return {};
     }
 
     std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> Query::FindTestStepFinishedAndTestStepBy(
@@ -446,6 +538,18 @@ namespace cucumber::query
     }
 
     /////////////////////////////
+
+    void Query::UpdateAttachment(const std::shared_ptr<const messages::Attachment>& attachment)
+    {
+        if (attachment->testCaseStartedId.has_value())
+        {
+            attachmentsByTestCaseStartedId[attachment->testCaseStartedId.value()].push_back(attachment);
+        }
+        if (attachment->testRunHookStartedId.has_value())
+        {
+            attachmentsByTestRunHookStartedId[attachment->testRunHookStartedId.value()].push_back(attachment);
+        }
+    }
 
     void Query::UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished)
     {

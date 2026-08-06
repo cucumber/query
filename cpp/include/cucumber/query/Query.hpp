@@ -65,27 +65,22 @@ namespace cucumber::query
         template<typename TFind, typename Cmp>
         [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCaseFinished>> FindAllTestCaseFinishedOrderBy(TFind findOrderBy, Cmp order) const;
 
-        // std::vector<std::shared_ptr<messages::TestStep>> FindAllTestSteps()
-        //     ;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStep>> FindAllTestSteps() const;
 
         [[nodiscard]] std::vector<std::shared_ptr<const messages::TestCase>> FindAllTestCases() const;
 
-        // std::vector<std::shared_ptr<messages::TestStepStarted>> FindAllTestStepStarted()
-        //     ;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStepStarted>> FindAllTestStepStarted() const;
 
-        // std::vector<std::shared_ptr<messages::TestStepFinished>> FindAllTestStepFinished()
-        //     ;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStepFinished>> FindAllTestStepFinished() const;
 
-        // std::vector<std::shared_ptr<messages::TestRunHookStarted>> FindAllTestRunHookStarted()
-        //     ;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestRunHookStarted>> FindAllTestRunHookStarted() const;
 
         [[nodiscard]] std::vector<std::shared_ptr<const messages::TestRunHookFinished>> FindAllTestRunHookFinished() const;
 
-        // std::vector<std::shared_ptr<messages::UndefinedParameterType>> FindAllUndefinedParameterTypes()
-        //     ;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::UndefinedParameterType>> FindAllUndefinedParameterTypes() const;
 
-        // std::vector<std::shared_ptr<messages::Attachment>> FindAttachmentsBy(element : TestStepFinished | TestRunHookFinished)
-        //     ;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::Attachment>> FindAttachmentsBy(
+            std::variant<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestRunHookFinished>> element) const;
 
         // FindHookBy(item : TestStep | TestRunHookStarted | TestRunHookFinished)
         //     : Hook | undefined const;
@@ -108,11 +103,9 @@ namespace cucumber::query
         // FindStepBy(pickleStep : PickleStep)
         //     : Step | undefined const;
 
-        // std::vector<std::shared_ptr<messages::StepDefinition>> FindStepDefinitionsBy(testStep : TestStep)
-        //     ;
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::StepDefinition>> FindStepDefinitionsBy(testStep : TestStep) const;
 
-        // std::vector<std::shared_ptr<messages::Suggestion>> findSuggestionsBy(element : PickleStep | Pickle)
-        //     ;
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> findSuggestionsBy(element : PickleStep | Pickle) const;
 
         // FindUnambiguousStepDefinitionBy(testStep : TestStep)
         //     : StepDefinition | undefined const;
@@ -145,22 +138,21 @@ namespace cucumber::query
         // FindTestRunStarted()
         //     : TestRunStarted | undefined const;
 
-        std::optional<std::shared_ptr<const messages::TestStep>> FindTestStepBy(
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStep>> FindTestStepBy(
             std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
-        // std::vector<std::shared_ptr<messages::TestStepStarted>> FindTestStepsStartedBy(element : TestCaseStarted | TestCaseFinished)
-        //     ;
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStepStarted>> FindTestStepsStartedBy(element : TestCaseStarted | TestCaseFinished) const;
 
-        // std::vector<std::shared_ptr<messages::TestStepFinished>> FindTestStepsFinishedBy(element : TestCaseStarted | TestCaseFinished)
-        //     ;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStepFinished>> FindTestStepsFinishedBy(
+            std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const;
 
-        std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> FindTestStepFinishedAndTestStepBy(
+        [[nodiscard]] std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> FindTestStepFinishedAndTestStepBy(
             const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const;
 
         // FindLineageBy(element : Pickle | TestCaseStarted | TestCaseFinished)
         //     : Lineage | undefined const;
 
-        // [[nodiscard]] std::size_t CountTestCasesStarted() const;
+        // [[nodiscard]] std::size_t CountTestCasesStarted() const; const;
 
     private:
         void UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument);
@@ -180,6 +172,7 @@ namespace cucumber::query
         void UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted);
         /////////////
 
+        void UpdateAttachment(const std::shared_ptr<const messages::Attachment>& attachment);
         void UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished);
         void UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished);
         /////////////
@@ -201,17 +194,12 @@ namespace cucumber::query
         std::unordered_map<std::string, std::shared_ptr<const messages::TestCaseFinished>> testCaseFinishedByTestCaseStartedId;
         std::unordered_map<std::string, std::shared_ptr<const messages::TestRunHookStarted>> testRunHookStartedById;
         std::unordered_map<std::string, std::shared_ptr<const messages::TestRunHookFinished>> testRunHookFinishedByTestRunHookStartedId;
-        //   private readonly testStepStartedByTestCaseStartedId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::TestStepStarted> =
-        //     new ArrayMultimap()
+        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::TestStepStarted>>> testStepStartedByTestCaseStartedId;
         std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::TestStepFinished>>> testStepFinishedByTestCaseStartedId;
-        //     new ArrayMultimap()
-        //   private readonly attachmentsByTestCaseStartedId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::Attachment> =
-        //     new ArrayMultimap()
-        //   private readonly attachmentsByTestRunHookStartedId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::Attachment> =
-        //     new ArrayMultimap()
-        //   private readonly suggestionsByPickleStepId: ArrayMultistd::unordered_map<std::string, std::shared_ptr<const messages::Suggestion> =
-        //     new ArrayMultimap()
-        //   private readonly undefinedParameterTypes: UndefinedParameterType[] = []
+        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>> attachmentsByTestCaseStartedId;
+        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>> attachmentsByTestRunHookStartedId;
+        //   std::unordered_map<std::string, std::shared_ptr<const messages::Suggestion>> suggestionsByPickleStepId;
+        std::vector<std::shared_ptr<const messages::UndefinedParameterType>> undefinedParameterTypes;
     };
 
     namespace detail
