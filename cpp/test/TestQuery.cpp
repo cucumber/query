@@ -165,23 +165,32 @@ namespace cucumber::query
                 }
             }
 
-            if (actual["testStepFinished"].is_array())
-            {
-                std::sort(actual["testStepFinished"].begin(), actual["testStepFinished"].end(),
-                    [](const nlohmann::json& lhs, const nlohmann::json& rhs)
-                    {
-                        return std::stoi(lhs[0].get<std::string>()) < std::stoi(rhs[0].get<std::string>());
-                    });
-            }
+            return actual;
+        }
 
-            if (actual["testRunHookFinished"].is_array())
+        nlohmann::json FindHookBy(const query::Query& query)
+        {
+            nlohmann::json actual;
+
+            auto findHookBy = [&actual, &query](const auto& testSteps)
             {
-                std::sort(actual["testRunHookFinished"].begin(), actual["testRunHookFinished"].end(),
-                    [](const nlohmann::json& lhs, const nlohmann::json& rhs)
+                nlohmann::json actual = nlohmann::json::array();
+
+                for (const auto& testStep : testSteps)
+                {
+                    const auto& hook = query.FindHookBy(testStep);
+                    if (hook.has_value())
                     {
-                        return std::stoi(lhs[0].get<std::string>()) < std::stoi(rhs[0].get<std::string>());
-                    });
-            }
+                        actual.push_back(hook.value()->id);
+                    }
+                }
+
+                return actual;
+            };
+
+            actual["testStep"] = findHookBy(query.FindAllTestSteps());
+            actual["testRunHookStarted"] = findHookBy(query.FindAllTestRunHookStarted());
+            actual["testRunHookFinished"] = findHookBy(query.FindAllTestRunHookFinished());
 
             return actual;
         }
@@ -204,6 +213,7 @@ namespace cucumber::query
             { "findAllTestStepStarted", GetSizeOf<&query::Query::FindAllTestStepStarted> },
             { "findAllUndefinedParameterTypes", FindAllUndefinedParameterTypes },
             { "findAttachmentsBy", FindAttachmentsBy },
+            { "findHookBy", FindHookBy },
         };
 
         struct AcceptanceTest : testing::Test

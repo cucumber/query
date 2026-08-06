@@ -18,6 +18,16 @@ namespace cucumber::query
 {
     namespace
     {
+        template<class T, typename Proj>
+        void SortBy(std::vector<T>& container, const Proj& projection)
+        {
+            std::sort(container.begin(), container.end(),
+                [&projection](const auto& lhs, const auto& rhs)
+                {
+                    return std::stoi(std::invoke(projection, lhs)) < std::stoi(std::invoke(projection, rhs));
+                });
+        }
+
         template<typename T>
         auto MapValuesToVector(const std::unordered_map<std::string, T>& container)
         {
@@ -28,6 +38,16 @@ namespace cucumber::query
             {
                 result.push_back(value);
             }
+
+            return result;
+        }
+
+        template<typename T, typename Proj>
+        auto MapValuesToVectorSortBy(const std::unordered_map<std::string, T>& container, const Proj& projection)
+        {
+            std::vector<T> result = MapValuesToVector(container);
+
+            SortBy(result, projection);
 
             return result;
         }
@@ -86,10 +106,10 @@ namespace cucumber::query
         {
             UpdatePickle(envelope.pickle.value());
         }
-        // if (envelope.hook)
-        // {
-        //     this.hookById.set(envelope.hook.id, envelope.hook)
-        // }
+        if (envelope.hook.has_value())
+        {
+            hookById[envelope.hook.value()->id] = envelope.hook.value();
+        }
         if (envelope.stepDefinition.has_value())
         {
             stepDefinitionById[envelope.stepDefinition.value()->id] = envelope.stepDefinition.value();
@@ -182,17 +202,17 @@ namespace cucumber::query
 
     std::vector<std::shared_ptr<const messages::Pickle>> Query::FindAllPickles() const
     {
-        return MapValuesToVector(pickleById);
+        return MapValuesToVectorSortBy(pickleById, &messages::Pickle::id);
     }
 
     std::vector<std::shared_ptr<const messages::PickleStep>> Query::FindAllPickleSteps() const
     {
-        return MapValuesToVector(pickleStepById);
+        return MapValuesToVectorSortBy(pickleStepById, &messages::PickleStep::id);
     }
 
     std::vector<std::shared_ptr<const messages::StepDefinition>> Query::FindAllStepDefinitions() const
     {
-        return MapValuesToVector(stepDefinitionById);
+        return MapValuesToVectorSortBy(stepDefinitionById, &messages::StepDefinition::id);
     }
 
     std::vector<std::shared_ptr<const messages::TestCaseStarted>> Query::FindAllTestCaseStarted() const
@@ -209,6 +229,8 @@ namespace cucumber::query
             }
         }
 
+        SortBy(result, &messages::TestCaseStarted::id);
+
         return result;
     }
 
@@ -224,17 +246,19 @@ namespace cucumber::query
             }
         }
 
+        SortBy(result, &messages::TestCaseFinished::testCaseStartedId);
+
         return result;
     }
 
     std::vector<std::shared_ptr<const messages::TestStep>> Query::FindAllTestSteps() const
     {
-        return MapValuesToVector(testStepById);
+        return MapValuesToVectorSortBy(testStepById, &messages::TestStep::id);
     }
 
     std::vector<std::shared_ptr<const messages::TestCase>> Query::FindAllTestCases() const
     {
-        return MapValuesToVector(testCaseById);
+        return MapValuesToVectorSortBy(testCaseById, &messages::TestCase::id);
     }
 
     std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindAllTestStepStarted() const
@@ -249,12 +273,12 @@ namespace cucumber::query
 
     std::vector<std::shared_ptr<const messages::TestRunHookStarted>> Query::FindAllTestRunHookStarted() const
     {
-        return MapValuesToVector(testRunHookStartedById);
+        return MapValuesToVectorSortBy(testRunHookStartedById, &messages::TestRunHookStarted::id);
     }
 
     std::vector<std::shared_ptr<const messages::TestRunHookFinished>> Query::FindAllTestRunHookFinished() const
     {
-        return MapValuesToVector(testRunHookFinishedByTestRunHookStartedId);
+        return MapValuesToVectorSortBy(testRunHookFinishedByTestRunHookStartedId, &messages::TestRunHookFinished::testRunHookStartedId);
     }
 
     std::vector<std::shared_ptr<const messages::UndefinedParameterType>> Query::FindAllUndefinedParameterTypes() const
@@ -289,6 +313,40 @@ namespace cucumber::query
                         return attachmentsByTestRunHookStartedId.at(element->testRunHookStartedId);
                     }
                     return std::vector<std::shared_ptr<const messages::Attachment>>{};
+                },
+            },
+            element);
+    }
+
+    std::optional<std::shared_ptr<const messages::Hook>> Query::FindHookBy(
+        std::variant<std::shared_ptr<const messages::TestStep>, std::shared_ptr<const messages::TestRunHookStarted>, std::shared_ptr<const messages::TestRunHookFinished>> element) const
+    {
+        return std::visit(
+            overloaded{
+                [this](const std::shared_ptr<const messages::TestStep>& element) -> std::optional<std::shared_ptr<const messages::Hook>>
+                {
+                    if (element->hookId.has_value())
+                    {
+                        return hookById.at(element->hookId.value());
+                    }
+                    return std::nullopt;
+                },
+                [this](const std::shared_ptr<const messages::TestRunHookStarted>& element) -> std::optional<std::shared_ptr<const messages::Hook>>
+                {
+                    if (hookById.find(element->hookId) != hookById.end())
+                    {
+                        return hookById.at(element->hookId);
+                    }
+                    return std::nullopt;
+                },
+                [this](const std::shared_ptr<const messages::TestRunHookFinished>& element) -> std::optional<std::shared_ptr<const messages::Hook>>
+                {
+                    const auto testRunHookStarted = FindTestRunHookStartedBy(element);
+                    if (!testRunHookStarted.has_value())
+                    {
+                        throw std::out_of_range{ "Expected to find TestRunHookStarted from TestRunHookFinished" };
+                    }
+                    return FindHookBy(testRunHookStarted.value());
                 },
             },
             element);
@@ -355,6 +413,16 @@ namespace cucumber::query
                 return std::nullopt;
             },
             element);
+    }
+
+    std::optional<std::shared_ptr<const messages::TestRunHookStarted>> Query::FindTestRunHookStartedBy(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const
+    {
+        const auto iter = testRunHookStartedById.find(testRunHookFinished->testRunHookStartedId);
+        if (iter != testRunHookStartedById.end())
+        {
+            return iter->second;
+        }
+        return std::nullopt;
     }
 
     std::optional<std::shared_ptr<const messages::TestStep>> Query::FindTestStepBy(
