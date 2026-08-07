@@ -83,14 +83,14 @@ namespace cucumber::query
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::Location>> FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const;
 
-        [[nodiscard]] std::optional<std::shared_ptr<const messages::Pickle>> FindPickleBy(
-            std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element) const;
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::Pickle>> FindPickleBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>,
+            std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::PickleStep>> FindPickleStepBy(TestStep &testStep) const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::PickleStep>> FindPickleStepBy(const std::shared_ptr<const messages::TestStep>& testStep) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Step>> FindStepBy(PickleStep &pickleStep) const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::Step>> FindStepBy(const std::shared_ptr<const messages::PickleStep>& pickleStep) const;
 
-        // [[nodiscard]] std::vector<std::shared_ptr<const messages::StepDefinition>> FindStepDefinitionsBy(TestStep) const &testStep
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::StepDefinition>> FindStepDefinitionsBy(const std::shared_ptr<const messages::TestStep>& testStep) const;
 
         // [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> findSuggestionsBy(PickleStep | Pickle) const &element
 

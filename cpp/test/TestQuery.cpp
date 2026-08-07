@@ -24,9 +24,6 @@
 #include <variant>
 #include <vector>
 
-TEST(first, second)
-{}
-
 namespace cucumber::query
 {
     namespace
@@ -70,7 +67,9 @@ namespace cucumber::query
         };
 
         std::optional<std::shared_ptr<const messages::Pickle>> FindPickleBy(const query::Query& query,
-            std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element)
+            std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>,
+                std::shared_ptr<const messages::TestStepFinished>>
+                element)
         {
             return query.FindPickleBy(std::move(element));
         };
@@ -279,6 +278,83 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindPickleBy(const query::Query& query)
+        {
+            const auto findPickleBy = [&query](const auto& items)
+            {
+                nlohmann::json actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    const auto pickle = query.FindPickleBy(item);
+                    if (pickle.has_value())
+                    {
+                        actual.push_back(pickle.value()->name);
+                    }
+                }
+
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseStarted"] = findPickleBy(query.FindAllTestCaseStarted());
+            actual["testCaseFinished"] = findPickleBy(query.FindAllTestCaseFinished());
+            actual["testStepStarted"] = findPickleBy(query.FindAllTestStepStarted());
+            actual["testStepFinished"] = findPickleBy(query.FindAllTestStepFinished());
+
+            return actual;
+        }
+
+        nlohmann::json FindPickleStepBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& testStep : query.FindAllTestSteps())
+            {
+                const auto pickleStep = query.FindPickleStepBy(testStep);
+                if (pickleStep.has_value())
+                {
+                    actual.emplace_back(pickleStep.value()->text);
+                }
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindStepBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& pickleStep : query.FindAllPickleSteps())
+            {
+                const auto step = query.FindStepBy(pickleStep);
+                if (step.has_value())
+                {
+                    actual.emplace_back(step.value()->text);
+                }
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindStepDefinitionsBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& testStep : query.FindAllTestSteps())
+            {
+                auto& actualIds = actual.emplace_back(nlohmann::json::array());
+
+                for (const auto& stepDefinition : query.FindStepDefinitionsBy(testStep))
+                {
+                    actualIds.emplace_back(stepDefinition->id);
+                }
+            }
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -302,6 +378,10 @@ namespace cucumber::query
             { "findLocationOf", FindLocationOf },
             { "findMeta", FindMeta },
             { "findMostSevereTestStepResultBy", FindMostSevereTestStepResultBy },
+            { "findPickleBy", FindPickleBy },
+            { "findPickleStepBy", FindPickleStepBy },
+            { "findStepBy", FindStepBy },
+            { "findStepDefinitionsBy", FindStepDefinitionsBy },
         };
 
         struct AcceptanceTest : testing::Test

@@ -56,7 +56,7 @@ namespace cucumber::query
         template<typename T, typename Proj>
         auto MapValuesToVectorSortBy(const std::unordered_map<std::string, T>& container, const Proj& projection)
         {
-            std::vector<T> result = MapValuesToVector(container);
+            auto result = MapValuesToVector(container);
 
             SortBy(result, projection);
 
@@ -73,6 +73,16 @@ namespace cucumber::query
             {
                 result.insert(result.end(), value.begin(), value.end());
             }
+
+            return result;
+        }
+
+        template<typename T, typename Proj>
+        auto MapValuesToVectorSortBy(const std::unordered_map<std::string, std::vector<T>>& container, const Proj& projection)
+        {
+            auto result = MapValuesToVector(container);
+
+            SortBy(result, projection);
 
             return result;
         }
@@ -253,12 +263,12 @@ namespace cucumber::query
 
     std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindAllTestStepStarted() const
     {
-        return MapValuesToVector(testStepStartedByTestCaseStartedId);
+        return MapValuesToVectorSortBy(testStepStartedByTestCaseStartedId, &messages::TestStepStarted::testCaseStartedId);
     }
 
     std::vector<std::shared_ptr<const messages::TestStepFinished>> Query::FindAllTestStepFinished() const
     {
-        return MapValuesToVector(testStepFinishedByTestCaseStartedId);
+        return MapValuesToVectorSortBy(testStepFinishedByTestCaseStartedId, &messages::TestStepFinished::testCaseStartedId);
     }
 
     std::vector<std::shared_ptr<const messages::TestRunHookStarted>> Query::FindAllTestRunHookStarted() const
@@ -401,8 +411,9 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::Pickle>> Query::FindPickleBy(
-        std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element) const
+    std::optional<std::shared_ptr<const messages::Pickle>> Query::FindPickleBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
+        std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
+            element) const
     {
         const auto testCase = std::visit(
             [this](const auto& element)
@@ -419,6 +430,44 @@ namespace cucumber::query
         {
             return std::nullopt;
         }
+    }
+
+    std::optional<std::shared_ptr<const messages::PickleStep>> Query::FindPickleStepBy(const std::shared_ptr<const messages::TestStep>& testStep) const
+    {
+        if (testStep->pickleStepId.has_value())
+        {
+            return pickleStepById.at(testStep->pickleStepId.value());
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::shared_ptr<const messages::Step>> Query::FindStepBy(const std::shared_ptr<const messages::PickleStep>& pickleStep) const
+    {
+        const auto stepId = pickleStep->astNodeIds.front();
+
+        if (stepById.find(stepId) != stepById.end())
+        {
+            return stepById.at(pickleStep->astNodeIds.front());
+        }
+        return std::nullopt;
+    }
+
+    std::vector<std::shared_ptr<const messages::StepDefinition>> Query::FindStepDefinitionsBy(const std::shared_ptr<const messages::TestStep>& testStep) const
+    {
+        std::vector<std::shared_ptr<const messages::StepDefinition>> result;
+
+        if (testStep->stepDefinitionIds.has_value())
+        {
+            for (const auto& stepDefinitionId : testStep->stepDefinitionIds.value())
+            {
+                if (stepDefinitionById.find(stepDefinitionId) != stepDefinitionById.end())
+                {
+                    result.push_back(stepDefinitionById.at(stepDefinitionId));
+                }
+            }
+        }
+
+        return result;
     }
 
     std::optional<std::shared_ptr<const messages::TestCase>> Query::FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
