@@ -100,7 +100,7 @@ namespace cucumber::query
 
         nlohmann::json FindAllTestCaseFinishedOrderBy(const query::Query& query)
         {
-            const auto allResults = query.FindAllTestCaseFinishedOrderBy(FindPickleBy, ReversePickleComparator);
+            const auto allResults = query.FindAllTestCaseFinishedOrderBy(&FindPickleBy, ReversePickleComparator);
             nlohmann::json actual;
             for (const auto& testCaseFinished : allResults)
             {
@@ -473,6 +473,77 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindTestRunDuration(const query::Query& query)
+        {
+            nlohmann::json actual;
+
+            const auto testRunDuration = query.FindTestRunDuration();
+            if (testRunDuration.has_value())
+            {
+                testRunDuration.value()->to_json(actual);
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindTestRunFinished(const query::Query& query)
+        {
+            nlohmann::json actual;
+
+            const auto testRunFinished = query.FindTestRunFinished();
+            if (testRunFinished.has_value())
+            {
+                testRunFinished.value()->to_json(actual);
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindTestRunHookFinishedBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& testRunHookStarted : query.FindAllTestRunHookStarted())
+            {
+                const auto& testRunHookFinished = query.FindTestRunHookFinishedBy(testRunHookStarted);
+                if (testRunHookFinished.has_value())
+                {
+                    actual.emplace_back(testRunHookFinished.value()->testRunHookStartedId);
+                }
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindTestRunHookStartedBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& testRunHookFinished : query.FindAllTestRunHookFinished())
+            {
+                const auto& testRunHookStarted = query.FindTestRunHookStartedBy(testRunHookFinished);
+                if (testRunHookStarted.has_value())
+                {
+                    actual.emplace_back(testRunHookStarted.value()->id);
+                }
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindTestRunStarted(const query::Query& query)
+        {
+            nlohmann::json actual;
+
+            const auto testRunStarted = query.FindTestRunStarted();
+            if (testRunStarted.has_value())
+            {
+                testRunStarted.value()->to_json(actual);
+            }
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -505,6 +576,11 @@ namespace cucumber::query
             { "findTestCaseDurationBy", FindTestCaseDurationBy },
             { "findTestCaseFinishedBy", FindTestCaseFinishedBy },
             { "findTestCaseStartedBy", FindTestCaseStartedBy },
+            { "findTestRunDuration", FindTestRunDuration },
+            { "findTestRunFinished", FindTestRunFinished },
+            { "findTestRunHookFinishedBy", FindTestRunHookFinishedBy },
+            { "findTestRunHookStartedBy", FindTestRunHookStartedBy },
+            { "findTestRunStarted", FindTestRunStarted },
         };
 
         struct AcceptanceTest : testing::Test

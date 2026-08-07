@@ -120,10 +120,10 @@ namespace cucumber::query
         {
             stepDefinitionById[envelope.stepDefinition.value()->id] = envelope.stepDefinition.value();
         }
-        // if (envelope.testRunStarted)
-        // {
-        //     this.testRunStarted = envelope.testRunStarted
-        // }
+        if (envelope.testRunStarted.has_value())
+        {
+            testRunStarted = envelope.testRunStarted.value();
+        }
         if (envelope.testRunHookStarted.has_value())
         {
             UpdateTestRunHookStarted(envelope.testRunHookStarted.value());
@@ -156,10 +156,10 @@ namespace cucumber::query
         {
             UpdateTestCaseFinished(envelope.testCaseFinished.value());
         }
-        // if (envelope.testRunFinished)
-        // {
-        //     this.testRunFinished = envelope.testRunFinished
-        // }
+        if (envelope.testRunFinished.has_value())
+        {
+            testRunFinished = envelope.testRunFinished.value();
+        }
         if (envelope.suggestion.has_value())
         {
             suggestionsByPickleStepId[envelope.suggestion.value()->pickleStepId] = envelope.suggestion.value();
@@ -509,14 +509,12 @@ namespace cucumber::query
             },
             element);
 
-        try
+        if (testCaseById.find(testCaseStarted.value()->testCaseId) != testCaseById.end())
         {
             return testCaseById.at(testCaseStarted.value()->testCaseId);
         }
-        catch (const std::out_of_range&)
-        {
-            return std::nullopt;
-        }
+
+        return std::nullopt;
     }
 
     std::optional<std::shared_ptr<const messages::Duration>> Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const
@@ -574,6 +572,35 @@ namespace cucumber::query
             return iter->second;
         }
         return std::nullopt;
+    }
+
+    std::optional<std::shared_ptr<const messages::TestRunHookFinished>> Query::FindTestRunHookFinishedBy(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) const
+    {
+        if (testRunHookFinishedByTestRunHookStartedId.find(testRunHookStarted->id) != testRunHookFinishedByTestRunHookStartedId.end())
+        {
+            return testRunHookFinishedByTestRunHookStartedId.at(testRunHookStarted->id);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::shared_ptr<const messages::Duration>> Query::FindTestRunDuration() const
+    {
+        if (testRunStarted.has_value() && testRunFinished.has_value())
+        {
+            return std::make_shared<messages::Duration>(*testRunFinished.value()->timestamp - *testRunStarted.value()->timestamp);
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<std::shared_ptr<const messages::TestRunFinished>> Query::FindTestRunFinished() const
+    {
+        return testRunFinished;
+    }
+
+    std::optional<std::shared_ptr<const messages::TestRunStarted>> Query::FindTestRunStarted() const
+    {
+        return testRunStarted;
     }
 
     std::optional<std::shared_ptr<const messages::TestStep>> Query::FindTestStepBy(

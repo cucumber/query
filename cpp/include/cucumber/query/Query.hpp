@@ -112,13 +112,13 @@ namespace cucumber::query
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunHookStarted>> FindTestRunHookStartedBy(
             const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunHookFinished>> FindTestRunHookFinishedBy(TestRunHookStarted &testRunHookStarted) const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunHookFinished>> FindTestRunHookFinishedBy(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestRunDuration() const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestRunDuration() const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunFinished>> FindTestRunFinished() const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunFinished>> FindTestRunFinished() const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunStarted>> FindTestRunStarted() const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunStarted>> FindTestRunStarted() const;
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStep>> FindTestStepBy(
             std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
@@ -162,8 +162,9 @@ namespace cucumber::query
 
         std::optional<std::shared_ptr<const messages::Meta>> meta;
 
-        //   private testRunStarted: TestRunStarted
-        //   private testRunFinished: TestRunFinished
+        std::optional<std::shared_ptr<const messages::TestRunStarted>> testRunStarted;
+        std::optional<std::shared_ptr<const messages::TestRunFinished>> testRunFinished;
+
         std::unordered_map<std::string, std::shared_ptr<const messages::TestCaseStarted>> testCaseStartedById;
         std::unordered_map<std::string, std::shared_ptr<const Lineage>> lineageById;
         std::unordered_map<std::string, std::shared_ptr<const messages::Step>> stepById;
