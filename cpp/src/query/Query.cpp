@@ -1,5 +1,6 @@
 #include "cucumber/query/Query.hpp"
 #include "cucumber/messages/All.hpp"
+#include "cucumber/messages/DurationUtil.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
 #include "cucumber/query/Lineage.hpp"
 #include <algorithm>
@@ -518,6 +519,28 @@ namespace cucumber::query
         }
     }
 
+    std::optional<std::shared_ptr<const messages::Duration>> Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const
+    {
+        const auto& testCaseFinished = FindTestCaseFinishedBy(element);
+        if (testCaseFinished.has_value())
+        {
+            return std::make_shared<messages::Duration>(*testCaseFinished.value()->timestamp - *element->timestamp);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<std::shared_ptr<const messages::Duration>> Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const
+    {
+        const auto testCaseStarted = FindTestCaseStartedBy(element);
+
+        if (testCaseStarted.has_value())
+        {
+            return FindTestCaseDurationBy(testCaseStarted.value());
+        }
+
+        return std::nullopt;
+    }
+
     std::optional<std::shared_ptr<const messages::TestCaseStarted>> Query::FindTestCaseStartedBy(
         std::variant<std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
     {
@@ -532,6 +555,15 @@ namespace cucumber::query
                 return std::nullopt;
             },
             element);
+    }
+
+    std::optional<std::shared_ptr<const messages::TestCaseFinished>> Query::FindTestCaseFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
+    {
+        if (testCaseFinishedByTestCaseStartedId.find(testCaseStarted->id) != testCaseFinishedByTestCaseStartedId.end())
+        {
+            return testCaseFinishedByTestCaseStartedId.at(testCaseStarted->id);
+        }
+        return std::nullopt;
     }
 
     std::optional<std::shared_ptr<const messages::TestRunHookStarted>> Query::FindTestRunHookStartedBy(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const

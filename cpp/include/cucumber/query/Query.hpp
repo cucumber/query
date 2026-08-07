@@ -100,12 +100,14 @@ namespace cucumber::query
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCase>> FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>,
             std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestCaseDurationBy(TestCaseStarted | TestCaseFinished &element) const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const;
+
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const;
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCaseStarted>> FindTestCaseStartedBy(
             std::variant<std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCaseFinished>> FindTestCaseFinishedBy(TestCaseStarted &testCaseStarted) const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCaseFinished>> FindTestCaseFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const;
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunHookStarted>> FindTestRunHookStartedBy(
             const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const;

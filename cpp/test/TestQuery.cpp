@@ -6,7 +6,6 @@
 #include "nlohmann/json_fwd.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -380,6 +379,100 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindTestCaseBy(const query::Query& query)
+        {
+            const auto findTestCaseBy = [&query](const auto& items)
+            {
+                nlohmann::json actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    const auto& testCase = query.FindTestCaseBy(item);
+                    if (testCase.has_value())
+                    {
+                        actual.push_back(testCase.value()->id);
+                    }
+                }
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseStarted"] = findTestCaseBy(query.FindAllTestCaseStarted());
+            actual["testCaseFinished"] = findTestCaseBy(query.FindAllTestCaseFinished());
+            actual["testStepStarted"] = findTestCaseBy(query.FindAllTestStepStarted());
+            actual["testStepFinished"] = findTestCaseBy(query.FindAllTestStepFinished());
+
+            return actual;
+        }
+
+        nlohmann::json FindTestCaseDurationBy(const query::Query& query)
+        {
+            const auto findTestCaseDurationBy = [&query](const auto& items)
+            {
+                nlohmann::json actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    const auto& testCase = query.FindTestCaseDurationBy(item);
+                    if (testCase.has_value())
+                    {
+                        testCase.value()->to_json(actual.emplace_back());
+                    }
+                }
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseStarted"] = findTestCaseDurationBy(query.FindAllTestCaseStarted());
+            actual["testCaseFinished"] = findTestCaseDurationBy(query.FindAllTestCaseFinished());
+
+            return actual;
+        }
+
+        nlohmann::json FindTestCaseFinishedBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& testCaseStarted : query.FindAllTestCaseStarted())
+            {
+                const auto& testCaseFinished = query.FindTestCaseFinishedBy(testCaseStarted);
+                if (testCaseFinished.has_value())
+                {
+                    actual.push_back(testCaseFinished.value()->testCaseStartedId);
+                }
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindTestCaseStartedBy(const query::Query& query)
+        {
+            const auto findTestCaseStartedBy = [&query](const auto& items)
+            {
+                nlohmann::json actual = nlohmann::json::array();
+                for (const auto& testCaseFinished : items)
+                {
+                    const auto& testCaseStarted = query.FindTestCaseStartedBy(testCaseFinished);
+                    if (testCaseStarted.has_value())
+                    {
+                        actual.push_back(testCaseStarted.value()->id);
+                    }
+                }
+
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseFinished"] = findTestCaseStartedBy(query.FindAllTestCaseFinished());
+            actual["testStepStarted"] = findTestCaseStartedBy(query.FindAllTestStepStarted());
+            actual["testStepFinished"] = findTestCaseStartedBy(query.FindAllTestStepFinished());
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -408,6 +501,10 @@ namespace cucumber::query
             { "findStepBy", FindStepBy },
             { "findStepDefinitionsBy", FindStepDefinitionsBy },
             { "findSuggestionsBy", FindSuggestionsBy },
+            { "findTestCaseBy", FindTestCaseBy },
+            { "findTestCaseDurationBy", FindTestCaseDurationBy },
+            { "findTestCaseFinishedBy", FindTestCaseFinishedBy },
+            { "findTestCaseStartedBy", FindTestCaseStartedBy },
         };
 
         struct AcceptanceTest : testing::Test

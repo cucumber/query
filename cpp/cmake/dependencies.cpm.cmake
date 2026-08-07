@@ -1,7 +1,7 @@
 # renovate: datasource=github-tags packageName=cpm-cmake/CPM.cmake versioning=semver
 set(CPM_DOWNLOAD_TAG_DIGEST v0.43.1 456cb6754daaa010d57444d0c8ce6d95ecf006ab)
 # renovate: datasource=github-tags packageName=cucumber/messages versioning=semver
-set(CUCUMBER_MESSAGES_TAG_DIGEST v34.0.2 5158f5280a38f949fa444f2009c35d6e120063a2)
+set(CUCUMBER_MESSAGES_TAG_DIGEST v34.0.2 e13c029f4bd74cb2d92278b935c3e861e47ea5a4)
 # renovate: datasource=github-tags packageName=google/googletest versioning=semver
 set(GOOGLE_TEST_TAG_DIGEST v1.17.0 52eb8108c5bdec04579160ae17225d66034bd723)
 
