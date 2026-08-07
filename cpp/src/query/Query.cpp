@@ -29,6 +29,16 @@ namespace cucumber::query
                 });
         }
 
+        void SortBySeverity(std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>>& container)
+        {
+            std::sort(container.begin(), container.end(),
+                [](const auto& lhs, const auto& rhs)
+                {
+                    using underlying_type = std::underlying_type_t<messages::TestStepResultStatus>;
+                    return static_cast<underlying_type>(lhs.first->testStepResult->status) > static_cast<underlying_type>(rhs.first->testStepResult->status);
+                });
+        }
+
         template<typename T>
         auto MapValuesToVector(const std::unordered_map<std::string, T>& container)
         {
@@ -163,17 +173,12 @@ namespace cucumber::query
 
         for (const auto& testCaseStarted : FindAllTestCaseStarted())
         {
-            auto allFinishedSteps = FindTestStepFinishedAndTestStepBy(testCaseStarted);
-            if (!allFinishedSteps.empty())
+            auto testStepFinishedAndTestStep = FindTestStepFinishedAndTestStepBy(testCaseStarted);
+            if (!testStepFinishedAndTestStep.empty())
             {
-                std::sort(allFinishedSteps.begin(), allFinishedSteps.end(),
-                    [](const auto& lhs, const auto& rhs)
-                    {
-                        using underlying_type = std::underlying_type_t<messages::TestStepResultStatus>;
-                        return static_cast<underlying_type>(lhs.first->testStepResult->status) > static_cast<underlying_type>(rhs.first->testStepResult->status);
-                    });
+                SortBySeverity(testStepFinishedAndTestStep);
 
-                ++result[allFinishedSteps.front().first->testStepResult->status];
+                ++result[testStepFinishedAndTestStep.front().first->testStepResult->status];
             }
         }
 
@@ -340,6 +345,33 @@ namespace cucumber::query
     std::optional<std::shared_ptr<const messages::Meta>> Query::FindMeta() const
     {
         return meta;
+    }
+
+    std::optional<std::shared_ptr<const messages::TestStepResult>> Query::FindMostSevereTestStepResultBy(
+        std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
+    {
+        const auto testCaseStarted = std::visit(overloaded{ [this](const std::shared_ptr<const messages::TestCaseFinished>& element)
+                                                    {
+                                                        return FindTestCaseStartedBy(element);
+                                                    },
+                                                    [](const auto& element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+                                                    {
+                                                        return element;
+                                                    } },
+            element);
+
+        if (testCaseStarted.has_value())
+        {
+            auto testStepFinishedAndTestStep = FindTestStepFinishedAndTestStepBy(testCaseStarted.value());
+            if (!testStepFinishedAndTestStep.empty())
+            {
+                SortBySeverity(testStepFinishedAndTestStep);
+
+                return testStepFinishedAndTestStep.front().first->testStepResult;
+            }
+        }
+
+        return std::nullopt;
     }
 
     std::optional<std::shared_ptr<const messages::Location>> Query::FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const

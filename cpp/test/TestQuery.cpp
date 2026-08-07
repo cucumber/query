@@ -253,6 +253,32 @@ namespace cucumber::query
             return {};
         }
 
+        nlohmann::json FindMostSevereTestStepResultBy(const query::Query& query)
+        {
+            const auto findMostSevereTestStepResultBy = [&query](const auto& items)
+            {
+                nlohmann::json actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    const auto mostSevereTestStepResult = query.FindMostSevereTestStepResultBy(item);
+                    if (mostSevereTestStepResult.has_value())
+                    {
+                        actual.emplace_back(to_string(mostSevereTestStepResult.value()->status));
+                    }
+                }
+
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseStarted"] = findMostSevereTestStepResultBy(query.FindAllTestCaseStarted());
+            actual["testCaseFinished"] = findMostSevereTestStepResultBy(query.FindAllTestCaseFinished());
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -275,6 +301,7 @@ namespace cucumber::query
             { "findLineageBy", FindLineageBy },
             { "findLocationOf", FindLocationOf },
             { "findMeta", FindMeta },
+            { "findMostSevereTestStepResultBy", FindMostSevereTestStepResultBy },
         };
 
         struct AcceptanceTest : testing::Test

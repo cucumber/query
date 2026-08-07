@@ -78,7 +78,8 @@ namespace cucumber::query
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::Meta>> FindMeta() const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStepResult>> FindMostSevereTestStepResultBy(TestCaseStarted | TestCaseFinished &element) const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStepResult>> FindMostSevereTestStepResultBy(
+            std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const;
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::Location>> FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const;
 
