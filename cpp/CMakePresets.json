@@ -21,6 +21,13 @@
             "cacheVariables": {
                 "CUCUMBER_QUERY_BUILD_TESTS": "On"
             }
+        },
+        {
+            "name": "tidy",
+            "inherits": "test",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_ENABLE_CLANG_TIDY": "On"
+            }
         }
     ],
     "buildPresets": [
@@ -31,6 +38,10 @@
         {
             "name": "test",
             "configurePreset": "test"
+        },
+        {
+            "name": "tidy",
+            "configurePreset": "tidy"
         }
     ],
     "testPresets": [
@@ -73,6 +84,19 @@
                 {
                     "name": "test",
                     "type": "test"
+                }
+            ]
+        },
+        {
+            "name": "tidy",
+            "steps": [
+                {
+                    "name": "tidy",
+                    "type": "configure"
+                },
+                {
+                    "name": "tidy",
+                    "type": "build"
                 }
             ]
         }

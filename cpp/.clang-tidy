@@ -16,4 +16,5 @@ HeaderFilterRegex: '.*'
 FormatStyle: file
 CheckOptions:
     AllowSoleDefaultDtor: true
+    modernize-use-trailing-return-type.TransformLambdas: all_except_auto
 ...

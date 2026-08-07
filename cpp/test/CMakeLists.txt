@@ -17,5 +17,9 @@ target_compile_definitions(cucumber_query_lib.test
         TESTDATA_SRC="${CMAKE_SOURCE_DIR}/../testdata/src"
 )
 
+if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
+    set_target_properties(cucumber_query_lib.test PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_PROGRAM}")
+endif()
+
 include(GoogleTest)
 gtest_discover_tests(cucumber_query_lib.test)

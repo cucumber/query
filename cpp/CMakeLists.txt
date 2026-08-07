@@ -26,6 +26,11 @@ endif ()
 
 option(CUCUMBER_QUERY_BUILD_TESTS "Build the unit tests." Off)
 option(CUCUMBER_QUERY_FETCH_DEPS "Fetch dependencies via FetchContent." Off)
+option(CUCUMBER_QUERY_ENABLE_CLANG_TIDY "Run clang-tidy as part of the build." Off)
+
+if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
+    find_program(CLANG_TIDY_PROGRAM clang-tidy REQUIRED)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -93,6 +98,10 @@ set_target_properties(
         EXPORT_NAME query
         OUTPUT_NAME cucumber_query
 )
+
+if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
+    set_target_properties(cucumber_query_lib PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_PROGRAM}")
+endif()
 
 # Installation
 # Installation

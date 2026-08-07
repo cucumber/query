@@ -74,7 +74,7 @@ namespace cucumber::query
             {
                 const auto prefix = source.stem().string() + std::string{ expectation.infix };
                 const auto hasExpectations = std::any_of(expectations.begin(), expectations.end(),
-                    [&prefix](const std::string& expectation)
+                    [&prefix](const std::string& expectation) -> bool
                     {
                         return expectation.compare(0, prefix.size(), prefix) == 0;
                     });
@@ -86,7 +86,7 @@ namespace cucumber::query
             }
 
             std::sort(dataSets.begin(), dataSets.end(),
-                [](const DataSet& lhs, const DataSet& rhs)
+                [](const DataSet& lhs, const DataSet& rhs) -> bool
                 {
                     return lhs.source < rhs.source;
                 });
@@ -105,7 +105,7 @@ namespace cucumber::query
 
             std::replace_if(
                 name.begin(), name.end(),
-                [](unsigned char character)
+                [](unsigned char character) -> bool
                 {
                     return std::isalnum(character) == 0;
                 },
