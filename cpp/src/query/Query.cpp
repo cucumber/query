@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <memory>
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <unordered_map>

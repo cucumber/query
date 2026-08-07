@@ -76,7 +76,7 @@ namespace cucumber::query
         }
 
         return std::accumulate(parts.begin(), parts.end(), std::string{},
-            [](const std::string& cumulative, const std::string& element)
+            [](const std::string& cumulative, const std::string& element) -> std::string
             {
                 if (element.empty())
                 {
