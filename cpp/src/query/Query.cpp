@@ -13,7 +13,6 @@
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace cucumber::query
@@ -287,71 +286,57 @@ namespace cucumber::query
         return undefinedParameterTypes;
     }
 
-    auto Query::FindAttachmentsBy(std::variant<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestRunHookFinished>> element) const
-        -> std::vector<std::shared_ptr<const messages::Attachment>>
+    auto Query::FindAttachmentsBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::vector<std::shared_ptr<const messages::Attachment>>
     {
-        return std::visit(
-            overloaded{
-                [this](const std::shared_ptr<const messages::TestStepFinished>& element)
+        std::vector<std::shared_ptr<const messages::Attachment>> result;
+        if (attachmentsByTestCaseStartedId.find(element->testCaseStartedId) != attachmentsByTestCaseStartedId.end())
+        {
+            for (const auto& attachment : attachmentsByTestCaseStartedId.at(element->testCaseStartedId))
+            {
+                if (attachment->testStepId == element->testStepId)
                 {
-                    std::vector<std::shared_ptr<const messages::Attachment>> result;
-                    if (attachmentsByTestCaseStartedId.find(element->testCaseStartedId) != attachmentsByTestCaseStartedId.end())
-                    {
-                        for (const auto& attachment : attachmentsByTestCaseStartedId.at(element->testCaseStartedId))
-                        {
-                            if (attachment->testStepId == element->testStepId)
-                            {
-                                result.push_back(attachment);
-                            }
-                        }
-                    }
-                    return result;
-                },
-                [this](const std::shared_ptr<const messages::TestRunHookFinished>& element)
-                {
-                    if (attachmentsByTestRunHookStartedId.find(element->testRunHookStartedId) != attachmentsByTestRunHookStartedId.end())
-                    {
-                        return attachmentsByTestRunHookStartedId.at(element->testRunHookStartedId);
-                    }
-                    return std::vector<std::shared_ptr<const messages::Attachment>>{};
-                },
-            },
-            element);
+                    result.push_back(attachment);
+                }
+            }
+        }
+        return result;
     }
 
-    auto Query::FindHookBy(
-        std::variant<std::shared_ptr<const messages::TestStep>, std::shared_ptr<const messages::TestRunHookStarted>, std::shared_ptr<const messages::TestRunHookFinished>> element) const
-        -> std::optional<std::shared_ptr<const messages::Hook>>
+    auto Query::FindAttachmentsBy(const std::shared_ptr<const messages::TestRunHookFinished>& element) const -> std::vector<std::shared_ptr<const messages::Attachment>>
     {
-        return std::visit(
-            overloaded{
-                [this](const std::shared_ptr<const messages::TestStep>& element) -> std::optional<std::shared_ptr<const messages::Hook>>
-                {
-                    if (element->hookId.has_value())
-                    {
-                        return hookById.at(element->hookId.value());
-                    }
-                    return std::nullopt;
-                },
-                [this](const std::shared_ptr<const messages::TestRunHookStarted>& element) -> std::optional<std::shared_ptr<const messages::Hook>>
-                {
-                    if (hookById.find(element->hookId) != hookById.end())
-                    {
-                        return hookById.at(element->hookId);
-                    }
-                    return std::nullopt;
-                },
-                [this](const std::shared_ptr<const messages::TestRunHookFinished>& element) -> std::optional<std::shared_ptr<const messages::Hook>>
-                {
-                    const auto testRunHookStarted = FindTestRunHookStartedBy(element);
-                    if (!testRunHookStarted.has_value())
-                    {
-                        throw std::out_of_range{ "Expected to find TestRunHookStarted from TestRunHookFinished" };
-                    }
-                    return FindHookBy(testRunHookStarted.value());
-                },
-            },
-            element);
+        if (attachmentsByTestRunHookStartedId.find(element->testRunHookStartedId) != attachmentsByTestRunHookStartedId.end())
+        {
+            return attachmentsByTestRunHookStartedId.at(element->testRunHookStartedId);
+        }
+        return {};
+    }
+
+    auto Query::FindHookBy(const std::shared_ptr<const messages::TestStep>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>
+    {
+        if (element->hookId.has_value())
+        {
+            return hookById.at(element->hookId.value());
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindHookBy(const std::shared_ptr<const messages::TestRunHookStarted>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>
+    {
+        if (hookById.find(element->hookId) != hookById.end())
+        {
+            return hookById.at(element->hookId);
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindHookBy(const std::shared_ptr<const messages::TestRunHookFinished>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>
+    {
+        const auto testRunHookStarted = FindTestRunHookStartedBy(element);
+        if (!testRunHookStarted.has_value())
+        {
+            throw std::out_of_range{ "Expected to find TestRunHookStarted from TestRunHookFinished" };
+        }
+        return FindHookBy(testRunHookStarted.value());
     }
 
     auto Query::FindMeta() const -> std::optional<std::shared_ptr<const messages::Meta>>
@@ -359,30 +344,25 @@ namespace cucumber::query
         return meta;
     }
 
-    auto Query::FindMostSevereTestStepResultBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
-        -> std::optional<std::shared_ptr<const messages::TestStepResult>>
+    auto Query::FindMostSevereTestStepResultBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestStepResult>>
     {
-        const auto testCaseStarted = std::visit(overloaded{ [this](const std::shared_ptr<const messages::TestCaseFinished>& element)
-                                                    {
-                                                        return FindTestCaseStartedBy(element);
-                                                    },
-                                                    [](const auto& element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-                                                    {
-                                                        return element;
-                                                    } },
-            element);
+        auto testStepFinishedAndTestStep = FindTestStepFinishedAndTestStepBy(element);
+        if (!testStepFinishedAndTestStep.empty())
+        {
+            SortBySeverity(testStepFinishedAndTestStep);
 
+            return testStepFinishedAndTestStep.front().first->testStepResult;
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindMostSevereTestStepResultBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestStepResult>>
+    {
+        const auto testCaseStarted = FindTestCaseStartedBy(element);
         if (testCaseStarted.has_value())
         {
-            auto testStepFinishedAndTestStep = FindTestStepFinishedAndTestStepBy(testCaseStarted.value());
-            if (!testStepFinishedAndTestStep.empty())
-            {
-                SortBySeverity(testStepFinishedAndTestStep);
-
-                return testStepFinishedAndTestStep.front().first->testStepResult;
-            }
+            return FindMostSevereTestStepResultBy(testCaseStarted.value());
         }
-
         return std::nullopt;
     }
 
@@ -413,25 +393,44 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindPickleBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>,
-        std::shared_ptr<const messages::TestStepFinished>>
-            element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
     {
-        const auto testCase = std::visit(
-            [this](const auto& element)
-            {
-                return FindTestCaseBy(element);
-            },
-            element);
-
-        try
+        const auto& testCase = FindTestCaseBy(element);
+        if (testCase.has_value())
         {
             return pickleById.at(testCase.value()->pickleId);
         }
-        catch (const std::out_of_range&)
+        return std::nullopt;
+    }
+
+    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    {
+        const auto& testCase = FindTestCaseBy(element);
+        if (testCase.has_value())
         {
-            return std::nullopt;
+            return pickleById.at(testCase.value()->pickleId);
         }
+        return std::nullopt;
+    }
+
+    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    {
+        const auto& testCase = FindTestCaseBy(element);
+        if (testCase.has_value())
+        {
+            return pickleById.at(testCase.value()->pickleId);
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    {
+        const auto& testCase = FindTestCaseBy(element);
+        if (testCase.has_value())
+        {
+            return pickleById.at(testCase.value()->pickleId);
+        }
+        return std::nullopt;
     }
 
     auto Query::FindPickleStepBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::optional<std::shared_ptr<const messages::PickleStep>>
@@ -506,28 +505,43 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>,
-        std::shared_ptr<const messages::TestStepFinished>>
-            element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
     {
-        const auto testCaseStarted = std::visit(
-            overloaded{
-                [](std::shared_ptr<const messages::TestCaseStarted> element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-                {
-                    return element;
-                },
-                [this](auto element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-                {
-                    return FindTestCaseStartedBy(element);
-                },
-            },
-            element);
-
-        if (testCaseById.find(testCaseStarted.value()->testCaseId) != testCaseById.end())
+        if (testCaseById.find(element->testCaseId) != testCaseById.end())
         {
-            return testCaseById.at(testCaseStarted.value()->testCaseId);
+            return testCaseById.at(element->testCaseId);
         }
 
+        return std::nullopt;
+    }
+
+    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    {
+        const auto& testCaseStarted = FindTestCaseStartedBy(element);
+        if (testCaseStarted.has_value())
+        {
+            return FindTestCaseBy(testCaseStarted.value());
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    {
+        const auto& testCaseStarted = FindTestCaseStartedBy(element);
+        if (testCaseStarted.has_value())
+        {
+            return FindTestCaseBy(testCaseStarted.value());
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    {
+        const auto& testCaseStarted = FindTestCaseStartedBy(element);
+        if (testCaseStarted.has_value())
+        {
+            return FindTestCaseBy(testCaseStarted.value());
+        }
         return std::nullopt;
     }
 
@@ -553,21 +567,34 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindTestCaseStartedBy(
-        std::variant<std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
-        -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+    auto Query::FindTestCaseStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
     {
-        return std::visit(
-            [this](const auto& item) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-            {
-                const auto iter = testCaseStartedById.find(item->testCaseStartedId);
-                if (iter != testCaseStartedById.end())
-                {
-                    return iter->second;
-                }
-                return std::nullopt;
-            },
-            element);
+        const auto iter = testCaseStartedById.find(element->testCaseStartedId);
+        if (iter != testCaseStartedById.end())
+        {
+            return iter->second;
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindTestCaseStartedBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+    {
+        const auto iter = testCaseStartedById.find(element->testCaseStartedId);
+        if (iter != testCaseStartedById.end())
+        {
+            return iter->second;
+        }
+        return std::nullopt;
+    }
+
+    auto Query::FindTestCaseStartedBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
+    {
+        const auto iter = testCaseStartedById.find(element->testCaseStartedId);
+        if (iter != testCaseStartedById.end())
+        {
+            return iter->second;
+        }
+        return std::nullopt;
     }
 
     auto Query::FindTestCaseFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::optional<std::shared_ptr<const messages::TestCaseFinished>>
@@ -618,22 +645,22 @@ namespace cucumber::query
         return testRunStarted;
     }
 
-    auto Query::FindTestStepBy(std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
-        -> std::optional<std::shared_ptr<const messages::TestStep>>
+    auto Query::FindTestStepBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestStep>>
     {
-        try
+        if (testStepById.find(element->testStepId) != testStepById.end())
         {
-            return std::visit(
-                [this](const auto& item)
-                {
-                    return testStepById.at(item->testStepId);
-                },
-                element);
+            return testStepById.at(element->testStepId);
         }
-        catch (const std::out_of_range&)
+        return std::nullopt;
+    }
+
+    auto Query::FindTestStepBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestStep>>
+    {
+        if (testStepById.find(element->testStepId) != testStepById.end())
         {
-            return std::nullopt;
+            return testStepById.at(element->testStepId);
         }
+        return std::nullopt;
     }
 
     auto Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
@@ -654,22 +681,23 @@ namespace cucumber::query
         return {};
     }
 
-    auto Query::FindTestStepsFinishedBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
-        -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
+    auto Query::FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
     {
-        const auto& optionalTestCaseStarted = std::visit(overloaded{ [this](const std::shared_ptr<const messages::TestCaseFinished>& element)
-                                                             {
-                                                                 return FindTestCaseStartedBy(element);
-                                                             },
-                                                             [](const auto& element) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-                                                             {
-                                                                 return element;
-                                                             } },
-            element);
-
-        if (optionalTestCaseStarted.has_value() && testStepFinishedByTestCaseStartedId.find(optionalTestCaseStarted.value()->id) != testStepFinishedByTestCaseStartedId.end())
+        if (testStepFinishedByTestCaseStartedId.find(element->id) != testStepFinishedByTestCaseStartedId.end())
         {
-            return testStepFinishedByTestCaseStartedId.at(optionalTestCaseStarted.value()->id);
+            return testStepFinishedByTestCaseStartedId.at(element->id);
+        }
+
+        return {};
+    }
+
+    auto Query::FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
+    {
+        const auto& testCaseStarted = FindTestCaseStartedBy(element);
+
+        if (testCaseStarted.has_value())
+        {
+            return FindTestStepsFinishedBy(testCaseStarted.value());
         }
 
         return {};
@@ -696,25 +724,35 @@ namespace cucumber::query
         return result;
     }
 
-    auto Query::FindLineageBy(std::variant<std::shared_ptr<const messages::Pickle>, std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
-        -> std::optional<LineageAndPickle>
+    auto Query::FindLineageBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::optional<LineageAndPickle>
     {
-        const auto pickle = std::visit(
-            overloaded{
-                [](const std::shared_ptr<const messages::Pickle>& pickle)
-                {
-                    return std::make_optional(pickle);
-                },
-                [this](const auto& element)
-                {
-                    return FindPickleBy(element);
-                },
-            },
-            element);
+        if (lineageById.find(element->astNodeIds.back()) != lineageById.end())
+        {
+            return LineageAndPickle{ lineageById.at(element->astNodeIds.back()), element };
+        }
+
+        return std::nullopt;
+    }
+
+    auto Query::FindLineageBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<LineageAndPickle>
+    {
+        const auto& pickle = FindPickleBy(element);
 
         if (pickle.has_value())
         {
-            return LineageAndPickle{ lineageById.at(pickle.value()->astNodeIds.back()), pickle.value() };
+            return FindLineageBy(pickle.value());
+        }
+
+        return std::nullopt;
+    }
+
+    auto Query::FindLineageBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<LineageAndPickle>
+    {
+        const auto& pickle = FindPickleBy(element);
+
+        if (pickle.has_value())
+        {
+            return FindLineageBy(pickle.value());
         }
 
         return std::nullopt;

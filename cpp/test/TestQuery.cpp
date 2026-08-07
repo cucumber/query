@@ -19,7 +19,6 @@
 #include <string>
 #include <string_view>
 #include <utility>
-#include <variant>
 #include <vector>
 
 namespace cucumber::query
@@ -137,19 +136,16 @@ namespace cucumber::query
             {
                 return static_cast<std::int32_t>(lhs->uri.compare(rhs->uri));
             }
-            if (lhs->location.has_value() && rhs->location.has_value() && lhs->location.value()->line != rhs->location.value()->line)
+            if (!lhs->location.has_value() || !rhs->location.has_value())
+            {
+                return 0;
+            }
+            if (lhs->location.value()->line != rhs->location.value()->line)
             {
                 return static_cast<std::int32_t>(rhs->location.value()->line) - static_cast<std::int32_t>(lhs->location.value()->line);
             }
-            return static_cast<std::int32_t>(rhs->location.value()->column.value()) - static_cast<std::int32_t>(lhs->location.value()->column.value());
-        };
-
-        auto FindPickleBy(const query::Query& query, std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
-                                                         std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
-                                                         element) -> std::optional<std::shared_ptr<const messages::Pickle>>
-        {
-            return query.FindPickleBy(std::move(element));
-        };
+            return static_cast<std::int32_t>(rhs->location.value()->column.value_or(0)) - static_cast<std::int32_t>(lhs->location.value()->column.value_or(0));
+        }
 
         struct QueryAcceptanceTest : testing::TestWithParam<DataSet>
         {
@@ -251,7 +247,13 @@ namespace cucumber::query
 
         TEST_P(QueryAcceptanceTest, findAllTestCaseFinishedOrderBy)
         {
-            const auto allResults = query.FindAllTestCaseFinishedOrderBy(&FindPickleBy, ReversePickleComparator);
+            const auto allResults = query.FindAllTestCaseFinishedOrderBy(
+                [](const query::Query& query, const auto& element)
+                {
+                    return query.FindPickleBy(element);
+                },
+                ReversePickleComparator);
+
             nlohmann::json actual;
             for (const auto& testCaseFinished : allResults)
             {
@@ -263,7 +265,13 @@ namespace cucumber::query
 
         TEST_P(QueryAcceptanceTest, findAllTestCaseStartedOrderBy)
         {
-            const auto allResults = query.FindAllTestCaseStartedOrderBy(&FindPickleBy, ReversePickleComparator);
+            const auto allResults = query.FindAllTestCaseStartedOrderBy(
+                [](const query::Query& query, const auto& element)
+                {
+                    return query.FindPickleBy(element);
+                },
+                ReversePickleComparator);
+
             nlohmann::json actual;
             for (const auto& testCaseStarted : allResults)
             {
