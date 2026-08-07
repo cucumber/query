@@ -4,7 +4,8 @@
 	"name": "cpp",
 	"image": "mcr.microsoft.com/devcontainers/base:resolute",
 	"features": {
-		"ghcr.io/devcontainer-community/devcontainer-features/collection-c-cpp:1": {}
+		"ghcr.io/devcontainer-community/devcontainer-features/collection-c-cpp:1": {},
+		"ghcr.io/devcontainers-extra/features/gcovr:1": {}
 	},
 	"customizations": {
 		"vscode": {

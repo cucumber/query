@@ -72,6 +72,11 @@
       "version": "1.0.2",
       "resolved": "ghcr.io/devcontainer-community/devcontainer-features/vcpkg.io@sha256:aa1c839509ab397336da9c187c89b16e5cb85666f1c8756a2919f401ed3b44ae",
       "integrity": "sha256:aa1c839509ab397336da9c187c89b16e5cb85666f1c8756a2919f401ed3b44ae"
+    },
+    "ghcr.io/devcontainers-extra/features/gcovr:1": {
+      "version": "1.0.0",
+      "resolved": "ghcr.io/devcontainers-extra/features/gcovr@sha256:2aa70bfc2b1d5a62333ec52a58f3c087135b82f8ada3d420f9ba52d8620123f3",
+      "integrity": "sha256:2aa70bfc2b1d5a62333ec52a58f3c087135b82f8ada3d420f9ba52d8620123f3"
     }
   }
 }
