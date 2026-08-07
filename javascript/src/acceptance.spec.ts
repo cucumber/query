@@ -140,7 +140,7 @@ describe('Acceptance Tests', async () => {
           .map((testCaseFinished) => query.findPickleBy(testCaseFinished))
           .map((pickle) => pickle?.name),
         testStepStarted: query
-          .findAllTestStepFinished()
+          .findAllTestStepStarted()
           .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
           .map((pickle) => pickle?.name),
         testStepFinished: query
