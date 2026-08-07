@@ -337,6 +337,33 @@ namespace cucumber::query
             element);
     }
 
+    std::optional<std::shared_ptr<const messages::Location>> Query::FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const
+    {
+        if (pickle->location.has_value())
+        {
+            return pickle->location.value();
+        }
+
+        const auto lineageAndPickle = FindLineageBy(pickle);
+
+        if (lineageAndPickle.has_value())
+        {
+            const auto& lineage = lineageAndPickle.value().lineage;
+
+            if (lineage->example)
+            {
+                return lineage->example->location;
+            }
+
+            if (lineage->scenario)
+            {
+                return lineage->scenario->location;
+            }
+        }
+
+        return std::nullopt;
+    }
+
     std::optional<std::shared_ptr<const messages::Pickle>> Query::FindPickleBy(
         std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element) const
     {

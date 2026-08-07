@@ -80,7 +80,7 @@ namespace cucumber::query
 
         // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStepResult>> FindMostSevereTestStepResultBy(TestCaseStarted | TestCaseFinished &element)
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Location>> FindLocationOf(Pickle &pickle)
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::Location>> FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const;
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::Pickle>> FindPickleBy(
             std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element) const;

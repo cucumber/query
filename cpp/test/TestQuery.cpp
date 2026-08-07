@@ -225,6 +225,22 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindLocationOf(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& pickle : query.FindAllPickles())
+            {
+                const auto location = query.FindLocationOf(pickle);
+                if (location.has_value())
+                {
+                    actual.push_back({ { "line", location.value()->line }, { "column", location.value()->column } });
+                }
+            }
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -245,6 +261,7 @@ namespace cucumber::query
             { "findAttachmentsBy", FindAttachmentsBy },
             { "findHookBy", FindHookBy },
             { "findLineageBy", FindLineageBy },
+            { "findLocationOf", FindLocationOf },
         };
 
         struct AcceptanceTest : testing::Test
