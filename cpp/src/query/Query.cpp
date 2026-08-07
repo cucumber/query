@@ -621,6 +621,24 @@ namespace cucumber::query
         }
     }
 
+    std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
+    {
+        if (testStepStartedByTestCaseStartedId.find(testCaseStarted->id) != testStepStartedByTestCaseStartedId.end())
+        {
+            return testStepStartedByTestCaseStartedId.at(testCaseStarted->id);
+        }
+        return {};
+    }
+
+    std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& testCaseFinished) const
+    {
+        if (testStepStartedByTestCaseStartedId.find(testCaseFinished->testCaseStartedId) != testStepStartedByTestCaseStartedId.end())
+        {
+            return testStepStartedByTestCaseStartedId.at(testCaseFinished->testCaseStartedId);
+        }
+        return {};
+    }
+
     std::vector<std::shared_ptr<const messages::TestStepFinished>> Query::FindTestStepsFinishedBy(
         std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
     {

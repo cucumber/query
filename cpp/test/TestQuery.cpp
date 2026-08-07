@@ -207,7 +207,8 @@ namespace cucumber::query
                     const auto& lineageAndPickle = query.FindLineageBy(item);
                     if (lineageAndPickle.has_value())
                     {
-                        actual.push_back(namingStrategy->Reduce(*lineageAndPickle.value().lineage, *lineageAndPickle.value().pickle));
+                        const auto& [lineage, pickle] = lineageAndPickle.value();
+                        actual.push_back(namingStrategy->Reduce(*lineage, *pickle));
                     }
                 }
 
@@ -544,6 +545,49 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindTestStepBy(const query::Query& query)
+        {
+            nlohmann::json actual{
+                { "testStepStarted", nlohmann::json::array() },
+                { "testStepFinished", nlohmann::json::array() },
+            };
+
+            const auto findTestStepBy = [&](const auto& testSteps, const char* key)
+            {
+                for (const auto& testStepEvent : testSteps)
+                {
+                    const auto& testStep = query.FindTestStepBy(testStepEvent);
+                    if (testStep.has_value())
+                    {
+                        actual[key].emplace_back(testStep.value()->id);
+                    }
+                }
+            };
+
+            for (const auto& item : query.FindAllTestCaseStarted())
+            {
+                findTestStepBy(query.FindTestStepsStartedBy(item), "testStepStarted");
+                findTestStepBy(query.FindTestStepsFinishedBy(item), "testStepFinished");
+            }
+
+            return actual;
+        }
+
+        nlohmann::json FindTestStepFinishedAndTestStepBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& testCaseStarted : query.FindAllTestCaseStarted())
+            {
+                for (const auto& [testStepFinished, testStep] : query.FindTestStepFinishedAndTestStepBy(testCaseStarted))
+                {
+                    actual.push_back({ testStepFinished->testStepId, testStep->id });
+                }
+            }
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -581,6 +625,8 @@ namespace cucumber::query
             { "findTestRunHookFinishedBy", FindTestRunHookFinishedBy },
             { "findTestRunHookStartedBy", FindTestRunHookStartedBy },
             { "findTestRunStarted", FindTestRunStarted },
+            { "findTestStepBy", FindTestStepBy },
+            { "findTestStepFinishedAndTestStepBy", FindTestStepFinishedAndTestStepBy },
         };
 
         struct AcceptanceTest : testing::Test
