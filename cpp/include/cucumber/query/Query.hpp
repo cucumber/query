@@ -92,7 +92,8 @@ namespace cucumber::query
 
         [[nodiscard]] std::vector<std::shared_ptr<const messages::StepDefinition>> FindStepDefinitionsBy(const std::shared_ptr<const messages::TestStep>& testStep) const;
 
-        // [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> findSuggestionsBy(PickleStep | Pickle) const &element
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> FindSuggestionsBy(const std::shared_ptr<const messages::PickleStep>& element) const;
+        [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> FindSuggestionsBy(const std::shared_ptr<const messages::Pickle>& element) const;
 
         // [[nodiscard]] std::optional<std::shared_ptr<const messages::StepDefinition>> FindUnambiguousStepDefinitionBy(TestStep &testStep) const
 
@@ -177,7 +178,7 @@ namespace cucumber::query
         std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::TestStepFinished>>> testStepFinishedByTestCaseStartedId;
         std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>> attachmentsByTestCaseStartedId;
         std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>> attachmentsByTestRunHookStartedId;
-        //   std::unordered_map<std::string, std::shared_ptr<const messages::Suggestion>> suggestionsByPickleStepId;
+        std::unordered_map<std::string, std::shared_ptr<const messages::Suggestion>> suggestionsByPickleStepId;
         std::vector<std::shared_ptr<const messages::UndefinedParameterType>> undefinedParameterTypes;
     };
 

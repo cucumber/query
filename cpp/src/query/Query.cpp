@@ -159,10 +159,10 @@ namespace cucumber::query
         // {
         //     this.testRunFinished = envelope.testRunFinished
         // }
-        // if (envelope.suggestion)
-        // {
-        //     this.updateSuggestion(envelope.suggestion)
-        // }
+        if (envelope.suggestion.has_value())
+        {
+            suggestionsByPickleStepId[envelope.suggestion.value()->pickleStepId] = envelope.suggestion.value();
+        }
         if (envelope.undefinedParameterType.has_value())
         {
             undefinedParameterTypes.push_back(envelope.undefinedParameterType.value());
@@ -467,6 +467,27 @@ namespace cucumber::query
             }
         }
 
+        return result;
+    }
+
+    std::vector<std::shared_ptr<const messages::Suggestion>> Query::FindSuggestionsBy(const std::shared_ptr<const messages::PickleStep>& element) const
+    {
+        if (suggestionsByPickleStepId.find(element->id) != suggestionsByPickleStepId.end())
+        {
+            return { suggestionsByPickleStepId.at(element->id) };
+        }
+
+        return {};
+    }
+
+    std::vector<std::shared_ptr<const messages::Suggestion>> Query::FindSuggestionsBy(const std::shared_ptr<const messages::Pickle>& element) const
+    {
+        std::vector<std::shared_ptr<const messages::Suggestion>> result;
+        for (const auto& pickleStep : element->steps)
+        {
+            const auto suggestions = FindSuggestionsBy(pickleStep);
+            result.insert(result.end(), suggestions.begin(), suggestions.end());
+        }
         return result;
     }
 

@@ -355,6 +355,31 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindSuggestionsBy(const query::Query& query)
+        {
+            const auto findSuggestionsBy = [&query](const auto& items)
+            {
+                nlohmann::json actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    for (const auto& suggestion : query.FindSuggestionsBy(item))
+                    {
+                        actual.emplace_back(suggestion->id);
+                    }
+                }
+
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["pickleStep"] = findSuggestionsBy(query.FindAllPickleSteps());
+            actual["pickle"] = findSuggestionsBy(query.FindAllPickles());
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -382,6 +407,7 @@ namespace cucumber::query
             { "findPickleStepBy", FindPickleStepBy },
             { "findStepBy", FindStepBy },
             { "findStepDefinitionsBy", FindStepDefinitionsBy },
+            { "findSuggestionsBy", FindSuggestionsBy },
         };
 
         struct AcceptanceTest : testing::Test
