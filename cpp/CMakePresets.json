@@ -28,6 +28,13 @@
             "cacheVariables": {
                 "CUCUMBER_QUERY_ENABLE_CLANG_TIDY": "On"
             }
+        },
+        {
+            "name": "coverage",
+            "inherits": "test",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_ENABLE_COVERAGE": "On"
+            }
         }
     ],
     "buildPresets": [
@@ -42,6 +49,17 @@
         {
             "name": "tidy",
             "configurePreset": "tidy"
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage"
+        },
+        {
+            "name": "coverage-report",
+            "configurePreset": "coverage",
+            "targets": [
+                "generate-lcov-report"
+            ]
         }
     ],
     "testPresets": [
@@ -52,8 +70,14 @@
                 "outputOnFailure": true
             },
             "execution": {
-                "noTestsAction": "error"
+                "noTestsAction": "error",
+                "jobs": 8
             }
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage",
+            "inherits": "test"
         }
     ],
     "workflowPresets": [
@@ -96,6 +120,27 @@
                 },
                 {
                     "name": "tidy",
+                    "type": "build"
+                }
+            ]
+        },
+        {
+            "name": "coverage",
+            "steps": [
+                {
+                    "name": "coverage",
+                    "type": "configure"
+                },
+                {
+                    "name": "coverage",
+                    "type": "build"
+                },
+                {
+                    "name": "coverage",
+                    "type": "test"
+                },
+                {
+                    "name": "coverage-report",
                     "type": "build"
                 }
             ]

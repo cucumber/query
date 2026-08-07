@@ -27,9 +27,25 @@ endif ()
 option(CUCUMBER_QUERY_BUILD_TESTS "Build the unit tests." Off)
 option(CUCUMBER_QUERY_FETCH_DEPS "Fetch dependencies via FetchContent." Off)
 option(CUCUMBER_QUERY_ENABLE_CLANG_TIDY "Run clang-tidy as part of the build." Off)
+option(CUCUMBER_QUERY_ENABLE_COVERAGE "Enable compiler flags for code coverage measurements." Off)
 
 if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
     find_program(CLANG_TIDY_PROGRAM clang-tidy REQUIRED)
+endif()
+
+if(CUCUMBER_QUERY_ENABLE_COVERAGE)
+    find_program(GCOVR_PROGRAM gcovr REQUIRED)
+
+    add_custom_target(
+        generate-lcov-report
+        COMMAND ${GCOVR_PROGRAM} --root ${CMAKE_CURRENT_SOURCE_DIR} --merge-lines --delete --exclude-unreachable-branches --exclude-throw-branches --exclude-noncode-lines --filter include/ --filter src/
+            --txt-summary
+            --lcov ${CMAKE_CURRENT_BINARY_DIR}/lcov.info
+            --cobertura ${CMAKE_CURRENT_BINARY_DIR}/cobertura.xml --cobertura-pretty
+            --markdown-summary ${CMAKE_CURRENT_BINARY_DIR}/coverage-summary.md
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating code coverage reports"
+    )
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -59,7 +75,25 @@ endif()
 # CMake dependencies
 include(cmake/dependencies.cpm.cmake)
 
-# Target
+# Target options
+if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_PROGRAM}")
+endif()
+
+if(CUCUMBER_QUERY_ENABLE_COVERAGE)
+    add_compile_options(
+        -g -O0 --coverage -fprofile-arcs -ftest-coverage -fno-inline
+        $<$<COMPILE_LANGUAGE:CXX>:-fno-elide-constructors>
+    )
+
+    if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+        link_libraries(gcov)
+    else()
+        add_link_options(--coverage)
+    endif()
+endif()
+
+# Targets
 add_library(cucumber_query_lib)
 add_library(cucumber::query ALIAS cucumber_query_lib)
 
@@ -98,10 +132,6 @@ set_target_properties(
         EXPORT_NAME query
         OUTPUT_NAME cucumber_query
 )
-
-if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
-    set_target_properties(cucumber_query_lib PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_PROGRAM}")
-endif()
 
 # Installation
 # Installation
