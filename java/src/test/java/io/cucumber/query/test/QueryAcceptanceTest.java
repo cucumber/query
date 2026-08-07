@@ -420,7 +420,7 @@ class QueryAcceptanceTest {
         queries.put("findTestStepsFinishedBy", query -> {
             Map<String, Object> results = new LinkedHashMap<>();
 
-            results.put("testCaseStarted", query.findAllTestCaseFinished().stream()
+            results.put("testCaseStarted", query.findAllTestCaseStarted().stream()
                     .map(query::findTestStepsFinishedBy)
                     .map(Collection::stream)
                     .map(testStepStarted -> testStepStarted.map(TestStepFinished::getTestStepId))
