@@ -492,6 +492,19 @@ namespace cucumber::query
         return result;
     }
 
+    std::optional<std::shared_ptr<const messages::StepDefinition>> Query::FindUnambiguousStepDefinitionBy(const std::shared_ptr<const messages::TestStep>& testStep) const
+    {
+        if (testStep->stepDefinitionIds.has_value() && testStep->stepDefinitionIds.value().size() == 1)
+        {
+            const auto stepDefinitionId = testStep->stepDefinitionIds.value().front();
+            if (stepDefinitionById.find(stepDefinitionId) != stepDefinitionById.end())
+            {
+                return stepDefinitionById.at(stepDefinitionId);
+            }
+        }
+        return std::nullopt;
+    }
+
     std::optional<std::shared_ptr<const messages::TestCase>> Query::FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
         std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
             element) const

@@ -95,7 +95,7 @@ namespace cucumber::query
         [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> FindSuggestionsBy(const std::shared_ptr<const messages::PickleStep>& element) const;
         [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> FindSuggestionsBy(const std::shared_ptr<const messages::Pickle>& element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::StepDefinition>> FindUnambiguousStepDefinitionBy(TestStep &testStep) const
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::StepDefinition>> FindUnambiguousStepDefinitionBy(const std::shared_ptr<const messages::TestStep>& testStep) const;
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCase>> FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>,
             std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
@@ -136,8 +136,6 @@ namespace cucumber::query
         [[nodiscard]] std::optional<LineageAndPickle> FindLineageBy(
             std::variant<std::shared_ptr<const messages::Pickle>, std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const;
 
-        // [[nodiscard]] std::size_t CountTestCasesStarted() const
-
     private:
         void UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument);
         void UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, const std::shared_ptr<Lineage>& lineage);
@@ -147,20 +145,11 @@ namespace cucumber::query
         void UpdatePickle(std::shared_ptr<const messages::Pickle> pickle);
         void UpdateTestRunHookStarted(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted);
         void UpdateTestRunHookFinished(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished);
-
-        /////////////
-        /////////////
-        /////////////
-
         void UpdateTestCase(std::shared_ptr<const messages::TestCase> testCase);
         void UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted);
-        /////////////
-
         void UpdateAttachment(const std::shared_ptr<const messages::Attachment>& attachment);
         void UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished);
         void UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished);
-        /////////////
-        /////////////
 
         std::optional<std::shared_ptr<const messages::Meta>> meta;
 

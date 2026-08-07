@@ -590,7 +590,6 @@ namespace cucumber::query
 
         nlohmann::json FindTestStepsFinishedBy(const query::Query& query)
         {
-
             const auto findTestStepsFinishedBy = [&](const auto& items)
             {
                 auto actual = nlohmann::json::array();
@@ -613,6 +612,50 @@ namespace cucumber::query
 
             actual["testCaseStarted"] = findTestStepsFinishedBy(query.FindAllTestCaseStarted());
             actual["testCaseFinished"] = findTestStepsFinishedBy(query.FindAllTestCaseFinished());
+
+            return actual;
+        }
+
+        nlohmann::json FindTestStepsStartedBy(const query::Query& query)
+        {
+            const auto findTestStepsStartedBy = [&](const auto& items)
+            {
+                auto actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    auto& nested = actual.emplace_back(nlohmann::json::array());
+                    const auto& testStepsFinished = query.FindTestStepsStartedBy(item);
+
+                    for (const auto& testStepFinished : testStepsFinished)
+                    {
+                        nested.push_back(testStepFinished->testStepId);
+                    }
+                }
+
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseStarted"] = findTestStepsStartedBy(query.FindAllTestCaseStarted());
+            actual["testCaseFinished"] = findTestStepsStartedBy(query.FindAllTestCaseFinished());
+
+            return actual;
+        }
+
+        nlohmann::json FindUnambiguousStepDefinitionBy(const query::Query& query)
+        {
+            nlohmann::json actual = nlohmann::json::array();
+
+            for (const auto& testStep : query.FindAllTestSteps())
+            {
+                const auto& stepDefinition = query.FindUnambiguousStepDefinitionBy(testStep);
+                if (stepDefinition.has_value())
+                {
+                    actual.push_back(stepDefinition.value()->id);
+                }
+            }
 
             return actual;
         }
@@ -657,6 +700,8 @@ namespace cucumber::query
             { "findTestStepBy", FindTestStepBy },
             { "findTestStepFinishedAndTestStepBy", FindTestStepFinishedAndTestStepBy },
             { "findTestStepsFinishedBy", FindTestStepsFinishedBy },
+            { "findTestStepsStartedBy", FindTestStepsStartedBy },
+            { "findUnambiguousStepDefinitionBy", FindUnambiguousStepDefinitionBy },
         };
 
         struct AcceptanceTest : testing::Test
