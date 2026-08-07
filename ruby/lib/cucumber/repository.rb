@@ -7,6 +7,7 @@ module Cucumber
     attr_reader :attachments_by_test_case_started_id, :attachments_by_test_run_hook_started_id,
                 :hook_by_id,
                 :pickle_by_id, :pickle_step_by_id,
+                :suggestions_by_pickle_step_id,
                 :step_by_id, :step_definition_by_id,
                 :test_case_by_id, :test_case_started_by_id, :test_case_finished_by_test_case_started_id,
                 :test_run_hook_started_by_id, :test_run_hook_finished_by_test_run_hook_started_id,
@@ -14,21 +15,22 @@ module Cucumber
                 :undefined_parameter_types
 
     def initialize
-      @attachments_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
-      @attachments_by_test_run_hook_started_id = Hash.new { |hash, key| hash[key] = [] }
+      @attachments_by_test_case_started_id = _hash_with_array_default
+      @attachments_by_test_run_hook_started_id = _hash_with_array_default
       @hook_by_id = {}
       @pickle_by_id = {}
       @pickle_step_by_id = {}
       @step_by_id = {}
       @step_definition_by_id = {}
+      @suggestions_by_pickle_step_id = _hash_with_array_default
       @test_case_by_id = {}
       @test_case_started_by_id = {}
       @test_case_finished_by_test_case_started_id = {}
       @test_run_hook_started_by_id = {}
       @test_run_hook_finished_by_test_run_hook_started_id = {}
       @test_step_by_id = {}
-      @test_steps_started_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
-      @test_steps_finished_by_test_case_started_id = Hash.new { |hash, key| hash[key] = [] }
+      @test_steps_started_by_test_case_started_id = _hash_with_array_default
+      @test_steps_finished_by_test_case_started_id = _hash_with_array_default
       @undefined_parameter_types = []
     end
 
@@ -39,8 +41,6 @@ module Cucumber
     end
 
     private
-
-    # Missing handlers
 
     def method_missing(method_name, *args, &)
       if method_name.to_s.start_with?('update_')
@@ -56,16 +56,6 @@ module Cucumber
       method_name.to_s.start_with?('update_') || super
     end
 
-    def update_source(_source)
-      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
-    end
-
-    def update_suggestion(_suggestion)
-      :no_op # Not Implemented Yet. But method will be inherently called from `#update`
-    end
-
-    # Defined handlers
-
     def update_attachment(attachment)
       attachments_by_test_case_started_id[attachment.test_case_started_id] << attachment if attachment.test_case_started_id
       attachments_by_test_run_hook_started_id[attachment.test_run_hook_started_id] << attachment if attachment.test_run_hook_started_id
@@ -75,12 +65,7 @@ module Cucumber
       feature.children.each do |feature_child|
         update_steps(feature_child.background.steps) if feature_child.background
         update_scenario(feature_child.scenario) if feature_child.scenario
-        next unless feature_child.rule
-
-        feature_child.rule.children.each do |rule_child|
-          update_steps(rule_child.background.steps) if rule_child.background
-          update_scenario(rule_child.scenario) if rule_child.scenario
-        end
+        feature_child.rule&.children&.each { |rule_child| _update_feature_rule(rule_child) }
       end
     end
 
@@ -105,12 +90,22 @@ module Cucumber
       update_steps(scenario.steps)
     end
 
+    def update_source(_source)
+      # This deliberately doesn't perform any handling. `Source` as a message is not stored or required
+      #   - See `GherkinDocument` for a more "parsed" form of an AST representation
+      :no_op
+    end
+
     def update_steps(steps)
       steps.each { |step| step_by_id[step.id] = step }
     end
 
     def update_step_definition(step_definition)
       step_definition_by_id[step_definition.id] = step_definition
+    end
+
+    def update_suggestion(suggestion)
+      suggestions_by_pickle_step_id[suggestion.pickle_step_id] << suggestion
     end
 
     def update_test_case(test_case)
@@ -152,6 +147,15 @@ module Cucumber
 
     def update_undefined_parameter_type(undefined_parameter_type)
       undefined_parameter_types << undefined_parameter_type
+    end
+
+    def _update_feature_rule(rule_child)
+      update_steps(rule_child.background.steps) if rule_child.background
+      update_scenario(rule_child.scenario) if rule_child.scenario
+    end
+
+    def _hash_with_array_default
+      Hash.new { |hash, key| hash[key] = [] }
     end
   end
 end

@@ -1,4 +1,4 @@
-package io.cucumber.query;
+package io.cucumber.query.test;
 
 import io.cucumber.messages.Convertor;
 import io.cucumber.messages.LocationComparator;
@@ -20,7 +20,11 @@ import io.cucumber.messages.types.TestStep;
 import io.cucumber.messages.types.TestStepFinished;
 import io.cucumber.messages.types.TestStepResult;
 import io.cucumber.messages.types.TestStepStarted;
-import org.junit.jupiter.api.Disabled;
+import io.cucumber.query.NamingStrategy;
+import io.cucumber.query.Query;
+import io.cucumber.query.Repository;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import tools.jackson.core.StreamWriteFeature;
@@ -82,7 +86,6 @@ class QueryAcceptanceTest {
             .reversed();
 
 
-
     static List<QueryTestCase> acceptance() {
         List<QueryTestCase> testCases = new ArrayList<>();
 
@@ -112,6 +115,7 @@ class QueryAcceptanceTest {
 
     @ParameterizedTest
     @MethodSource("acceptance")
+    @DisabledIfEnvironmentVariable(named = "UPDATE_SAMPLES", matches = "true")
     void test(QueryTestCase testCase) throws IOException {
         ByteArrayOutputStream bytes = writeQueryResults(testCase, new ByteArrayOutputStream());
         String expected = Files.readString(testCase.expected);
@@ -121,7 +125,7 @@ class QueryAcceptanceTest {
 
     @ParameterizedTest
     @MethodSource("acceptance")
-    @Disabled
+    @EnabledIfEnvironmentVariable(named = "UPDATE_SAMPLES", matches = "true")
     void updateExpectedFiles(QueryTestCase testCase) throws IOException {
         try (OutputStream out = Files.newOutputStream(testCase.expected)) {
             writeQueryResults(testCase, out);
@@ -136,6 +140,7 @@ class QueryAcceptanceTest {
                 var query = new Query(repository);
                 var queryResults = testCase.query.apply(query);
                 jsonMapper.writerWithDefaultPrettyPrinter().writeValue(out, queryResults);
+                out.write(System.lineSeparator().getBytes(UTF_8));
             }
         }
         return out;
@@ -412,6 +417,22 @@ class QueryAcceptanceTest {
             return results;
         });
 
+        queries.put("findTestStepsFinishedBy", query -> {
+            Map<String, Object> results = new LinkedHashMap<>();
+
+            results.put("testCaseStarted", query.findAllTestCaseFinished().stream()
+                    .map(query::findTestStepsFinishedBy)
+                    .map(Collection::stream)
+                    .map(testStepStarted -> testStepStarted.map(TestStepFinished::getTestStepId))
+                    .collect(toList()));
+            results.put("testCaseFinished", query.findAllTestCaseFinished().stream()
+                    .map(query::findTestStepsFinishedBy)
+                    .map(Collection::stream)
+                    .map(testStepStarted -> testStepStarted.map(TestStepFinished::getTestStepId))
+                    .collect(toList()));
+            return results;
+        });
+
         queries.put("findTestRunHookFinishedBy", query -> query.findAllTestRunHookStarted().stream()
                 .map(query::findTestRunHookFinishedBy)
                 .map(testRunHookFinished -> testRunHookFinished.map(TestRunHookFinished::getTestRunHookStartedId))
@@ -440,10 +461,6 @@ class QueryAcceptanceTest {
             return results;
         });
 
-        queries.put("findTestStepsFinishedBy", query -> query.findAllTestCaseStarted().stream()
-                .map(query::findTestStepsFinishedBy)
-                .map(testStepFinisheds -> testStepFinisheds.stream().map(TestStepFinished::getTestStepId).collect(toList()))
-                .collect(toList()));
         queries.put("findTestStepFinishedAndTestStepBy", query -> query.findAllTestCaseStarted().stream()
                 .map(query::findTestStepFinishedAndTestStepBy)
                 .flatMap(Collection::stream)

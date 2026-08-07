@@ -1,5 +1,3 @@
-inherit_from: .rubocop_todo.yml
-
 plugins:
   - rubocop-performance
   - rubocop-rspec
@@ -18,4 +16,13 @@ Gemspec/DevelopmentDependencies:
 
 # Disabled on our repo's to enable polyglot-release
 Gemspec/RequireMFA:
+  Enabled: false
+
+# A line length of 200 covers most violations in the repo while still being a more up-to-date length given today's screen sizes
+Layout/LineLength:
+  Max: 200
+
+# The metric portion of rubocop is not useful for us in this repo - as we have a few large classes which are structured
+# in a way that is easy to read and maintain, but high in terms of metric count for rubocop
+Metrics:
   Enabled: false

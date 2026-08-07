@@ -9,14 +9,14 @@
     </parent>
 
     <artifactId>query</artifactId>
-    <version>16.0.2-SNAPSHOT</version>
+    <version>16.1.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Cucumber Query</name>
     <description>Given one Cucumber Message, find another</description>
     <url>https://github.com/cucumber/query</url>
 
     <properties>
-        <project.build.outputTimestamp>1782055360</project.build.outputTimestamp>
+        <project.build.outputTimestamp>1785961862</project.build.outputTimestamp>
     </properties>
 
     <scm>
@@ -62,14 +62,24 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>[1.0.0,2.0.0)</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>messages-ndjson</artifactId>
-            <version>0.5.1</version>
+            <version>0.5.2</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>io.cucumber</groupId>
                     <artifactId>messages</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jspecify</groupId>
+                    <artifactId>jspecify</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -105,6 +115,58 @@
                         <goals>
                             <goal>check</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>jacoco-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <!-- All classes should be covered -->
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>CLASS</counter>
+                                            <value>MISSEDCOUNT</value>
+                                            <maximum>0</maximum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                                <rule>
+                                    <!-- Nearly all instructions should be covered -->
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.89</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

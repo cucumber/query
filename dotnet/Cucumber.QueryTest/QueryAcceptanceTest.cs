@@ -224,6 +224,15 @@ public class QueryAcceptanceTest
                     .Select(tcf => q.FindTestStepsStartedBy(tcf).Select(tss => tss.TestStepId).ToList())
                     .ToList()
             },
+            ["findTestStepsFinishedBy"] = q => new Dictionary<string, object>
+            {
+                ["testCaseStarted"] = q.FindAllTestCaseStarted()
+                    .Select(tcs => q.FindTestStepsFinishedBy(tcs).Select(tss => tss.TestStepId).ToList())
+                    .ToList(),
+                ["testCaseFinished"] = q.FindAllTestCaseFinished()
+                    .Select(tcf => q.FindTestStepsFinishedBy(tcf).Select(tss => tss.TestStepId).ToList())
+                    .ToList()
+            },
             ["findTestRunHookFinishedBy"] = q => q.FindAllTestRunHookStarted()
                 .Select(trhs => q.FindTestRunHookFinishedBy(trhs)?.TestRunHookStartedId)
                 .ToList(),
@@ -241,9 +250,6 @@ public class QueryAcceptanceTest
                     .Select(tsf => q.FindTestStepBy(tsf)?.Id)
                     .ToList()
             },
-            ["findTestStepsFinishedBy"] = q => q.FindAllTestCaseStarted()
-                .Select(tcs => q.FindTestStepsFinishedBy(tcs).Select(tsf => tsf.TestStepId).ToList())
-                .ToList(),
             ["findTestStepFinishedAndTestStepBy"] = q => q.FindAllTestCaseStarted()
                 .SelectMany(tcs => q.FindTestStepFinishedAndTestStepBy(tcs))
                 .Select(pair => new object?[] { pair.Item1.TestStepId, pair.Item2.Id })

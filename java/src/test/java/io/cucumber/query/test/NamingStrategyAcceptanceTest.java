@@ -1,9 +1,13 @@
-package io.cucumber.query;
+package io.cucumber.query.test;
 
 import io.cucumber.messages.NdjsonToMessageReader;
 import io.cucumber.messages.ndjson.Json;
 import io.cucumber.messages.types.Envelope;
-import org.junit.jupiter.api.Disabled;
+import io.cucumber.query.NamingStrategy;
+import io.cucumber.query.Query;
+import io.cucumber.query.Repository;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -91,6 +95,7 @@ class NamingStrategyAcceptanceTest {
 
     @ParameterizedTest
     @MethodSource("acceptance")
+    @DisabledIfEnvironmentVariable(named = "UPDATE_SAMPLES", matches = "true")
     void test(TestCase testCase) throws IOException {
         String actual = writeResults(testCase, testCase.strategy);
         String expected = Files.readString(testCase.expected);
@@ -99,7 +104,7 @@ class NamingStrategyAcceptanceTest {
 
     @ParameterizedTest
     @MethodSource("acceptance")
-    @Disabled
+    @EnabledIfEnvironmentVariable(named = "UPDATE_SAMPLES", matches = "true")
     void updateExpectedFiles(TestCase testCase) throws IOException {
         try (OutputStream out = newOutputStream(testCase.expected)) {
             writeResults(testCase.strategy, testCase, out);

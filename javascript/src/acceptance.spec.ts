@@ -140,7 +140,7 @@ describe('Acceptance Tests', async () => {
           .map((testCaseFinished) => query.findPickleBy(testCaseFinished))
           .map((pickle) => pickle?.name),
         testStepStarted: query
-          .findAllTestStepFinished()
+          .findAllTestStepStarted()
           .map((testCaseStarted) => query.findPickleBy(testCaseStarted))
           .map((pickle) => pickle?.name),
         testStepFinished: query
@@ -254,6 +254,22 @@ describe('Acceptance Tests', async () => {
           ),
       }
     },
+    findTestStepsFinishedBy: (query: Query) => {
+      return {
+        testCaseStarted: query
+          .findAllTestCaseStarted()
+          .map((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
+          .map((testStepsStarted) =>
+            testStepsStarted.map((testStepStarted) => testStepStarted.testStepId)
+          ),
+        testCaseFinished: query
+          .findAllTestCaseFinished()
+          .map((testCaseFinished) => query.findTestStepsFinishedBy(testCaseFinished))
+          .map((testStepsStarted) =>
+            testStepsStarted.map((testStepStarted) => testStepStarted.testStepId)
+          ),
+      }
+    },
     findTestStepBy: (query: Query) => {
       return {
         testStepStarted: query
@@ -268,13 +284,6 @@ describe('Acceptance Tests', async () => {
           .map((testStep) => testStep?.id),
       }
     },
-    findTestStepsFinishedBy: (query: Query) =>
-      query
-        .findAllTestCaseStarted()
-        .map((testCaseStarted) => query.findTestStepsFinishedBy(testCaseStarted))
-        .map((testStepFinisheds) =>
-          testStepFinisheds.map((testStepFinished) => testStepFinished?.testStepId)
-        ),
     findTestStepFinishedAndTestStepBy: (query: Query) =>
       query
         .findAllTestCaseStarted()

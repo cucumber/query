@@ -6,8 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [16.1.1] - 2026-08-05
+### Fixed
+- [Java] Use version range for `org.jspecify:jspecify`
+
+## [16.1.0] - 2026-07-27
 ### Added
-- [Ruby] Add initial Ruby implementation and RubyGems release workflow, covering the needs of the rerun formatter only for now ([#98](https://github.com/cucumber/query/pull/98))
+- [Ruby] Add initial Ruby implementation and RubyGems release workflow ([#98](https://github.com/cucumber/query/pull/98) [#188](https://github.com/cucumber/query/pull/188) [#189](https://github.com/cucumber/query/pull/189) [#190](https://github.com/cucumber/query/pull/190) [#197](https://github.com/cucumber/query/pull/197))
 
 ### Changed
 - Prefer Pickle.Location with fallback to Lineage ([#175](https://github.com/cucumber/query/pull/175))
@@ -302,7 +308,9 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v16.0.1...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v16.1.1...HEAD
+[16.1.1]: https://github.com/cucumber/query/compare/v16.1.0...v16.1.1
+[16.1.0]: https://github.com/cucumber/query/compare/v16.0.1...v16.1.0
 [16.0.1]: https://github.com/cucumber/query/compare/v16.0.0...v16.0.1
 [16.0.0]: https://github.com/cucumber/query/compare/v15.0.1...v16.0.0
 [15.0.1]: https://github.com/cucumber/query/compare/v15.0.0...v15.0.1
