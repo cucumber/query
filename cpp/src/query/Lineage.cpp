@@ -2,7 +2,7 @@
 
 namespace cucumber::query
 {
-    Lineage Lineage::operator+(const Lineage& other) const
+    auto Lineage::operator+(const Lineage& other) const -> Lineage
     {
         Lineage combined;
 

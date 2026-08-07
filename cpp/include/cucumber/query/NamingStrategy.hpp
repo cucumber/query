@@ -14,12 +14,12 @@ namespace cucumber::query
 
         NamingStrategy(const NamingStrategy&) = default;
         NamingStrategy(NamingStrategy&&) = default;
-        NamingStrategy& operator=(const NamingStrategy&) = default;
-        NamingStrategy& operator=(NamingStrategy&&) = default;
+        auto operator=(const NamingStrategy&) -> NamingStrategy& = default;
+        auto operator=(NamingStrategy&&) -> NamingStrategy& = default;
 
         virtual ~NamingStrategy() = default;
 
-        [[nodiscard]] virtual std::string Reduce(const Lineage& lineage, const messages::Pickle& pickle) const = 0;
+        [[nodiscard]] virtual auto Reduce(const Lineage& lineage, const messages::Pickle& pickle) const -> std::string = 0;
     };
 
     enum class NamingStrategyLength : std::uint8_t
@@ -45,7 +45,7 @@ namespace cucumber::query
     {
         BuiltinNamingStrategy(NamingStrategyLength length, NamingStrategyFeatureName featureName, NamingStrategyExampleName exampleName);
 
-        [[nodiscard]] std::string Reduce(const Lineage& lineage, const messages::Pickle& pickle) const override;
+        [[nodiscard]] auto Reduce(const Lineage& lineage, const messages::Pickle& pickle) const -> std::string override;
 
     private:
         NamingStrategyLength length;
@@ -53,8 +53,8 @@ namespace cucumber::query
         NamingStrategyExampleName exampleName;
     };
 
-    std::unique_ptr<const NamingStrategy> CreateNamingStrategy(NamingStrategyLength length, NamingStrategyFeatureName featureName = NamingStrategyFeatureName::include,
-        NamingStrategyExampleName exampleName = NamingStrategyExampleName::numberAndPickleIfParameterized);
+    auto CreateNamingStrategy(NamingStrategyLength length, NamingStrategyFeatureName featureName = NamingStrategyFeatureName::include,
+        NamingStrategyExampleName exampleName = NamingStrategyExampleName::numberAndPickleIfParameterized) -> std::unique_ptr<const NamingStrategy>;
 }
 
 #endif

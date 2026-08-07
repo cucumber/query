@@ -27,7 +27,7 @@ namespace cucumber::query
 {
     namespace
     {
-        std::set<std::filesystem::path, std::less<>> CollectFiles(const std::filesystem::path& folder)
+        auto CollectFiles(const std::filesystem::path& folder) -> std::set<std::filesystem::path, std::less<>>
         {
             std::set<std::filesystem::path, std::less<>> foundFiles;
 
@@ -52,7 +52,7 @@ namespace cucumber::query
             std::set<std::filesystem::path, std::less<>> json;
         };
 
-        std::int32_t ReversePickleComparator(const std::shared_ptr<const messages::Pickle>& lhs, const std::shared_ptr<const messages::Pickle>& rhs)
+        auto ReversePickleComparator(const std::shared_ptr<const messages::Pickle>& lhs, const std::shared_ptr<const messages::Pickle>& rhs) -> std::int32_t
         {
             if (lhs->uri != rhs->uri)
             {
@@ -65,22 +65,21 @@ namespace cucumber::query
             return static_cast<std::int32_t>(rhs->location.value()->column.value()) - static_cast<std::int32_t>(lhs->location.value()->column.value());
         };
 
-        std::optional<std::shared_ptr<const messages::Pickle>> FindPickleBy(const query::Query& query,
-            std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>,
-                std::shared_ptr<const messages::TestStepFinished>>
-                element)
+        auto FindPickleBy(const query::Query& query, std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
+                                                         std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
+                                                         element) -> std::optional<std::shared_ptr<const messages::Pickle>>
         {
             return query.FindPickleBy(std::move(element));
         };
 
         template<auto F>
-        nlohmann::json GetSizeOf(const query::Query& query)
+        auto GetSizeOf(const query::Query& query) -> nlohmann::json
         {
             const auto actual = (query.*F)();
             return actual.size();
         }
 
-        nlohmann::json CountMostSevereTestStepResultStatus(const query::Query& query)
+        auto CountMostSevereTestStepResultStatus(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual;
 
@@ -92,13 +91,13 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json CountTestCasesStarted(const query::Query& query)
+        auto CountTestCasesStarted(const query::Query& query) -> nlohmann::json
         {
             const auto actual = query.CountTestCasesStarted();
             return actual;
         }
 
-        nlohmann::json FindAllTestCaseFinishedOrderBy(const query::Query& query)
+        auto FindAllTestCaseFinishedOrderBy(const query::Query& query) -> nlohmann::json
         {
             const auto allResults = query.FindAllTestCaseFinishedOrderBy(&FindPickleBy, ReversePickleComparator);
             nlohmann::json actual;
@@ -110,7 +109,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindAllTestCaseStartedOrderBy(const query::Query& query)
+        auto FindAllTestCaseStartedOrderBy(const query::Query& query) -> nlohmann::json
         {
             const auto allResults = query.FindAllTestCaseStartedOrderBy(&FindPickleBy, ReversePickleComparator);
             nlohmann::json actual;
@@ -122,7 +121,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindAllUndefinedParameterTypes(query::Query const& query)
+        auto FindAllUndefinedParameterTypes(query::Query const& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -134,7 +133,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindAttachmentsBy(const query::Query& query)
+        auto FindAttachmentsBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = { { "testStepFinished", nlohmann::json::array() }, { "testRunHookFinished", nlohmann::json::array() } };
 
@@ -167,7 +166,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindHookBy(const query::Query& query)
+        auto FindHookBy(const query::Query& query) -> nlohmann::json
         {
             const auto findHookBy = [&query](const auto& testSteps)
             {
@@ -194,7 +193,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindLineageBy(const query::Query& query)
+        auto FindLineageBy(const query::Query& query) -> nlohmann::json
         {
             const auto namingStrategy = CreateNamingStrategy(NamingStrategyLength::longName, NamingStrategyFeatureName::include, NamingStrategyExampleName::number);
 
@@ -224,7 +223,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindLocationOf(const query::Query& query)
+        auto FindLocationOf(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -240,7 +239,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindMeta(const query::Query& query)
+        auto FindMeta(const query::Query& query) -> nlohmann::json
         {
             const auto meta = query.FindMeta();
 
@@ -252,7 +251,7 @@ namespace cucumber::query
             return {};
         }
 
-        nlohmann::json FindMostSevereTestStepResultBy(const query::Query& query)
+        auto FindMostSevereTestStepResultBy(const query::Query& query) -> nlohmann::json
         {
             const auto findMostSevereTestStepResultBy = [&query](const auto& items)
             {
@@ -278,7 +277,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindPickleBy(const query::Query& query)
+        auto FindPickleBy(const query::Query& query) -> nlohmann::json
         {
             const auto findPickleBy = [&query](const auto& items)
             {
@@ -306,7 +305,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindPickleStepBy(const query::Query& query)
+        auto FindPickleStepBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -322,7 +321,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindStepBy(const query::Query& query)
+        auto FindStepBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -338,7 +337,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindStepDefinitionsBy(const query::Query& query)
+        auto FindStepDefinitionsBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -355,7 +354,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindSuggestionsBy(const query::Query& query)
+        auto FindSuggestionsBy(const query::Query& query) -> nlohmann::json
         {
             const auto findSuggestionsBy = [&query](const auto& items)
             {
@@ -380,7 +379,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestCaseBy(const query::Query& query)
+        auto FindTestCaseBy(const query::Query& query) -> nlohmann::json
         {
             const auto findTestCaseBy = [&query](const auto& items)
             {
@@ -407,7 +406,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestCaseDurationBy(const query::Query& query)
+        auto FindTestCaseDurationBy(const query::Query& query) -> nlohmann::json
         {
             const auto findTestCaseDurationBy = [&query](const auto& items)
             {
@@ -432,7 +431,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestCaseFinishedBy(const query::Query& query)
+        auto FindTestCaseFinishedBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -448,7 +447,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestCaseStartedBy(const query::Query& query)
+        auto FindTestCaseStartedBy(const query::Query& query) -> nlohmann::json
         {
             const auto findTestCaseStartedBy = [&query](const auto& items)
             {
@@ -474,7 +473,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestRunDuration(const query::Query& query)
+        auto FindTestRunDuration(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual;
 
@@ -487,7 +486,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestRunFinished(const query::Query& query)
+        auto FindTestRunFinished(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual;
 
@@ -500,7 +499,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestRunHookFinishedBy(const query::Query& query)
+        auto FindTestRunHookFinishedBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -516,7 +515,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestRunHookStartedBy(const query::Query& query)
+        auto FindTestRunHookStartedBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -532,7 +531,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestRunStarted(const query::Query& query)
+        auto FindTestRunStarted(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual;
 
@@ -545,7 +544,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestStepBy(const query::Query& query)
+        auto FindTestStepBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual{
                 { "testStepStarted", nlohmann::json::array() },
@@ -573,7 +572,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestStepFinishedAndTestStepBy(const query::Query& query)
+        auto FindTestStepFinishedAndTestStepBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -588,7 +587,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestStepsFinishedBy(const query::Query& query)
+        auto FindTestStepsFinishedBy(const query::Query& query) -> nlohmann::json
         {
             const auto findTestStepsFinishedBy = [&](const auto& items)
             {
@@ -616,7 +615,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindTestStepsStartedBy(const query::Query& query)
+        auto FindTestStepsStartedBy(const query::Query& query) -> nlohmann::json
         {
             const auto findTestStepsStartedBy = [&](const auto& items)
             {
@@ -644,7 +643,7 @@ namespace cucumber::query
             return actual;
         }
 
-        nlohmann::json FindUnambiguousStepDefinitionBy(const query::Query& query)
+        auto FindUnambiguousStepDefinitionBy(const query::Query& query) -> nlohmann::json
         {
             nlohmann::json actual = nlohmann::json::array();
 
@@ -712,7 +711,7 @@ namespace cucumber::query
             {}
 
         private:
-            void TestBody() override
+            auto TestBody() -> void override
             {
                 const auto* testInfo = testing::UnitTest::GetInstance()->current_test_info();
                 const auto* testCaseName = testInfo->name();
@@ -747,7 +746,7 @@ namespace cucumber::query
             std::filesystem::path expected;
         };
 
-        TestData GetTestFiles()
+        auto GetTestFiles() -> TestData
         {
             auto foundFiles = CollectFiles(TESTDATA_SRC);
 
@@ -777,7 +776,7 @@ namespace cucumber::query
             return testData;
         }
 
-        std::string FilterName(std::string str)
+        auto FilterName(std::string str) -> std::string
         {
             for (auto iter = str.find('-'); iter != std::string::npos; iter = str.find('-'))
             {

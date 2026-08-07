@@ -21,7 +21,7 @@ namespace cucumber::query
     namespace
     {
         template<class T, typename Proj>
-        void SortBy(std::vector<T>& container, const Proj& projection)
+        auto SortBy(std::vector<T>& container, const Proj& projection) -> void
         {
             std::sort(container.begin(), container.end(),
                 [&projection](const auto& lhs, const auto& rhs)
@@ -30,7 +30,7 @@ namespace cucumber::query
                 });
         }
 
-        void SortBySeverity(std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>>& container)
+        auto SortBySeverity(std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>>& container) -> void
         {
             std::sort(container.begin(), container.end(),
                 [](const auto& lhs, const auto& rhs)
@@ -98,7 +98,7 @@ namespace cucumber::query
         overloaded(Ts...) -> overloaded<Ts...>;
     }
 
-    void Query::Update(const cucumber::messages::Envelope& envelope)
+    auto Query::Update(const cucumber::messages::Envelope& envelope) -> void
     {
         if (envelope.meta.has_value())
         {
@@ -170,7 +170,7 @@ namespace cucumber::query
         }
     }
 
-    std::unordered_map<messages::TestStepResultStatus, std::size_t> Query::CountMostSevereTestStepResultStatus() const
+    auto Query::CountMostSevereTestStepResultStatus() const -> std::unordered_map<messages::TestStepResultStatus, std::size_t>
     {
         std::unordered_map<messages::TestStepResultStatus, std::size_t> result{
             { messages::TestStepResultStatus::AMBIGUOUS, 0 },
@@ -196,27 +196,27 @@ namespace cucumber::query
         return result;
     }
 
-    std::size_t Query::CountTestCasesStarted() const
+    auto Query::CountTestCasesStarted() const -> std::size_t
     {
         return FindAllTestCaseStarted().size();
     }
 
-    std::vector<std::shared_ptr<const messages::Pickle>> Query::FindAllPickles() const
+    auto Query::FindAllPickles() const -> std::vector<std::shared_ptr<const messages::Pickle>>
     {
         return MapValuesToVectorSortBy(pickleById, &messages::Pickle::id);
     }
 
-    std::vector<std::shared_ptr<const messages::PickleStep>> Query::FindAllPickleSteps() const
+    auto Query::FindAllPickleSteps() const -> std::vector<std::shared_ptr<const messages::PickleStep>>
     {
         return MapValuesToVectorSortBy(pickleStepById, &messages::PickleStep::id);
     }
 
-    std::vector<std::shared_ptr<const messages::StepDefinition>> Query::FindAllStepDefinitions() const
+    auto Query::FindAllStepDefinitions() const -> std::vector<std::shared_ptr<const messages::StepDefinition>>
     {
         return MapValuesToVectorSortBy(stepDefinitionById, &messages::StepDefinition::id);
     }
 
-    std::vector<std::shared_ptr<const messages::TestCaseStarted>> Query::FindAllTestCaseStarted() const
+    auto Query::FindAllTestCaseStarted() const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>
     {
         std::vector<std::shared_ptr<const messages::TestCaseStarted>> result;
 
@@ -235,7 +235,7 @@ namespace cucumber::query
         return result;
     }
 
-    std::vector<std::shared_ptr<const messages::TestCaseFinished>> Query::FindAllTestCaseFinished() const
+    auto Query::FindAllTestCaseFinished() const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>
     {
         std::vector<std::shared_ptr<const messages::TestCaseFinished>> result;
 
@@ -252,43 +252,43 @@ namespace cucumber::query
         return result;
     }
 
-    std::vector<std::shared_ptr<const messages::TestStep>> Query::FindAllTestSteps() const
+    auto Query::FindAllTestSteps() const -> std::vector<std::shared_ptr<const messages::TestStep>>
     {
         return MapValuesToVectorSortBy(testStepById, &messages::TestStep::id);
     }
 
-    std::vector<std::shared_ptr<const messages::TestCase>> Query::FindAllTestCases() const
+    auto Query::FindAllTestCases() const -> std::vector<std::shared_ptr<const messages::TestCase>>
     {
         return MapValuesToVectorSortBy(testCaseById, &messages::TestCase::id);
     }
 
-    std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindAllTestStepStarted() const
+    auto Query::FindAllTestStepStarted() const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
     {
         return MapValuesToVectorSortBy(testStepStartedByTestCaseStartedId, &messages::TestStepStarted::testCaseStartedId);
     }
 
-    std::vector<std::shared_ptr<const messages::TestStepFinished>> Query::FindAllTestStepFinished() const
+    auto Query::FindAllTestStepFinished() const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
     {
         return MapValuesToVectorSortBy(testStepFinishedByTestCaseStartedId, &messages::TestStepFinished::testCaseStartedId);
     }
 
-    std::vector<std::shared_ptr<const messages::TestRunHookStarted>> Query::FindAllTestRunHookStarted() const
+    auto Query::FindAllTestRunHookStarted() const -> std::vector<std::shared_ptr<const messages::TestRunHookStarted>>
     {
         return MapValuesToVectorSortBy(testRunHookStartedById, &messages::TestRunHookStarted::id);
     }
 
-    std::vector<std::shared_ptr<const messages::TestRunHookFinished>> Query::FindAllTestRunHookFinished() const
+    auto Query::FindAllTestRunHookFinished() const -> std::vector<std::shared_ptr<const messages::TestRunHookFinished>>
     {
         return MapValuesToVectorSortBy(testRunHookFinishedByTestRunHookStartedId, &messages::TestRunHookFinished::testRunHookStartedId);
     }
 
-    std::vector<std::shared_ptr<const messages::UndefinedParameterType>> Query::FindAllUndefinedParameterTypes() const
+    auto Query::FindAllUndefinedParameterTypes() const -> std::vector<std::shared_ptr<const messages::UndefinedParameterType>>
     {
         return undefinedParameterTypes;
     }
 
-    std::vector<std::shared_ptr<const messages::Attachment>> Query::FindAttachmentsBy(
-        std::variant<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestRunHookFinished>> element) const
+    auto Query::FindAttachmentsBy(std::variant<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestRunHookFinished>> element) const
+        -> std::vector<std::shared_ptr<const messages::Attachment>>
     {
         return std::visit(
             overloaded{
@@ -319,8 +319,9 @@ namespace cucumber::query
             element);
     }
 
-    std::optional<std::shared_ptr<const messages::Hook>> Query::FindHookBy(
+    auto Query::FindHookBy(
         std::variant<std::shared_ptr<const messages::TestStep>, std::shared_ptr<const messages::TestRunHookStarted>, std::shared_ptr<const messages::TestRunHookFinished>> element) const
+        -> std::optional<std::shared_ptr<const messages::Hook>>
     {
         return std::visit(
             overloaded{
@@ -353,13 +354,13 @@ namespace cucumber::query
             element);
     }
 
-    std::optional<std::shared_ptr<const messages::Meta>> Query::FindMeta() const
+    auto Query::FindMeta() const -> std::optional<std::shared_ptr<const messages::Meta>>
     {
         return meta;
     }
 
-    std::optional<std::shared_ptr<const messages::TestStepResult>> Query::FindMostSevereTestStepResultBy(
-        std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
+    auto Query::FindMostSevereTestStepResultBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
+        -> std::optional<std::shared_ptr<const messages::TestStepResult>>
     {
         const auto testCaseStarted = std::visit(overloaded{ [this](const std::shared_ptr<const messages::TestCaseFinished>& element)
                                                     {
@@ -385,7 +386,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::Location>> Query::FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const
+    auto Query::FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const -> std::optional<std::shared_ptr<const messages::Location>>
     {
         if (pickle->location.has_value())
         {
@@ -412,9 +413,9 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::Pickle>> Query::FindPickleBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
-        std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
-            element) const
+    auto Query::FindPickleBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>,
+        std::shared_ptr<const messages::TestStepFinished>>
+            element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
     {
         const auto testCase = std::visit(
             [this](const auto& element)
@@ -433,7 +434,7 @@ namespace cucumber::query
         }
     }
 
-    std::optional<std::shared_ptr<const messages::PickleStep>> Query::FindPickleStepBy(const std::shared_ptr<const messages::TestStep>& testStep) const
+    auto Query::FindPickleStepBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::optional<std::shared_ptr<const messages::PickleStep>>
     {
         if (testStep->pickleStepId.has_value())
         {
@@ -442,7 +443,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::Step>> Query::FindStepBy(const std::shared_ptr<const messages::PickleStep>& pickleStep) const
+    auto Query::FindStepBy(const std::shared_ptr<const messages::PickleStep>& pickleStep) const -> std::optional<std::shared_ptr<const messages::Step>>
     {
         const auto stepId = pickleStep->astNodeIds.front();
 
@@ -453,7 +454,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::vector<std::shared_ptr<const messages::StepDefinition>> Query::FindStepDefinitionsBy(const std::shared_ptr<const messages::TestStep>& testStep) const
+    auto Query::FindStepDefinitionsBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::vector<std::shared_ptr<const messages::StepDefinition>>
     {
         std::vector<std::shared_ptr<const messages::StepDefinition>> result;
 
@@ -471,7 +472,7 @@ namespace cucumber::query
         return result;
     }
 
-    std::vector<std::shared_ptr<const messages::Suggestion>> Query::FindSuggestionsBy(const std::shared_ptr<const messages::PickleStep>& element) const
+    auto Query::FindSuggestionsBy(const std::shared_ptr<const messages::PickleStep>& element) const -> std::vector<std::shared_ptr<const messages::Suggestion>>
     {
         if (suggestionsByPickleStepId.find(element->id) != suggestionsByPickleStepId.end())
         {
@@ -481,7 +482,7 @@ namespace cucumber::query
         return {};
     }
 
-    std::vector<std::shared_ptr<const messages::Suggestion>> Query::FindSuggestionsBy(const std::shared_ptr<const messages::Pickle>& element) const
+    auto Query::FindSuggestionsBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::vector<std::shared_ptr<const messages::Suggestion>>
     {
         std::vector<std::shared_ptr<const messages::Suggestion>> result;
         for (const auto& pickleStep : element->steps)
@@ -492,7 +493,7 @@ namespace cucumber::query
         return result;
     }
 
-    std::optional<std::shared_ptr<const messages::StepDefinition>> Query::FindUnambiguousStepDefinitionBy(const std::shared_ptr<const messages::TestStep>& testStep) const
+    auto Query::FindUnambiguousStepDefinitionBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::optional<std::shared_ptr<const messages::StepDefinition>>
     {
         if (testStep->stepDefinitionIds.has_value() && testStep->stepDefinitionIds.value().size() == 1)
         {
@@ -505,9 +506,9 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::TestCase>> Query::FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>,
-        std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>>
-            element) const
+    auto Query::FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>,
+        std::shared_ptr<const messages::TestStepFinished>>
+            element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
     {
         const auto testCaseStarted = std::visit(
             overloaded{
@@ -530,7 +531,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::Duration>> Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const
+    auto Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::Duration>>
     {
         const auto& testCaseFinished = FindTestCaseFinishedBy(element);
         if (testCaseFinished.has_value())
@@ -540,7 +541,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::Duration>> Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const
+    auto Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::Duration>>
     {
         const auto testCaseStarted = FindTestCaseStartedBy(element);
 
@@ -552,8 +553,9 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::TestCaseStarted>> Query::FindTestCaseStartedBy(
+    auto Query::FindTestCaseStartedBy(
         std::variant<std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
+        -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
     {
         return std::visit(
             [this](const auto& item) -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
@@ -568,7 +570,7 @@ namespace cucumber::query
             element);
     }
 
-    std::optional<std::shared_ptr<const messages::TestCaseFinished>> Query::FindTestCaseFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
+    auto Query::FindTestCaseFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::optional<std::shared_ptr<const messages::TestCaseFinished>>
     {
         if (testCaseFinishedByTestCaseStartedId.find(testCaseStarted->id) != testCaseFinishedByTestCaseStartedId.end())
         {
@@ -577,7 +579,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::TestRunHookStarted>> Query::FindTestRunHookStartedBy(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const
+    auto Query::FindTestRunHookStartedBy(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const -> std::optional<std::shared_ptr<const messages::TestRunHookStarted>>
     {
         const auto iter = testRunHookStartedById.find(testRunHookFinished->testRunHookStartedId);
         if (iter != testRunHookStartedById.end())
@@ -587,7 +589,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::TestRunHookFinished>> Query::FindTestRunHookFinishedBy(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) const
+    auto Query::FindTestRunHookFinishedBy(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) const -> std::optional<std::shared_ptr<const messages::TestRunHookFinished>>
     {
         if (testRunHookFinishedByTestRunHookStartedId.find(testRunHookStarted->id) != testRunHookFinishedByTestRunHookStartedId.end())
         {
@@ -596,7 +598,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::Duration>> Query::FindTestRunDuration() const
+    auto Query::FindTestRunDuration() const -> std::optional<std::shared_ptr<const messages::Duration>>
     {
         if (testRunStarted.has_value() && testRunFinished.has_value())
         {
@@ -606,18 +608,18 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    std::optional<std::shared_ptr<const messages::TestRunFinished>> Query::FindTestRunFinished() const
+    auto Query::FindTestRunFinished() const -> std::optional<std::shared_ptr<const messages::TestRunFinished>>
     {
         return testRunFinished;
     }
 
-    std::optional<std::shared_ptr<const messages::TestRunStarted>> Query::FindTestRunStarted() const
+    auto Query::FindTestRunStarted() const -> std::optional<std::shared_ptr<const messages::TestRunStarted>>
     {
         return testRunStarted;
     }
 
-    std::optional<std::shared_ptr<const messages::TestStep>> Query::FindTestStepBy(
-        std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
+    auto Query::FindTestStepBy(std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const
+        -> std::optional<std::shared_ptr<const messages::TestStep>>
     {
         try
         {
@@ -634,7 +636,7 @@ namespace cucumber::query
         }
     }
 
-    std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
+    auto Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
     {
         if (testStepStartedByTestCaseStartedId.find(testCaseStarted->id) != testStepStartedByTestCaseStartedId.end())
         {
@@ -643,7 +645,7 @@ namespace cucumber::query
         return {};
     }
 
-    std::vector<std::shared_ptr<const messages::TestStepStarted>> Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& testCaseFinished) const
+    auto Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& testCaseFinished) const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
     {
         if (testStepStartedByTestCaseStartedId.find(testCaseFinished->testCaseStartedId) != testStepStartedByTestCaseStartedId.end())
         {
@@ -652,8 +654,8 @@ namespace cucumber::query
         return {};
     }
 
-    std::vector<std::shared_ptr<const messages::TestStepFinished>> Query::FindTestStepsFinishedBy(
-        std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
+    auto Query::FindTestStepsFinishedBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
+        -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
     {
         const auto& optionalTestCaseStarted = std::visit(overloaded{ [this](const std::shared_ptr<const messages::TestCaseFinished>& element)
                                                              {
@@ -673,8 +675,8 @@ namespace cucumber::query
         return {};
     }
 
-    std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> Query::FindTestStepFinishedAndTestStepBy(
-        const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
+    auto Query::FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
+        -> std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>>
     {
         std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> result;
         const auto testStepsFinishedIter = testStepFinishedByTestCaseStartedId.find(testCaseStarted->id);
@@ -718,7 +720,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    void Query::UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument)
+    auto Query::UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument) -> void
     {
         if (gherkinDocument->feature.has_value())
         {
@@ -726,7 +728,7 @@ namespace cucumber::query
         }
     }
 
-    void Query::UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, const std::shared_ptr<Lineage>& lineage)
+    auto Query::UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, const std::shared_ptr<Lineage>& lineage) -> void
     {
         for (const auto& featureChild : feature->children)
         {
@@ -748,7 +750,7 @@ namespace cucumber::query
         }
     }
 
-    void Query::UpdateRule(const std::shared_ptr<const messages::Rule>& rule, const std::shared_ptr<Lineage>& lineage)
+    auto Query::UpdateRule(const std::shared_ptr<const messages::Rule>& rule, const std::shared_ptr<Lineage>& lineage) -> void
     {
         for (const auto& ruleChild : rule->children)
         {
@@ -765,7 +767,7 @@ namespace cucumber::query
         }
     }
 
-    void Query::UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, const std::shared_ptr<Lineage>& lineage)
+    auto Query::UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, const std::shared_ptr<Lineage>& lineage) -> void
     {
         lineageById[scenario->id] = std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario });
 
@@ -786,7 +788,7 @@ namespace cucumber::query
         UpdateSteps(scenario->steps);
     }
 
-    void Query::UpdateSteps(const std::vector<std::shared_ptr<messages::Step>>& steps)
+    auto Query::UpdateSteps(const std::vector<std::shared_ptr<messages::Step>>& steps) -> void
     {
         for (const auto& step : steps)
         {
@@ -794,7 +796,7 @@ namespace cucumber::query
         }
     }
 
-    void Query::UpdatePickle(std::shared_ptr<const messages::Pickle> pickle)
+    auto Query::UpdatePickle(std::shared_ptr<const messages::Pickle> pickle) -> void
     {
         auto&& entry = pickleById[pickle->id] = std::move(pickle);
         for (const auto& pickleStep : entry->steps)
@@ -803,21 +805,17 @@ namespace cucumber::query
         }
     }
 
-    void Query::UpdateTestRunHookStarted(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted)
+    auto Query::UpdateTestRunHookStarted(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) -> void
     {
         testRunHookStartedById[testRunHookStarted->id] = testRunHookStarted;
     }
 
-    void Query::UpdateTestRunHookFinished(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished)
+    auto Query::UpdateTestRunHookFinished(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) -> void
     {
         testRunHookFinishedByTestRunHookStartedId[testRunHookFinished->testRunHookStartedId] = testRunHookFinished;
     }
 
-    /////////////////////////////
-    /////////////////////////////
-    /////////////////////////////
-
-    void Query::UpdateTestCase(std::shared_ptr<const messages::TestCase> testCase)
+    auto Query::UpdateTestCase(std::shared_ptr<const messages::TestCase> testCase) -> void
     {
         for (const auto& testStep : testCase->testSteps)
         {
@@ -826,14 +824,12 @@ namespace cucumber::query
         testCaseById[testCase->id] = std::move(testCase);
     }
 
-    void Query::UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted)
+    auto Query::UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted) -> void
     {
         testCaseStartedById[testCaseStarted->id] = std::move(testCaseStarted);
     }
 
-    /////////////////////////////
-
-    void Query::UpdateAttachment(const std::shared_ptr<const messages::Attachment>& attachment)
+    auto Query::UpdateAttachment(const std::shared_ptr<const messages::Attachment>& attachment) -> void
     {
         if (attachment->testCaseStartedId.has_value())
         {
@@ -845,18 +841,13 @@ namespace cucumber::query
         }
     }
 
-    void Query::UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished)
+    auto Query::UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished) -> void
     {
         testStepFinishedByTestCaseStartedId[testStepFinished->testCaseStartedId].push_back(std::move(testStepFinished));
     }
 
-    void Query::UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished)
+    auto Query::UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished) -> void
     {
         testCaseFinishedByTestCaseStartedId[testCaseFinished->testCaseStartedId] = std::move(testCaseFinished);
     }
-
-    /////////////////////////////
-    /////////////////////////////
-    /////////////////////////////
-    /////////////////////////////
 }
