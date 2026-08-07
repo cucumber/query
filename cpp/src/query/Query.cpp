@@ -332,11 +332,11 @@ namespace cucumber::query
     auto Query::FindHookBy(const std::shared_ptr<const messages::TestRunHookFinished>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>
     {
         const auto testRunHookStarted = FindTestRunHookStartedBy(element);
-        if (!testRunHookStarted.has_value())
+        if (testRunHookStarted.has_value())
         {
-            throw std::out_of_range{ "Expected to find TestRunHookStarted from TestRunHookFinished" };
+            return FindHookBy(testRunHookStarted.value());
         }
-        return FindHookBy(testRunHookStarted.value());
+        return std::nullopt;
     }
 
     auto Query::FindMeta() const -> std::optional<std::shared_ptr<const messages::Meta>>
@@ -714,11 +714,10 @@ namespace cucumber::query
             for (const auto& testStepFinished : testStepsFinishedIter->second)
             {
                 const auto& testStep = FindTestStepBy(testStepFinished);
-                if (!testStep)
+                if (testStep.has_value())
                 {
-                    throw std::out_of_range{ "Expected to find TestStep by TestStepFinished" };
+                    result.emplace_back(testStepFinished, *testStep);
                 }
-                result.emplace_back(testStepFinished, *testStep);
             }
         }
         return result;
