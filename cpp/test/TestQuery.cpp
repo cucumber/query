@@ -588,6 +588,35 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindTestStepsFinishedBy(const query::Query& query)
+        {
+
+            const auto findTestStepsFinishedBy = [&](const auto& items)
+            {
+                auto actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    auto& nested = actual.emplace_back(nlohmann::json::array());
+                    const auto& testStepsFinished = query.FindTestStepsFinishedBy(item);
+
+                    for (const auto& testStepFinished : testStepsFinished)
+                    {
+                        nested.push_back(testStepFinished->testStepId);
+                    }
+                }
+
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseStarted"] = findTestStepsFinishedBy(query.FindAllTestCaseStarted());
+            actual["testCaseFinished"] = findTestStepsFinishedBy(query.FindAllTestCaseFinished());
+
+            return actual;
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -627,6 +656,7 @@ namespace cucumber::query
             { "findTestRunStarted", FindTestRunStarted },
             { "findTestStepBy", FindTestStepBy },
             { "findTestStepFinishedAndTestStepBy", FindTestStepFinishedAndTestStepBy },
+            { "findTestStepsFinishedBy", FindTestStepsFinishedBy },
         };
 
         struct AcceptanceTest : testing::Test
