@@ -337,6 +337,11 @@ namespace cucumber::query
             element);
     }
 
+    std::optional<std::shared_ptr<const messages::Meta>> Query::FindMeta() const
+    {
+        return meta;
+    }
+
     std::optional<std::shared_ptr<const messages::Location>> Query::FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const
     {
         if (pickle->location.has_value())

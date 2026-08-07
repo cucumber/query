@@ -241,6 +241,18 @@ namespace cucumber::query
             return actual;
         }
 
+        nlohmann::json FindMeta(const query::Query& query)
+        {
+            const auto meta = query.FindMeta();
+
+            if (meta.has_value())
+            {
+                return meta.value()->implementation->name;
+            }
+
+            return {};
+        }
+
         const std::unordered_map<std::string_view, nlohmann::json (*)(const query::Query&)> functionMap{
             { "countMostSevereTestStepResultStatus", CountMostSevereTestStepResultStatus },
             { "countTestCasesStarted", CountTestCasesStarted },
@@ -262,6 +274,7 @@ namespace cucumber::query
             { "findHookBy", FindHookBy },
             { "findLineageBy", FindLineageBy },
             { "findLocationOf", FindLocationOf },
+            { "findMeta", FindMeta },
         };
 
         struct AcceptanceTest : testing::Test

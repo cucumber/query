@@ -76,50 +76,50 @@ namespace cucumber::query
         [[nodiscard]] std::optional<std::shared_ptr<const messages::Hook>> FindHookBy(
             std::variant<std::shared_ptr<const messages::TestStep>, std::shared_ptr<const messages::TestRunHookStarted>, std::shared_ptr<const messages::TestRunHookFinished>> element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Meta>> FindMeta()
+        [[nodiscard]] std::optional<std::shared_ptr<const messages::Meta>> FindMeta() const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStepResult>> FindMostSevereTestStepResultBy(TestCaseStarted | TestCaseFinished &element)
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStepResult>> FindMostSevereTestStepResultBy(TestCaseStarted | TestCaseFinished &element) const
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::Location>> FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const;
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::Pickle>> FindPickleBy(
             std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>> element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::PickleStep>> FindPickleStepBy(TestStep &testStep)
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::PickleStep>> FindPickleStepBy(TestStep &testStep) const
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Step>> FindStepBy(PickleStep &pickleStep)
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Step>> FindStepBy(PickleStep &pickleStep) const
 
-        // [[nodiscard]] std::vector<std::shared_ptr<const messages::StepDefinition>> FindStepDefinitionsBy(TestStep) const &testStep;
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::StepDefinition>> FindStepDefinitionsBy(TestStep) const &testStep
 
-        // [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> findSuggestionsBy(PickleStep | Pickle) const &element;
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::Suggestion>> findSuggestionsBy(PickleStep | Pickle) const &element
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::StepDefinition>> FindUnambiguousStepDefinitionBy(TestStep &testStep)
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::StepDefinition>> FindUnambiguousStepDefinitionBy(TestStep &testStep) const
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCase>> FindTestCaseBy(std::variant<std::shared_ptr<const messages::TestCaseStarted>,
             std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestCaseDurationBy(TestCaseStarted | TestCaseFinished &element)
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestCaseDurationBy(TestCaseStarted | TestCaseFinished &element) const
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCaseStarted>> FindTestCaseStartedBy(
             std::variant<std::shared_ptr<const messages::TestCaseFinished>, std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCaseFinished>> FindTestCaseFinishedBy(TestCaseStarted &testCaseStarted)
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestCaseFinished>> FindTestCaseFinishedBy(TestCaseStarted &testCaseStarted) const
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunHookStarted>> FindTestRunHookStartedBy(
             const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunHookFinished>> FindTestRunHookFinishedBy(TestRunHookStarted &testRunHookStarted)
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunHookFinished>> FindTestRunHookFinishedBy(TestRunHookStarted &testRunHookStarted) const
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestRunDuration()
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Duration>> FindTestRunDuration() const
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunFinished>> FindTestRunFinished()
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunFinished>> FindTestRunFinished() const
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunStarted>> FindTestRunStarted()
+        // [[nodiscard]] std::optional<std::shared_ptr<const messages::TestRunStarted>> FindTestRunStarted() const
 
         [[nodiscard]] std::optional<std::shared_ptr<const messages::TestStep>> FindTestStepBy(
             std::variant<std::shared_ptr<const messages::TestStepStarted>, std::shared_ptr<const messages::TestStepFinished>> element) const;
 
-        // [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStepStarted>> FindTestStepsStartedBy(TestCaseStarted | TestCaseFinished) const &element;
+        // [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStepStarted>> FindTestStepsStartedBy(TestCaseStarted | TestCaseFinished) const &element
 
         [[nodiscard]] std::vector<std::shared_ptr<const messages::TestStepFinished>> FindTestStepsFinishedBy(
             std::variant<std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const;
@@ -130,7 +130,7 @@ namespace cucumber::query
         [[nodiscard]] std::optional<LineageAndPickle> FindLineageBy(
             std::variant<std::shared_ptr<const messages::Pickle>, std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const;
 
-        // [[nodiscard]] std::size_t CountTestCasesStarted() const; const;
+        // [[nodiscard]] std::size_t CountTestCasesStarted() const
 
     private:
         void UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument);
@@ -156,7 +156,7 @@ namespace cucumber::query
         /////////////
         /////////////
 
-        std::shared_ptr<const messages::Meta> meta;
+        std::optional<std::shared_ptr<const messages::Meta>> meta;
 
         //   private testRunStarted: TestRunStarted
         //   private testRunFinished: TestRunFinished
