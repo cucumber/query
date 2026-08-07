@@ -4,6 +4,7 @@
 #include "cucumber/messages/Pickle.hpp"
 #include "cucumber/query/Lineage.hpp"
 #include <cstdint>
+#include <memory>
 #include <string>
 
 namespace cucumber::query

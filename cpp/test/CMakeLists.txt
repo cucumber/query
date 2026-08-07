@@ -9,7 +9,7 @@ target_sources(cucumber_query_lib.test
 target_link_libraries(cucumber_query_lib.test
     PRIVATE
         cucumber::query
-        GTest::gmock
+        GTest::gmock_main
 )
 
 target_compile_definitions(cucumber_query_lib.test
