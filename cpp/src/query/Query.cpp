@@ -1,6 +1,7 @@
 #include "cucumber/query/Query.hpp"
 #include "cucumber/messages/All.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
+#include "cucumber/query/Lineage.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
@@ -74,22 +75,6 @@ namespace cucumber::query
         // explicit deduction guide (not needed as of C++20)
         template<class... Ts>
         overloaded(Ts...) -> overloaded<Ts...>;
-    }
-
-    Lineage Lineage::operator+(const Lineage& other) const
-    {
-        Lineage combined;
-        combined.gherkinDocument = other.gherkinDocument ? other.gherkinDocument : gherkinDocument;
-        combined.feature = other.feature ? other.feature : feature;
-        combined.background = other.background ? other.background : background;
-        combined.rule = other.rule ? other.rule : rule;
-        combined.ruleBackground = other.ruleBackground ? other.ruleBackground : ruleBackground;
-        combined.scenario = other.scenario ? other.scenario : scenario;
-        combined.examples = other.examples ? other.examples : examples;
-        combined.examplesIndex = (other.examplesIndex != 0) ? other.examplesIndex : examplesIndex;
-        combined.example = other.example ? other.example : example;
-        combined.exampleIndex = (other.exampleIndex != 0) ? other.exampleIndex : exampleIndex;
-        return combined;
     }
 
     void Query::Update(const cucumber::messages::Envelope& envelope)
@@ -485,22 +470,39 @@ namespace cucumber::query
         return result;
     }
 
-    /////////////////////////////
-    /////////////////////////////
-    /////////////////////////////
-    /////////////////////////////
-    /////////////////////////////
-    /////////////////////////////
+    auto Query::FindLineageBy(std::variant<std::shared_ptr<const messages::Pickle>, std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const
+        -> std::optional<LineageAndPickle>
+    {
+        const auto pickle = std::visit(
+            overloaded{
+                [](const std::shared_ptr<const messages::Pickle>& pickle)
+                {
+                    return std::make_optional(pickle);
+                },
+                [this](const auto& element)
+                {
+                    return FindPickleBy(element);
+                },
+            },
+            element);
+
+        if (pickle.has_value())
+        {
+            return LineageAndPickle{ lineageById.at(pickle.value()->astNodeIds.back()), pickle.value() };
+        }
+
+        return std::nullopt;
+    }
 
     void Query::UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument)
     {
         if (gherkinDocument->feature.has_value())
         {
-            UpdateFeature(gherkinDocument->feature.value(), std::make_unique<Lineage>(Lineage{ gherkinDocument }));
+            UpdateFeature(gherkinDocument->feature.value(), std::make_shared<Lineage>(Lineage{ gherkinDocument }));
         }
     }
 
-    void Query::UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, std::unique_ptr<Lineage> lineage)
+    void Query::UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, const std::shared_ptr<Lineage>& lineage)
     {
         for (const auto& featureChild : feature->children)
         {
@@ -512,17 +514,17 @@ namespace cucumber::query
 
             if (featureChild->scenario.has_value())
             {
-                UpdateScenario(featureChild->scenario.value(), std::make_unique<Lineage>(*lineage + Lineage{ {}, feature }));
+                UpdateScenario(featureChild->scenario.value(), std::make_shared<Lineage>(*lineage + Lineage{ {}, feature }));
             }
 
             if (featureChild->rule.has_value())
             {
-                UpdateRule(featureChild->rule.value(), std::make_unique<Lineage>(*lineage + Lineage{ {}, feature }));
+                UpdateRule(featureChild->rule.value(), std::make_shared<Lineage>(*lineage + Lineage{ {}, feature }));
             }
         }
     }
 
-    void Query::UpdateRule(const std::shared_ptr<const messages::Rule>& rule, std::unique_ptr<Lineage> lineage)
+    void Query::UpdateRule(const std::shared_ptr<const messages::Rule>& rule, const std::shared_ptr<Lineage>& lineage)
     {
         for (const auto& ruleChild : rule->children)
         {
@@ -534,24 +536,24 @@ namespace cucumber::query
 
             if (ruleChild->scenario.has_value())
             {
-                UpdateScenario(ruleChild->scenario.value(), std::make_unique<Lineage>(*lineage + Lineage{ {}, {}, {}, rule }));
+                UpdateScenario(ruleChild->scenario.value(), std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, rule }));
             }
         }
     }
 
-    void Query::UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, std::unique_ptr<Lineage> lineage)
+    void Query::UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, const std::shared_ptr<Lineage>& lineage)
     {
-        lineageById[scenario->id] = std::make_unique<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario });
+        lineageById[scenario->id] = std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario });
 
         std::size_t examplesIndex = 0;
         for (const auto& examples : scenario->examples)
         {
-            lineageById[examples->id] = std::make_unique<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario, examples, examplesIndex });
+            lineageById[examples->id] = std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario, examples, examplesIndex });
 
             std::size_t exampleIndex = 0;
             for (const auto& example : examples->tableBody)
             {
-                lineageById[example->id] = std::make_unique<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario, examples, examplesIndex, example, exampleIndex });
+                lineageById[example->id] = std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario, examples, examplesIndex, example, exampleIndex });
                 ++exampleIndex;
             }
             ++examplesIndex;

@@ -1,5 +1,6 @@
 #include "cucumber/messages/All.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
+#include "cucumber/query/NamingStrategy.hpp"
 #include "cucumber/query/Query.hpp"
 #include "nlohmann/json.hpp"
 #include "nlohmann/json_fwd.hpp"
@@ -170,9 +171,7 @@ namespace cucumber::query
 
         nlohmann::json FindHookBy(const query::Query& query)
         {
-            nlohmann::json actual;
-
-            auto findHookBy = [&actual, &query](const auto& testSteps)
+            const auto findHookBy = [&query](const auto& testSteps)
             {
                 nlohmann::json actual = nlohmann::json::array();
 
@@ -188,9 +187,40 @@ namespace cucumber::query
                 return actual;
             };
 
+            nlohmann::json actual;
+
             actual["testStep"] = findHookBy(query.FindAllTestSteps());
             actual["testRunHookStarted"] = findHookBy(query.FindAllTestRunHookStarted());
             actual["testRunHookFinished"] = findHookBy(query.FindAllTestRunHookFinished());
+
+            return actual;
+        }
+
+        nlohmann::json FindLineageBy(const query::Query& query)
+        {
+            const auto namingStrategy = CreateNamingStrategy(NamingStrategyLength::longName, NamingStrategyFeatureName::include, NamingStrategyExampleName::number);
+
+            const auto findLineageBy = [&namingStrategy, &query](const auto& items)
+            {
+                nlohmann::json actual = nlohmann::json::array();
+
+                for (const auto& item : items)
+                {
+                    const auto& lineageAndPickle = query.FindLineageBy(item);
+                    if (lineageAndPickle.has_value())
+                    {
+                        actual.push_back(namingStrategy->Reduce(*lineageAndPickle.value().lineage, *lineageAndPickle.value().pickle));
+                    }
+                }
+
+                return actual;
+            };
+
+            nlohmann::json actual;
+
+            actual["testCaseStarted"] = findLineageBy(query.FindAllTestCaseStarted());
+            actual["testCaseFinished"] = findLineageBy(query.FindAllTestCaseFinished());
+            actual["pickle"] = findLineageBy(query.FindAllPickles());
 
             return actual;
         }
@@ -214,6 +244,7 @@ namespace cucumber::query
             { "findAllUndefinedParameterTypes", FindAllUndefinedParameterTypes },
             { "findAttachmentsBy", FindAttachmentsBy },
             { "findHookBy", FindHookBy },
+            { "findLineageBy", FindLineageBy },
         };
 
         struct AcceptanceTest : testing::Test

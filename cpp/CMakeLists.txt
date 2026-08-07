@@ -61,8 +61,12 @@ add_library(cucumber::query ALIAS cucumber_query_lib)
 target_sources(
     cucumber_query_lib
     PRIVATE
+        include/cucumber/query/Lineage.hpp
         include/cucumber/query/Query.hpp
+        src/query/Lineage.cpp
         src/query/Query.cpp
+        include/cucumber/query/NamingStrategy.hpp
+        src/query/NamingStrategy.cpp
 )
 
 target_include_directories(

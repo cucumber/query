@@ -11,6 +11,7 @@
 #include "cucumber/messages/TestCaseStarted.hpp"
 #include "cucumber/messages/TestStepFinished.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
+#include "cucumber/query/Lineage.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -24,20 +25,10 @@
 
 namespace cucumber::query
 {
-    struct Lineage
+    struct LineageAndPickle
     {
-        std::shared_ptr<const messages::GherkinDocument> gherkinDocument;
-        std::shared_ptr<const messages::Feature> feature;
-        std::shared_ptr<const messages::Background> background;
-        std::shared_ptr<const messages::Rule> rule;
-        std::shared_ptr<const messages::Background> ruleBackground;
-        std::shared_ptr<const messages::Scenario> scenario;
-        std::shared_ptr<const messages::Examples> examples;
-        std::size_t examplesIndex;
-        std::shared_ptr<const messages::TableRow> example;
-        std::size_t exampleIndex;
-
-        Lineage operator+(const Lineage& other) const;
+        std::shared_ptr<const Lineage> lineage;
+        std::shared_ptr<const messages::Pickle> pickle;
     };
 
     class Query
@@ -136,15 +127,16 @@ namespace cucumber::query
         [[nodiscard]] std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> FindTestStepFinishedAndTestStepBy(
             const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const;
 
-        // [[nodiscard]] std::optional<std::shared_ptr<const messages::Lineage>> FindLineageBy(Pickle | TestCaseStarted | TestCaseFinished &element)
+        [[nodiscard]] std::optional<LineageAndPickle> FindLineageBy(
+            std::variant<std::shared_ptr<const messages::Pickle>, std::shared_ptr<const messages::TestCaseStarted>, std::shared_ptr<const messages::TestCaseFinished>> element) const;
 
         // [[nodiscard]] std::size_t CountTestCasesStarted() const; const;
 
     private:
         void UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument);
-        void UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, std::unique_ptr<Lineage> lineage);
-        void UpdateRule(const std::shared_ptr<const messages::Rule>& rule, std::unique_ptr<Lineage> lineage);
-        void UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, std::unique_ptr<Lineage> lineage);
+        void UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, const std::shared_ptr<Lineage>& lineage);
+        void UpdateRule(const std::shared_ptr<const messages::Rule>& rule, const std::shared_ptr<Lineage>& lineage);
+        void UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, const std::shared_ptr<Lineage>& lineage);
         void UpdateSteps(const std::vector<std::shared_ptr<messages::Step>>& steps);
         void UpdatePickle(std::shared_ptr<const messages::Pickle> pickle);
         void UpdateTestRunHookStarted(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted);
@@ -169,7 +161,7 @@ namespace cucumber::query
         //   private testRunStarted: TestRunStarted
         //   private testRunFinished: TestRunFinished
         std::unordered_map<std::string, std::shared_ptr<const messages::TestCaseStarted>> testCaseStartedById;
-        std::unordered_map<std::string, std::unique_ptr<const Lineage>> lineageById;
+        std::unordered_map<std::string, std::shared_ptr<const Lineage>> lineageById;
         std::unordered_map<std::string, std::shared_ptr<const messages::Step>> stepById;
         std::unordered_map<std::string, std::shared_ptr<const messages::Pickle>> pickleById;
         std::unordered_map<std::string, std::shared_ptr<const messages::PickleStep>> pickleStepById;
