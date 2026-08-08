@@ -18,4 +18,4 @@ target_compile_definitions(cucumber_query_lib.test
 )
 
 include(GoogleTest)
-gtest_discover_tests(cucumber_query_lib.test)
+gtest_discover_tests(cucumber_query_lib.test DISCOVERY_MODE PRE_TEST)
