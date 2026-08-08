@@ -1,0 +1,157 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21
+    },
+    "configurePresets": [
+        {
+            "name": "host",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "On",
+                "CUCUMBER_QUERY_FETCH_DEPS": "On",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "test-base",
+            "inherits": "host",
+            "hidden": true,
+            "cacheVariables": {
+                "CUCUMBER_QUERY_BUILD_TESTS": "On"
+            }
+        },
+        {
+            "name": "test",
+            "inherits": "test-base",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_ENABLE_SANITIZERS": "On"
+            }
+        },
+        {
+            "name": "tidy",
+            "inherits": "test-base",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_ENABLE_CLANG_TIDY": "On"
+            }
+        },
+        {
+            "name": "coverage",
+            "inherits": "test-base",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_ENABLE_COVERAGE": "On"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "host",
+            "configurePreset": "host"
+        },
+        {
+            "name": "test",
+            "configurePreset": "test"
+        },
+        {
+            "name": "tidy",
+            "configurePreset": "tidy"
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage"
+        },
+        {
+            "name": "coverage-report",
+            "configurePreset": "coverage",
+            "targets": [
+                "generate-lcov-report"
+            ]
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "test",
+            "configurePreset": "test",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "jobs": 8
+            }
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage",
+            "inherits": "test"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "host",
+            "steps": [
+                {
+                    "name": "host",
+                    "type": "configure"
+                },
+                {
+                    "name": "host",
+                    "type": "build"
+                }
+            ]
+        },
+        {
+            "name": "test",
+            "steps": [
+                {
+                    "name": "test",
+                    "type": "configure"
+                },
+                {
+                    "name": "test",
+                    "type": "build"
+                },
+                {
+                    "name": "test",
+                    "type": "test"
+                }
+            ]
+        },
+        {
+            "name": "tidy",
+            "steps": [
+                {
+                    "name": "tidy",
+                    "type": "configure"
+                },
+                {
+                    "name": "tidy",
+                    "type": "build"
+                }
+            ]
+        },
+        {
+            "name": "coverage",
+            "steps": [
+                {
+                    "name": "coverage",
+                    "type": "configure"
+                },
+                {
+                    "name": "coverage",
+                    "type": "build"
+                },
+                {
+                    "name": "coverage",
+                    "type": "test"
+                },
+                {
+                    "name": "coverage-report",
+                    "type": "build"
+                }
+            ]
+        }
+    ]
+}
