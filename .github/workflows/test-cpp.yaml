@@ -1,0 +1,152 @@
+name: test-cpp
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - main
+      - renovate/**
+    paths:
+      - cpp/**
+      - testdata/**
+      - .github/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - cpp/**
+      - testdata/**
+      - .github/**
+
+env:
+  CCACHE_BASEDIR: ${{ github.workspace }}
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CPM_SOURCE_CACHE: ${{ github.workspace }}/.cpm
+
+jobs:
+  test-cpp:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-24.04, cxx: g++, version: 12 }
+          - { os: ubuntu-24.04, cxx: g++, version: 13 }
+          - { os: ubuntu-24.04, cxx: clang++, version: 16 }
+          - { os: ubuntu-24.04, cxx: clang++, version: 17 }
+          - { os: ubuntu-26.04, cxx: g++, version: 14 }
+          - { os: ubuntu-26.04, cxx: g++, version: 15 }
+          - { os: ubuntu-26.04, cxx: clang++, version: 21 }
+          - { os: ubuntu-26.04, cxx: clang++, version: 22 }
+          - { os: macos-latest, cxx: clang++, version: 17 }
+          - { os: windows-latest, cxx: cl }
+
+    runs-on: ${{ matrix.config.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+        if: startsWith(matrix.config.os, 'windows')
+
+      - name: Install build tools (ubuntu)
+        if: startsWith(matrix.config.os, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache
+
+      - name: Install build tools (macos)
+        if: startsWith(matrix.config.os, 'macos')
+        run: brew install ccache llvm@${{ matrix.config.version }}
+
+      - name: Cache CPM packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CPM_SOURCE_CACHE }}
+          key: cpm-${{ hashFiles('cpp/cmake/dependencies.cpm.cmake') }}
+
+      - name: Cache ccache
+        if: "!startsWith(matrix.config.os, 'windows')"
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.job }}-${{ matrix.config.os }}-${{ matrix.config.cxx }}-${{ matrix.config.version }}-${{ github.ref }}
+          restore-keys: ccache-${{ github.job }}-${{ matrix.config.os }}-${{ matrix.config.cxx }}-${{ matrix.config.version }}-
+
+      - name: Set CXX (ubuntu)
+        if: startsWith(matrix.config.os, 'ubuntu')
+        run: echo "CXX=${{ matrix.config.cxx }}-${{ matrix.config.version }}" >> $GITHUB_ENV
+
+      - name: Set CXX (macos)
+        if: startsWith(matrix.config.os, 'macos')
+        run: echo "CXX=$(brew --prefix llvm@${{ matrix.config.version }})/bin/clang++" >> $GITHUB_ENV
+
+      - name: Test
+        working-directory: cpp
+        run: cmake --workflow test
+
+  test-cpp-coverage:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache gcovr
+          gcovr --version
+
+      - name: Cache CPM packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CPM_SOURCE_CACHE }}
+          key: cpm-${{ hashFiles('cpp/cmake/dependencies.cpm.cmake') }}
+
+      - name: Cache ccache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.job }}-${{ github.ref }}
+          restore-keys: ccache-${{ github.job }}-
+
+      - name: Coverage
+        working-directory: cpp
+        run: cmake --workflow coverage
+
+      - name: Show coverage summary
+        working-directory: cpp
+        run: cat build/coverage/coverage-summary.md
+
+  test-cpp-lint:
+    runs-on: ubuntu-26.04
+    env:
+      CXX: clang++
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache clang clang-tidy
+
+      - name: Cache CPM packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CPM_SOURCE_CACHE }}
+          key: cpm-${{ hashFiles('cpp/cmake/dependencies.cpm.cmake') }}
+
+      - name: Cache ccache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.job }}-${{ github.ref }}
+          restore-keys: ccache-${{ github.job }}-
+
+      - name: Lint
+        working-directory: cpp
+        run: cmake --workflow tidy

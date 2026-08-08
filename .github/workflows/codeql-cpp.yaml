@@ -1,0 +1,74 @@
+name: codeql-cpp
+
+permissions: {}
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - cpp/**
+      - testdata/**
+      - .github/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - cpp/**
+      - testdata/**
+      - .github/**
+  schedule:
+    - cron: '48 5 * * 0'
+
+concurrency:
+  # Cancels in-progress runs only for pull requests
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    env:
+      CCACHE_BASEDIR: ${{ github.workspace }}
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cpm
+
+    name: Analyze C++
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache
+
+      - name: Cache CPM packages
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CPM_SOURCE_CACHE }}
+          key: cpm-${{ hashFiles('cpp/cmake/dependencies.cpm.cmake') }}
+
+      - name: Cache ccache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.job }}-${{ github.ref }}
+          restore-keys: ccache-${{ github.job }}-
+
+      - uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        with:
+          languages: c-cpp
+          build-mode: manual
+          tools: linked
+
+      - name: Configure
+        working-directory: cpp
+        run: cmake --workflow host
+
+      - uses: github/codeql-action/analyze@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        with:
+          category: "/language:cpp"
