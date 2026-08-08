@@ -101,7 +101,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ccache
-          python -m pip install gcovr==8.2
+          python -m pip install gcovr==8.6
           gcovr --version
 
       - name: Cache CPM packages
