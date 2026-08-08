@@ -16,22 +16,30 @@
             }
         },
         {
-            "name": "test",
+            "name": "test-base",
             "inherits": "host",
+            "hidden": true,
             "cacheVariables": {
                 "CUCUMBER_QUERY_BUILD_TESTS": "On"
             }
         },
         {
+            "name": "test",
+            "inherits": "test-base",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_ENABLE_SANITIZERS": "On"
+            }
+        },
+        {
             "name": "tidy",
-            "inherits": "test",
+            "inherits": "test-base",
             "cacheVariables": {
                 "CUCUMBER_QUERY_ENABLE_CLANG_TIDY": "On"
             }
         },
         {
             "name": "coverage",
-            "inherits": "test",
+            "inherits": "test-base",
             "cacheVariables": {
                 "CUCUMBER_QUERY_ENABLE_COVERAGE": "On"
             }
