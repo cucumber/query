@@ -43,6 +43,7 @@ if(CUCUMBER_QUERY_ENABLE_COVERAGE)
 
     add_custom_target(
         generate-lcov-report
+        COMMAND ${GCOVR_PROGRAM} --version
         COMMAND ${GCOVR_PROGRAM} --root ${CMAKE_CURRENT_SOURCE_DIR} --merge-lines --delete --exclude-unreachable-branches --exclude-throw-branches --exclude-noncode-lines --filter include/ --filter src/
             --txt-summary
             --lcov ${CMAKE_CURRENT_BINARY_DIR}/lcov.info
