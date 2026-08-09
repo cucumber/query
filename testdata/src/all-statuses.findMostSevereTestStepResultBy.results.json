@@ -1,0 +1,18 @@
+{
+  "testCaseStarted" : [
+    "PASSED",
+    "FAILED",
+    "PENDING",
+    "SKIPPED",
+    "UNDEFINED",
+    "AMBIGUOUS"
+  ],
+  "testCaseFinished" : [
+    "PASSED",
+    "FAILED",
+    "PENDING",
+    "SKIPPED",
+    "UNDEFINED",
+    "AMBIGUOUS"
+  ]
+}

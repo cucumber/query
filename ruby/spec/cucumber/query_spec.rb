@@ -111,13 +111,16 @@ RSpec.describe Cucumber::Query do
   }
 
   sources = %w[
+    all-statuses
     attachments
+    backgrounds
     empty
     examples-tables
     global-hooks
     global-hooks-attachments
     hooks
     minimal
+    rules-backgrounds
     rules
     unknown-parameter-type
   ]

@@ -1,0 +1,42 @@
+{
+  "testCaseStarted" : [
+    "one scenario",
+    "another scenario"
+  ],
+  "testCaseFinished" : [
+    "one scenario",
+    "another scenario"
+  ],
+  "testStepStarted" : [
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario"
+  ],
+  "testStepFinished" : [
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "one scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario",
+    "another scenario"
+  ]
+}

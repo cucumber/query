@@ -1,0 +1,58 @@
+{
+  "testCaseStarted" : [
+    "Passing",
+    "Failing",
+    "Pending",
+    "Skipped",
+    "Undefined",
+    "Ambiguous"
+  ],
+  "testCaseFinished" : [
+    "Passing",
+    "Failing",
+    "Pending",
+    "Skipped",
+    "Undefined",
+    "Ambiguous"
+  ],
+  "testStepStarted" : [
+    "Passing",
+    "Passing",
+    "Passing",
+    "Failing",
+    "Failing",
+    "Failing",
+    "Pending",
+    "Pending",
+    "Pending",
+    "Skipped",
+    "Skipped",
+    "Skipped",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Ambiguous",
+    "Ambiguous",
+    "Ambiguous"
+  ],
+  "testStepFinished" : [
+    "Passing",
+    "Passing",
+    "Passing",
+    "Failing",
+    "Failing",
+    "Failing",
+    "Pending",
+    "Pending",
+    "Pending",
+    "Skipped",
+    "Skipped",
+    "Skipped",
+    "Undefined",
+    "Undefined",
+    "Undefined",
+    "Ambiguous",
+    "Ambiguous",
+    "Ambiguous"
+  ]
+}
