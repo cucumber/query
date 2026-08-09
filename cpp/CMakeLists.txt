@@ -125,7 +125,7 @@ target_include_directories(
     cucumber_query_lib
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cucumber>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src/messages
 )
@@ -146,13 +146,47 @@ set_target_properties(
         OUTPUT_NAME cucumber_query
 )
 
-# Installation
-# Installation
-# Installation
-# Installation
-# Installation
-# Installation
-# Installation
+# Installation support
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    "cmake/cucumber_query-config.cmake.in"
+    "${PROJECT_BINARY_DIR}/cucumber_query-config.cmake"
+    INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cucumber_query"
+    PATH_VARS CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_LIBDIR
+)
+
+write_basic_package_version_file(
+    "${PROJECT_BINARY_DIR}/cucumber_query-config-version.cmake"
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(
+    TARGETS cucumber_query_lib
+    EXPORT cucumber_query-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(
+    EXPORT cucumber_query-targets
+    FILE cucumber_query-targets.cmake
+    NAMESPACE cucumber::
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cucumber_query"
+)
+
+install(
+    FILES
+        "${PROJECT_BINARY_DIR}/cucumber_query-config.cmake"
+        "${PROJECT_BINARY_DIR}/cucumber_query-config-version.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/cucumber_query"
+)
+
+install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
 
 # Optional: tests
 if(CUCUMBER_QUERY_BUILD_TESTS)

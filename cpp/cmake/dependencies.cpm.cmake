@@ -1,7 +1,7 @@
 # renovate: datasource=github-tags packageName=cpm-cmake/CPM.cmake versioning=semver
 set(CPM_DOWNLOAD_TAG_DIGEST v0.43.1 456cb6754daaa010d57444d0c8ce6d95ecf006ab)
 # renovate: datasource=github-tags packageName=cucumber/messages versioning=semver
-set(CUCUMBER_MESSAGES_TAG_DIGEST v34.0.2 58c3ef1d95dae7839bb6766ebaffe524fd569697)
+set(CUCUMBER_MESSAGES_TAG_DIGEST v34.0.2 01e84523a5cbdb4a3a4e10e3ba53cb7a64a97964)
 # renovate: datasource=github-tags packageName=google/googletest versioning=semver
 set(GOOGLE_TEST_TAG_DIGEST v1.17.0 52eb8108c5bdec04579160ae17225d66034bd723)
 
@@ -52,8 +52,6 @@ if(CUCUMBER_QUERY_FETCH_DEPS)
         # Propagate cucumber_messages install rules so 'cmake --install' also installs it
         install(SCRIPT "${cucumber_messages_BINARY_DIR}/cmake_install.cmake")
     endif()
-
-
 
     if(CUCUMBER_QUERY_BUILD_TESTS)
         CPMAddPackage(
