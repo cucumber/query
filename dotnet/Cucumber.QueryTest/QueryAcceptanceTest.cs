@@ -12,13 +12,16 @@ public class QueryAcceptanceTest
 {
     private static readonly string[] _sources = new[]
     {
+        "all-statuses.ndjson",
         "attachments.ndjson",
+        "backgrounds.ndjson",
         "empty.ndjson",
         "examples-tables.ndjson",
-        "global-hooks.ndjson",
         "global-hooks-attachments.ndjson",
+        "global-hooks.ndjson",
         "hooks.ndjson",
         "minimal.ndjson",
+        "rules-backgrounds.ndjson",
         "rules.ndjson",
         "unknown-parameter-type.ndjson"
     };

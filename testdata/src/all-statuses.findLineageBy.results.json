@@ -1,0 +1,26 @@
+{
+  "testCaseStarted" : [
+    "All statuses - Passing",
+    "All statuses - Failing",
+    "All statuses - Pending",
+    "All statuses - Skipped",
+    "All statuses - Undefined",
+    "All statuses - Ambiguous"
+  ],
+  "testCaseFinished" : [
+    "All statuses - Passing",
+    "All statuses - Failing",
+    "All statuses - Pending",
+    "All statuses - Skipped",
+    "All statuses - Undefined",
+    "All statuses - Ambiguous"
+  ],
+  "pickle" : [
+    "All statuses - Passing",
+    "All statuses - Failing",
+    "All statuses - Pending",
+    "All statuses - Skipped",
+    "All statuses - Undefined",
+    "All statuses - Ambiguous"
+  ]
+}

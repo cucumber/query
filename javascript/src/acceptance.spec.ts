@@ -21,14 +21,17 @@ const reversePickleComparator = (a: Pickle, b: Pickle): number => {
 
 describe('Acceptance Tests', async () => {
   const sources = [
+    path.join(import.meta.dirname, '../../testdata/src/all-statuses.ndjson'),
     path.join(import.meta.dirname, '../../testdata/src/attachments.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/backgrounds.ndjson'),
     path.join(import.meta.dirname, '../../testdata/src/empty.ndjson'),
-    path.join(import.meta.dirname, '../../testdata/src/global-hooks.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/examples-tables.ndjson'),
     path.join(import.meta.dirname, '../../testdata/src/global-hooks-attachments.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/global-hooks.ndjson'),
     path.join(import.meta.dirname, '../../testdata/src/hooks.ndjson'),
     path.join(import.meta.dirname, '../../testdata/src/minimal.ndjson'),
+    path.join(import.meta.dirname, '../../testdata/src/rules-backgrounds.ndjson'),
     path.join(import.meta.dirname, '../../testdata/src/rules.ndjson'),
-    path.join(import.meta.dirname, '../../testdata/src/examples-tables.ndjson'),
     path.join(import.meta.dirname, '../../testdata/src/unknown-parameter-type.ndjson'),
   ]
   const queries: Queries = {
