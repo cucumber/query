@@ -16,7 +16,7 @@
 				"cmake.copyCompileCommands": "${userHome}/.cpp/compile_commands.json",
 				"cmake.sourceDirectory": "${workspaceFolder}/cpp",
 				"cmake.useCMakePresets": "auto",
-				"cmake.postRunCoverageTarget": "generate-coverage-report",
+				"cmake.postRunCoverageTarget": "generate-lcov-report",
 				"cmake.coverageInfoFiles": [
 					"${workspaceFolder}/cpp/build/coverage/lcov.info"
 				]
