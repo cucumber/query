@@ -101,13 +101,16 @@ class QueryAcceptanceTest {
 
     private static List<Path> getSources() {
         return Arrays.asList(
+                Paths.get("../testdata/src/all-statuses.ndjson"),
                 Paths.get("../testdata/src/attachments.ndjson"),
+                Paths.get("../testdata/src/backgrounds.ndjson"),
                 Paths.get("../testdata/src/empty.ndjson"),
                 Paths.get("../testdata/src/examples-tables.ndjson"),
                 Paths.get("../testdata/src/global-hooks-attachments.ndjson"),
                 Paths.get("../testdata/src/global-hooks.ndjson"),
                 Paths.get("../testdata/src/hooks.ndjson"),
                 Paths.get("../testdata/src/minimal.ndjson"),
+                Paths.get("../testdata/src/rules-backgrounds.ndjson"),
                 Paths.get("../testdata/src/rules.ndjson"),
                 Paths.get("../testdata/src/unknown-parameter-type.ndjson")
         );
