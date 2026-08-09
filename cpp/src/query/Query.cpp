@@ -28,13 +28,13 @@ namespace cucumber::query
                 });
         }
 
-        auto SortBySeverity(std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>>& container) -> void
+        auto SortBySeverity(std::vector<TestStepFinishedAndTestStep>& container) -> void
         {
             std::sort(container.begin(), container.end(),
                 [](const auto& lhs, const auto& rhs)
                 {
                     using underlying_type = std::underlying_type_t<messages::TestStepResultStatus>;
-                    return static_cast<underlying_type>(lhs.first->testStepResult->status) > static_cast<underlying_type>(rhs.first->testStepResult->status);
+                    return static_cast<underlying_type>(lhs.testStepFinished->testStepResult->status) > static_cast<underlying_type>(rhs.testStepFinished->testStepResult->status);
                 });
         }
 
@@ -187,7 +187,7 @@ namespace cucumber::query
             {
                 SortBySeverity(testStepFinishedAndTestStep);
 
-                ++result[testStepFinishedAndTestStep.front().first->testStepResult->status];
+                ++result[testStepFinishedAndTestStep.front().testStepFinished->testStepResult->status];
             }
         }
 
@@ -350,7 +350,7 @@ namespace cucumber::query
         {
             SortBySeverity(testStepFinishedAndTestStep);
 
-            return testStepFinishedAndTestStep.front().first->testStepResult;
+            return testStepFinishedAndTestStep.front().testStepFinished->testStepResult;
         }
         return std::nullopt;
     }
@@ -702,10 +702,9 @@ namespace cucumber::query
         return {};
     }
 
-    auto Query::FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
-        -> std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>>
+    auto Query::FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>
     {
-        std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>> result;
+        std::vector<TestStepFinishedAndTestStep> result;
         const auto testStepsFinishedIter = testStepFinishedByTestCaseStartedId.find(testCaseStarted->id);
 
         if (testStepsFinishedIter != testStepFinishedByTestCaseStartedId.end())
@@ -715,10 +714,11 @@ namespace cucumber::query
                 const auto& testStep = FindTestStepBy(testStepFinished);
                 if (testStep.has_value())
                 {
-                    result.emplace_back(testStepFinished, *testStep);
+                    result.emplace_back(TestStepFinishedAndTestStep{ testStepFinished, *testStep });
                 }
             }
         }
+
         return result;
     }
 

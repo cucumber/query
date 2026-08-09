@@ -30,6 +30,11 @@ namespace cucumber::query
         std::shared_ptr<const messages::Pickle> pickle;
     };
 
+    struct TestStepFinishedAndTestStep{
+        std::shared_ptr<const messages::TestStepFinished> testStepFinished;
+        std::shared_ptr<const messages::TestStep> testStep;
+    };
+
     class Query
     {
     public:
@@ -136,7 +141,7 @@ namespace cucumber::query
         [[nodiscard]] auto FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>;
 
         [[nodiscard]] auto FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
-            -> std::vector<std::pair<std::shared_ptr<const messages::TestStepFinished>, std::shared_ptr<const messages::TestStep>>>;
+            -> std::vector<TestStepFinishedAndTestStep>;
 
         [[nodiscard]] auto FindLineageBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::optional<LineageAndPickle>;
         [[nodiscard]] auto FindLineageBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<LineageAndPickle>;
