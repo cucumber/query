@@ -18,3 +18,13 @@ target_compile_definitions(cucumber_query_lib.test
 
 include(GoogleTest)
 gtest_discover_tests(cucumber_query_lib.test)
+
+add_custom_target(
+    check-testdata-coverage
+    COMMAND ${CMAKE_COMMAND}
+        -DTEST_BINARY=$<TARGET_FILE:cucumber_query_lib.test>
+        -DTESTDATA_SRC=${CMAKE_SOURCE_DIR}/../testdata/src
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/CheckTestdataCoverage.cmake
+    DEPENDS cucumber_query_lib.test
+    COMMENT "Checking testdata coverage in C++ tests"
+)

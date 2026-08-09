@@ -86,6 +86,10 @@ jobs:
         working-directory: cpp
         run: cmake --workflow test
 
+      - name: Check testdata coverage
+        working-directory: cpp
+        run: cmake --build build/test --target check-testdata-coverage
+
   test-cpp-coverage:
     runs-on: ubuntu-26.04
     steps:
