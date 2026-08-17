@@ -89,9 +89,9 @@ module Cucumber
       update_steps(scenario.steps)
     end
 
+    # This deliberately doesn't perform any handling. `Source` as a message is not stored or required
+    #   -> See `GherkinDocument` for a more "parsed" form of the AST
     def update_source(_source)
-      # This deliberately doesn't perform any handling. `Source` as a message is not stored or required
-      #   - See `GherkinDocument` for a more "parsed" form of an AST representation
       :no_op
     end
 
@@ -148,11 +148,13 @@ module Cucumber
       undefined_parameter_types << undefined_parameter_type
     end
 
+    # Partial updates to some repository data (Used in `#update_feature`)
     def _update_background_steps_and_scenario(entity)
       update_steps(entity.background.steps) if entity.background
       update_scenario(entity.scenario) if entity.scenario
     end
 
+    # Nested default enumerable structs used for a few entities
     def _hash_with_array_default
       Hash.new { |hash, key| hash[key] = [] }
     end
