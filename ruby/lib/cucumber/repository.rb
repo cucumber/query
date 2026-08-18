@@ -63,9 +63,8 @@ module Cucumber
 
     def update_feature(feature)
       feature.children.each do |feature_child|
-        update_steps(feature_child.background.steps) if feature_child.background
-        update_scenario(feature_child.scenario) if feature_child.scenario
-        feature_child.rule&.children&.each { |rule_child| _update_feature_rule(rule_child) }
+        _update_background_steps_and_scenario(feature_child)
+        feature_child.rule&.children&.each { |rule_child| _update_background_steps_and_scenario(rule_child) }
       end
     end
 
@@ -90,9 +89,9 @@ module Cucumber
       update_steps(scenario.steps)
     end
 
+    # This deliberately doesn't perform any handling. `Source` as a message is not stored or required
+    #   -> See `GherkinDocument` for a more "parsed" form of the AST
     def update_source(_source)
-      # This deliberately doesn't perform any handling. `Source` as a message is not stored or required
-      #   - See `GherkinDocument` for a more "parsed" form of an AST representation
       :no_op
     end
 
@@ -149,11 +148,13 @@ module Cucumber
       undefined_parameter_types << undefined_parameter_type
     end
 
-    def _update_feature_rule(rule_child)
-      update_steps(rule_child.background.steps) if rule_child.background
-      update_scenario(rule_child.scenario) if rule_child.scenario
+    # Partial updates to some repository data (Used in `#update_feature`)
+    def _update_background_steps_and_scenario(entity)
+      update_steps(entity.background.steps) if entity.background
+      update_scenario(entity.scenario) if entity.scenario
     end
 
+    # Nested default enumerable structs used for a few entities
     def _hash_with_array_default
       Hash.new { |hash, key| hash[key] = [] }
     end
