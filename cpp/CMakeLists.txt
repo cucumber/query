@@ -25,7 +25,6 @@ if (POLICY CMP0077)
 endif ()
 
 option(CUCUMBER_QUERY_BUILD_TESTS "Build the unit tests." Off)
-option(CUCUMBER_QUERY_FETCH_DEPS "Fetch dependencies via FetchContent." Off)
 option(CUCUMBER_QUERY_ENABLE_CLANG_TIDY "Run clang-tidy as part of the build." Off)
 option(CUCUMBER_QUERY_ENABLE_COVERAGE "Enable compiler flags for code coverage measurements." Off)
 option(CUCUMBER_QUERY_ENABLE_SANITIZERS "Enable compiler flags for the address and undefined behaviour sanitizers." Off)
@@ -79,7 +78,8 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # CMake dependencies
-include(cmake/dependencies.cpm.cmake)
+find_package(nlohmann_json 3.11 REQUIRED)
+find_package(cucumber_messages 34.2.1 REQUIRED)
 
 # Target options
 if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
@@ -190,6 +190,7 @@ install(
 
 # Optional: tests
 if(CUCUMBER_QUERY_BUILD_TESTS)
+    find_package(GTest REQUIRED)
     include(CTest)
     enable_testing()
     add_subdirectory(test)
