@@ -30,6 +30,12 @@ namespace cucumber::query
             return value.size() >= suffix.size() && value.compare(value.size() - suffix.size(), suffix.size(), suffix) == 0;
         }
 
+        template <typename T>
+        auto ToJson(const std::optional<T>& value) -> nlohmann::json
+        {
+            return value.has_value() ? nlohmann::json(*value) : nlohmann::json(nullptr);
+        }
+
         struct Expectation
         {
             std::string_view infix;
@@ -307,7 +313,7 @@ namespace cucumber::query
 
                     for (const auto& attachment : attachments)
                     {
-                        actual["testStepFinished"].push_back({ attachment->testStepId, attachment->testCaseStartedId, attachment->mediaType, attachment->contentEncoding });
+                        actual["testStepFinished"].push_back({ ToJson(attachment->testStepId), ToJson(attachment->testCaseStartedId), attachment->mediaType, attachment->contentEncoding });
                     }
                 }
             }
@@ -319,7 +325,7 @@ namespace cucumber::query
 
                 for (const auto& attachment : attachments)
                 {
-                    actual["testRunHookFinished"].push_back({ attachment->testRunHookStartedId, attachment->mediaType, attachment->contentEncoding });
+                    actual["testRunHookFinished"].push_back({ ToJson(attachment->testRunHookStartedId), attachment->mediaType, attachment->contentEncoding });
                 }
             }
 
@@ -392,7 +398,7 @@ namespace cucumber::query
                 const auto location = query.FindLocationOf(pickle);
                 if (location.has_value())
                 {
-                    actual.push_back({ { "line", location.value()->line }, { "column", location.value()->column } });
+                    actual.push_back({ { "line", location.value()->line }, { "column", ToJson(location.value()->column) } });
                 }
             }
 
