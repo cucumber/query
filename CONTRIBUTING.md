@@ -12,6 +12,7 @@ Currently, the list is:
 - JavaScript
 - C# (.NET)
 - Ruby
+- c++
 
 Java is the reference implementation in the sense that it is responsible for
 generating the fixtures that are used in the acceptance tests to verify all
@@ -39,11 +40,11 @@ UPDATE_SAMPLES=true mvn test
 Choosing which type to use in another language based on what we did in Java is
 an inexact science. This table defines all the decisions we've made so far:
 
-| Java          | JavaScript           | C#                 | Ruby         |
-|---------------|----------------------|--------------------|--------------|
-| `Optional<T>` | `T \| undefined`[^1] | `T?`               | `T \| nil`   |
-| `List<T>`     | `ReadonlyArray<T>`   | `List<T>`          | `Array<T>`   |
-| `Map<K, V>`   | `Map<K, V>`          | `Dictionary<K, V>` | `Hash<K, V>` |
-| `Map<K, V>`   | `Record<K, V>`       | `Dictionary<K, V>` | `Hash<K, V>` |
+| Java          | JavaScript           | C#                 | Ruby         | Cpp                     |
+| ------------- | -------------------- | ------------------ | ------------ | ----------------------- |
+| `Optional<T>` | `T \| undefined`[^1] | `T?`               | `T \| nil`   | std::optional<T>        |
+| `List<T>`     | `ReadonlyArray<T>`   | `List<T>`          | `Array<T>`   | std::vector<T>          |
+| `Map<K, V>`   | `Map<K, V>`          | `Dictionary<K, V>` | `Hash<K, V>` | std::unordered_map<K,V> |
+| `Map<K, V>`   | `Record<K, V>`       | `Dictionary<K, V>` | `Hash<K, V>` | std::unordered_map<K,V> |
 
 [^1]: See <https://github.com/sindresorhus/meta/discussions/7>

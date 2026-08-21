@@ -1,0 +1,241 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21
+    },
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "generator": "Ninja",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "On"
+            }
+        },
+        {
+            "name": "host-system",
+            "displayName": "Host build (system dependencies)",
+            "description": "Build and install the library using C++ dependencies already installed on the system. Does not use Conan and does not build tests.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "test-system",
+            "displayName": "Test build (system dependencies)",
+            "description": "Build with unit tests and sanitizers enabled using system dependencies. Used by CI to build and run the test suite.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_BUILD_TESTS": "On",
+                "CUCUMBER_QUERY_ENABLE_SANITIZERS": "On",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "host-conan",
+            "displayName": "Host build (Conan dependencies)",
+            "description": "Build and install the library using Conan-provided dependencies. Used by CI. Does not build tests.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceDir}/cmake/conan_provider.cmake",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CONAN_INSTALL_ARGS": "--build=missing"
+            }
+        },
+        {
+            "name": "test-conan",
+            "displayName": "Test build (automatic Conan)",
+            "description": "Build with unit tests enabled using Conan-provided dependencies. Used by CI.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceDir}/cmake/conan_provider.cmake",
+                "CUCUMBER_QUERY_BUILD_TESTS": "On",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CONAN_INSTALL_ARGS": "--build=missing"
+            }
+        },
+        {
+            "name": "tidy",
+            "displayName": "Lint build (clang-tidy, system dependencies)",
+            "description": "Build with unit tests and clang-tidy enabled using system dependencies.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_BUILD_TESTS": "On",
+                "CUCUMBER_QUERY_ENABLE_CLANG_TIDY": "On",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "coverage",
+            "displayName": "Coverage build (system dependencies)",
+            "description": "Build with unit tests and code coverage instrumentation using system dependencies.",
+            "inherits": "base",
+            "cacheVariables": {
+                "CUCUMBER_QUERY_BUILD_TESTS": "On",
+                "CUCUMBER_QUERY_ENABLE_COVERAGE": "On",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "host-system",
+            "configurePreset": "host-system"
+        },
+        {
+            "name": "test-system",
+            "configurePreset": "test-system"
+        },
+        {
+            "name": "host-conan",
+            "configurePreset": "host-conan"
+        },
+        {
+            "name": "test-conan",
+            "configurePreset": "test-conan"
+        },
+        {
+            "name": "tidy",
+            "configurePreset": "tidy"
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage"
+        },
+        {
+            "name": "coverage-report",
+            "configurePreset": "coverage",
+            "targets": [
+                "generate-lcov-report"
+            ]
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "test-system",
+            "configurePreset": "test-system",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "jobs": 8
+            }
+        },
+        {
+            "name": "test-conan",
+            "configurePreset": "test-conan",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "jobs": 8
+            }
+        },
+        {
+            "name": "coverage",
+            "configurePreset": "coverage",
+            "inherits": "test-system"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "host-system",
+            "steps": [
+                {
+                    "name": "host-system",
+                    "type": "configure"
+                },
+                {
+                    "name": "host-system",
+                    "type": "build"
+                }
+            ]
+        },
+        {
+            "name": "test-system",
+            "steps": [
+                {
+                    "name": "test-system",
+                    "type": "configure"
+                },
+                {
+                    "name": "test-system",
+                    "type": "build"
+                },
+                {
+                    "name": "test-system",
+                    "type": "test"
+                }
+            ]
+        },
+        {
+            "name": "host-conan",
+            "steps": [
+                {
+                    "name": "host-conan",
+                    "type": "configure"
+                },
+                {
+                    "name": "host-conan",
+                    "type": "build"
+                }
+            ]
+        },
+        {
+            "name": "test-conan",
+            "steps": [
+                {
+                    "name": "test-conan",
+                    "type": "configure"
+                },
+                {
+                    "name": "test-conan",
+                    "type": "build"
+                },
+                {
+                    "name": "test-conan",
+                    "type": "test"
+                }
+            ]
+        },
+        {
+            "name": "tidy",
+            "steps": [
+                {
+                    "name": "tidy",
+                    "type": "configure"
+                },
+                {
+                    "name": "tidy",
+                    "type": "build"
+                }
+            ]
+        },
+        {
+            "name": "coverage",
+            "steps": [
+                {
+                    "name": "coverage",
+                    "type": "configure"
+                },
+                {
+                    "name": "coverage",
+                    "type": "build"
+                },
+                {
+                    "name": "coverage",
+                    "type": "test"
+                },
+                {
+                    "name": "coverage-report",
+                    "type": "build"
+                }
+            ]
+        }
+    ]
+}
