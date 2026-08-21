@@ -32,16 +32,21 @@ jobs:
     permissions:
       security-events: write
     env:
-      CCACHE_BASEDIR: ${{ github.workspace }}
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
       # Git ref (tag, branch, or SHA) of the cucumber_messages dependency to
       # build against. Must match the version required in cpp/CMakeLists.txt and
       # cpp/conanfile.py, or the messages branch under test.
-      MESSAGES_REF: eebd9f2f48ae94e0ada14ab01d53e1ecaaecb172
+      MESSAGES_REF: 8cd6cacecd0a657095c93b069c850f51009e0499
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        with:
+          key: ${{ github.job }}-${{ github.ref }}
+          append-timestamp: false
+          save: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Checkout cucumber/messages
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,13 +60,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ccache nlohmann-json3-dev
-
-      - name: Cache ccache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ github.job }}-${{ github.ref }}
-          restore-keys: ccache-${{ github.job }}-
 
       - name: Build and install cucumber_messages
         working-directory: messages-src/cpp

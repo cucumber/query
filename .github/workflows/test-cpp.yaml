@@ -22,7 +22,7 @@ env:
   # against. For releases use a tag matching the version required in
   # cpp/CMakeLists.txt (find_package) and cpp/conanfile.py; for cross-repo
   # feature work, set this to the messages branch under test.
-  MESSAGES_REF: eebd9f2f48ae94e0ada14ab01d53e1ecaaecb172
+  MESSAGES_REF: 8cd6cacecd0a657095c93b069c850f51009e0499
 
 jobs:
   test-cpp-system-packages-linux:
