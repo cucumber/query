@@ -24,6 +24,15 @@ if (POLICY CMP0077)
     cmake_policy(SET CMP0077 NEW)
 endif ()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS On)
+if(PROJECT_IS_TOP_LEVEL AND CMAKE_EXPORT_COMPILE_COMMANDS)
+    add_custom_target(clangd_compile_commands ALL
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+            "${CMAKE_BINARY_DIR}/compile_commands.json"
+            "${CMAKE_SOURCE_DIR}/compile_commands.json"
+        VERBATIM)
+endif()
+
 option(CUCUMBER_QUERY_BUILD_TESTS "Build the unit tests." Off)
 option(CUCUMBER_QUERY_ENABLE_CLANG_TIDY "Run clang-tidy as part of the build." Off)
 option(CUCUMBER_QUERY_ENABLE_COVERAGE "Enable compiler flags for code coverage measurements." Off)
@@ -78,8 +87,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # CMake dependencies
-find_package(nlohmann_json 3.11 REQUIRED)
-find_package(cucumber_messages 34.2.1 REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(cucumber_messages QUIET)
+if (NOT cucumber_messages_FOUND AND NOT TARGET cucumber::messages)
+    message(FATAL_ERROR "cucumber::messages not found")
+endif()
 
 # Target options
 if(CUCUMBER_QUERY_ENABLE_CLANG_TIDY)
