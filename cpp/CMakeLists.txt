@@ -139,7 +139,7 @@ target_include_directories(
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include/>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}/src/messages
+        ${CMAKE_CURRENT_LIST_DIR}/src/query
 )
 
 target_link_libraries(
