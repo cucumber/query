@@ -24,15 +24,6 @@ if (POLICY CMP0077)
     cmake_policy(SET CMP0077 NEW)
 endif ()
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS On)
-if(PROJECT_IS_TOP_LEVEL AND CMAKE_EXPORT_COMPILE_COMMANDS)
-    add_custom_target(clangd_compile_commands ALL
-        COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-            "${CMAKE_BINARY_DIR}/compile_commands.json"
-            "${CMAKE_SOURCE_DIR}/compile_commands.json"
-        VERBATIM)
-endif()
-
 option(CUCUMBER_QUERY_BUILD_TESTS "Build the unit tests." Off)
 option(CUCUMBER_QUERY_ENABLE_CLANG_TIDY "Run clang-tidy as part of the build." Off)
 option(CUCUMBER_QUERY_ENABLE_COVERAGE "Enable compiler flags for code coverage measurements." Off)
