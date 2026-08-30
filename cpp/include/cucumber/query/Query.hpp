@@ -30,7 +30,8 @@ namespace cucumber::query
         std::shared_ptr<const messages::Pickle> pickle;
     };
 
-    struct TestStepFinishedAndTestStep{
+    struct TestStepFinishedAndTestStep
+    {
         std::shared_ptr<const messages::TestStepFinished> testStepFinished;
         std::shared_ptr<const messages::TestStep> testStep;
     };
@@ -54,11 +55,11 @@ namespace cucumber::query
 
         [[nodiscard]] auto FindAllTestCaseFinished() const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>;
 
-        template<typename TFind, typename Cmp>
-        [[nodiscard]] auto FindAllTestCaseStartedOrderBy(TFind findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>;
+        template<typename Transform, typename Cmp>
+        [[nodiscard]] auto FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>;
 
-        template<typename TFind, typename Cmp>
-        [[nodiscard]] auto FindAllTestCaseFinishedOrderBy(TFind findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>;
+        template<typename Transform, typename Cmp>
+        [[nodiscard]] auto FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>;
 
         [[nodiscard]] auto FindAllTestSteps() const -> std::vector<std::shared_ptr<const messages::TestStep>>;
 
@@ -140,8 +141,7 @@ namespace cucumber::query
         [[nodiscard]] auto FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>;
         [[nodiscard]] auto FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>;
 
-        [[nodiscard]] auto FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const
-            -> std::vector<TestStepFinishedAndTestStep>;
+        [[nodiscard]] auto FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>;
 
         [[nodiscard]] auto FindLineageBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::optional<LineageAndPickle>;
         [[nodiscard]] auto FindLineageBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<LineageAndPickle>;
@@ -186,6 +186,9 @@ namespace cucumber::query
         std::unordered_map<std::string, std::shared_ptr<const messages::Suggestion>> suggestionsByPickleStepId;
         std::vector<std::shared_ptr<const messages::UndefinedParameterType>> undefinedParameterTypes;
     };
+
+    static inline std::optional<std::shared_ptr<const messages::Pickle>> (query::Query::* const findPickleByTestCaseFinished)(
+        const std::shared_ptr<const messages::TestCaseFinished>&) const = &query::Query::FindPickleBy;
 
     namespace detail
     {
@@ -236,15 +239,15 @@ namespace cucumber::query
     }
 
     template<typename Transform, typename Cmp>
-    [[nodiscard]] auto Query::FindAllTestCaseStartedOrderBy(Transform findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>
+    [[nodiscard]] auto Query::FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>
     {
-        return detail::FindAllOrderBy<messages::TestCaseStarted>(*this, FindAllTestCaseStarted(), std::move(findOrderBy), std::move(order));
+        return detail::FindAllOrderBy<messages::TestCaseStarted>(*this, FindAllTestCaseStarted(), std::forward<Transform>(findOrderBy), std::move(order));
     }
 
     template<typename Transform, typename Cmp>
-    [[nodiscard]] auto Query::FindAllTestCaseFinishedOrderBy(Transform findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>
+    [[nodiscard]] auto Query::FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>
     {
-        return detail::FindAllOrderBy<messages::TestCaseFinished>(*this, FindAllTestCaseFinished(), std::move(findOrderBy), std::move(order));
+        return detail::FindAllOrderBy<messages::TestCaseFinished>(*this, FindAllTestCaseFinished(), std::forward<Transform>(findOrderBy), std::move(order));
     }
 }
 
