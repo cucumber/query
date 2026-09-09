@@ -38,8 +38,8 @@ namespace cucumber::query
                 });
         }
 
-        template<typename T>
-        auto MapValuesToVector(const std::unordered_map<std::string, T>& container)
+        template<typename T, typename C>
+        auto MapValuesToVector(const std::map<std::string, T, C>& container)
         {
             std::vector<T> result;
             result.reserve(container.size());
@@ -52,18 +52,14 @@ namespace cucumber::query
             return result;
         }
 
-        template<typename T, typename Proj>
-        auto MapValuesToVectorSortBy(const std::unordered_map<std::string, T>& container, const Proj& projection)
+        template<typename T, typename C>
+        auto MapValuesToVectorSortBy(const std::map<std::string, T, C>& container)
         {
-            auto result = MapValuesToVector(container);
-
-            SortBy(result, projection);
-
-            return result;
+            return MapValuesToVector(container);
         }
 
-        template<class T>
-        auto MapValuesToVector(const std::unordered_map<std::string, std::vector<T>>& container)
+        template<typename T, typename C>
+        auto MapValuesToVector(const std::map<std::string, std::vector<T>, C>& container)
         {
             std::vector<T> result;
             result.reserve(container.size());
@@ -76,14 +72,10 @@ namespace cucumber::query
             return result;
         }
 
-        template<typename T, typename Proj>
-        auto MapValuesToVectorSortBy(const std::unordered_map<std::string, std::vector<T>>& container, const Proj& projection)
+        template<typename T, typename C>
+        auto MapValuesToVectorSortBy(const std::map<std::string, std::vector<T>, C>& container)
         {
-            auto result = MapValuesToVector(container);
-
-            SortBy(result, projection);
-
-            return result;
+            return MapValuesToVector(container);
         }
 
         template<class... Ts>
@@ -201,17 +193,17 @@ namespace cucumber::query
 
     auto Query::FindAllPickles() const -> std::vector<std::shared_ptr<const messages::Pickle>>
     {
-        return MapValuesToVectorSortBy(pickleById, &messages::Pickle::id);
+        return MapValuesToVectorSortBy(pickleById);
     }
 
     auto Query::FindAllPickleSteps() const -> std::vector<std::shared_ptr<const messages::PickleStep>>
     {
-        return MapValuesToVectorSortBy(pickleStepById, &messages::PickleStep::id);
+        return MapValuesToVectorSortBy(pickleStepById);
     }
 
     auto Query::FindAllStepDefinitions() const -> std::vector<std::shared_ptr<const messages::StepDefinition>>
     {
-        return MapValuesToVectorSortBy(stepDefinitionById, &messages::StepDefinition::id);
+        return MapValuesToVectorSortBy(stepDefinitionById);
     }
 
     auto Query::FindAllTestCaseStarted() const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>
@@ -252,32 +244,32 @@ namespace cucumber::query
 
     auto Query::FindAllTestSteps() const -> std::vector<std::shared_ptr<const messages::TestStep>>
     {
-        return MapValuesToVectorSortBy(testStepById, &messages::TestStep::id);
+        return MapValuesToVectorSortBy(testStepById);
     }
 
     auto Query::FindAllTestCases() const -> std::vector<std::shared_ptr<const messages::TestCase>>
     {
-        return MapValuesToVectorSortBy(testCaseById, &messages::TestCase::id);
+        return MapValuesToVectorSortBy(testCaseById);
     }
 
     auto Query::FindAllTestStepStarted() const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
     {
-        return MapValuesToVectorSortBy(testStepStartedByTestCaseStartedId, &messages::TestStepStarted::testCaseStartedId);
+        return MapValuesToVectorSortBy(testStepStartedByTestCaseStartedId);
     }
 
     auto Query::FindAllTestStepFinished() const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
     {
-        return MapValuesToVectorSortBy(testStepFinishedByTestCaseStartedId, &messages::TestStepFinished::testCaseStartedId);
+        return MapValuesToVectorSortBy(testStepFinishedByTestCaseStartedId);
     }
 
     auto Query::FindAllTestRunHookStarted() const -> std::vector<std::shared_ptr<const messages::TestRunHookStarted>>
     {
-        return MapValuesToVectorSortBy(testRunHookStartedById, &messages::TestRunHookStarted::id);
+        return MapValuesToVectorSortBy(testRunHookStartedById);
     }
 
     auto Query::FindAllTestRunHookFinished() const -> std::vector<std::shared_ptr<const messages::TestRunHookFinished>>
     {
-        return MapValuesToVectorSortBy(testRunHookFinishedByTestRunHookStartedId, &messages::TestRunHookFinished::testRunHookStartedId);
+        return MapValuesToVectorSortBy(testRunHookFinishedByTestRunHookStartedId);
     }
 
     auto Query::FindAllUndefinedParameterTypes() const -> std::vector<std::shared_ptr<const messages::UndefinedParameterType>>

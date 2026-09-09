@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -34,6 +35,14 @@ namespace cucumber::query
     {
         std::shared_ptr<const messages::TestStepFinished> testStepFinished;
         std::shared_ptr<const messages::TestStep> testStep;
+    };
+
+    struct StringIdCompare
+    {
+        auto operator()(const std::string& lhs, const std::string& rhs) const -> bool
+        {
+            return std::stoi(lhs) < std::stoi(rhs);
+        }
     };
 
     class Query
@@ -167,23 +176,23 @@ namespace cucumber::query
         std::optional<std::shared_ptr<const messages::TestRunStarted>> testRunStarted;
         std::optional<std::shared_ptr<const messages::TestRunFinished>> testRunFinished;
 
-        std::unordered_map<std::string, std::shared_ptr<const messages::TestCaseStarted>> testCaseStartedById;
-        std::unordered_map<std::string, std::shared_ptr<const Lineage>> lineageById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::Step>> stepById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::Pickle>> pickleById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::PickleStep>> pickleStepById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::Hook>> hookById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::StepDefinition>> stepDefinitionById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::TestCase>> testCaseById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::TestStep>> testStepById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::TestCaseFinished>> testCaseFinishedByTestCaseStartedId;
-        std::unordered_map<std::string, std::shared_ptr<const messages::TestRunHookStarted>> testRunHookStartedById;
-        std::unordered_map<std::string, std::shared_ptr<const messages::TestRunHookFinished>> testRunHookFinishedByTestRunHookStartedId;
-        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::TestStepStarted>>> testStepStartedByTestCaseStartedId;
-        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::TestStepFinished>>> testStepFinishedByTestCaseStartedId;
-        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>> attachmentsByTestCaseStartedId;
-        std::unordered_map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>> attachmentsByTestRunHookStartedId;
-        std::unordered_map<std::string, std::shared_ptr<const messages::Suggestion>> suggestionsByPickleStepId;
+        std::map<std::string, std::shared_ptr<const messages::TestCaseStarted>, StringIdCompare> testCaseStartedById;
+        std::map<std::string, std::shared_ptr<const Lineage>, StringIdCompare> lineageById;
+        std::map<std::string, std::shared_ptr<const messages::Step>, StringIdCompare> stepById;
+        std::map<std::string, std::shared_ptr<const messages::Pickle>, StringIdCompare> pickleById;
+        std::map<std::string, std::shared_ptr<const messages::PickleStep>, StringIdCompare> pickleStepById;
+        std::map<std::string, std::shared_ptr<const messages::Hook>, StringIdCompare> hookById;
+        std::map<std::string, std::shared_ptr<const messages::StepDefinition>, StringIdCompare> stepDefinitionById;
+        std::map<std::string, std::shared_ptr<const messages::TestCase>, StringIdCompare> testCaseById;
+        std::map<std::string, std::shared_ptr<const messages::TestStep>, StringIdCompare> testStepById;
+        std::map<std::string, std::shared_ptr<const messages::TestCaseFinished>, StringIdCompare> testCaseFinishedByTestCaseStartedId;
+        std::map<std::string, std::shared_ptr<const messages::TestRunHookStarted>, StringIdCompare> testRunHookStartedById;
+        std::map<std::string, std::shared_ptr<const messages::TestRunHookFinished>, StringIdCompare> testRunHookFinishedByTestRunHookStartedId;
+        std::map<std::string, std::vector<std::shared_ptr<const messages::TestStepStarted>>, StringIdCompare> testStepStartedByTestCaseStartedId;
+        std::map<std::string, std::vector<std::shared_ptr<const messages::TestStepFinished>>, StringIdCompare> testStepFinishedByTestCaseStartedId;
+        std::map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>, StringIdCompare> attachmentsByTestCaseStartedId;
+        std::map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>, StringIdCompare> attachmentsByTestRunHookStartedId;
+        std::map<std::string, std::shared_ptr<const messages::Suggestion>, StringIdCompare> suggestionsByPickleStepId;
         std::vector<std::shared_ptr<const messages::UndefinedParameterType>> undefinedParameterTypes;
     };
 
