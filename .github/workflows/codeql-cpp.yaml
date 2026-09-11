@@ -32,7 +32,7 @@ jobs:
     permissions:
       security-events: write
     env:
-      # Git ref (tag, branch, or SHA) of the cucumber_messages dependency to build against.
+      # renovate: datasource=git-refs depName=cucumber/messages packageName=https://github.com/cucumber/messages currentValue=main
       MESSAGES_REF: cpp-breaking-change-use-shared_ptrs-for-messages
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

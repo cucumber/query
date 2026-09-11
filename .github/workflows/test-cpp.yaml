@@ -18,7 +18,7 @@ on:
       - .github/**
 
 env:
-  # Git ref (tag, branch, or SHA) of the cucumber_messages dependency to build against.
+  # renovate: datasource=git-refs depName=cucumber/messages packageName=https://github.com/cucumber/messages currentValue=main
   MESSAGES_REF: cpp-breaking-change-use-shared_ptrs-for-messages
 
 jobs:
