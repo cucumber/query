@@ -9,22 +9,21 @@
 #include "cucumber/messages/Scenario.hpp"
 #include "cucumber/messages/TableRow.hpp"
 #include <cstddef>
-#include <memory>
 #include <optional>
 
 namespace cucumber::query
 {
     struct Lineage
     {
-        std::shared_ptr<const messages::GherkinDocument> gherkinDocument;
-        std::shared_ptr<const messages::Feature> feature;
-        std::shared_ptr<const messages::Background> background;
-        std::shared_ptr<const messages::Rule> rule;
-        std::shared_ptr<const messages::Background> ruleBackground;
-        std::shared_ptr<const messages::Scenario> scenario;
-        std::shared_ptr<const messages::Examples> examples;
+        const messages::GherkinDocument* gherkinDocument{ nullptr };
+        const messages::Feature* feature{ nullptr };
+        const messages::Background* background{ nullptr };
+        const messages::Rule* rule{ nullptr };
+        const messages::Background* ruleBackground{ nullptr };
+        const messages::Scenario* scenario{ nullptr };
+        const messages::Examples* examples{ nullptr };
         std::optional<std::size_t> examplesIndex;
-        std::shared_ptr<const messages::TableRow> example;
+        const messages::TableRow* example{ nullptr };
         std::optional<std::size_t> exampleIndex;
 
         auto operator+(const Lineage& other) const -> Lineage;

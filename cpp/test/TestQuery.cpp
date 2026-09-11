@@ -1,6 +1,8 @@
 #include "cucumber/messages/All.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
+#include "cucumber/query/EnvelopeArchive.hpp"
 #include "cucumber/query/NamingStrategy.hpp"
+#include "cucumber/query/NdjsonEnvelopeReader.hpp"
 #include "cucumber/query/Query.hpp"
 #include "nlohmann/json.hpp"
 #include "nlohmann/json_fwd.hpp"
@@ -30,7 +32,7 @@ namespace cucumber::query
             return value.size() >= suffix.size() && value.compare(value.size() - suffix.size(), suffix.size(), suffix) == 0;
         }
 
-        template <typename T>
+        template<typename T>
         auto ToJson(const std::optional<T>& value) -> nlohmann::json
         {
             return value.has_value() ? nlohmann::json(*value) : nlohmann::json(nullptr);
@@ -119,38 +121,31 @@ namespace cucumber::query
             return name;
         }
 
-        auto LoadQuery(const std::filesystem::path& source) -> Query
+        auto LoadQuery(const std::filesystem::path& source, EnvelopeArchive& archive, Query& query) -> void
         {
-            Query query;
-
             std::ifstream ifstream{ source };
-            std::string line;
-            while (std::getline(ifstream, line))
-            {
-                messages::Envelope envelope;
-                envelope.from_json(nlohmann::json::parse(line));
-
-                query.Update(envelope);
-            }
-
-            return query;
+            LoadNdjson(archive, ifstream,
+                [&query](const messages::Envelope& envelope) -> void
+                {
+                    query.Update(envelope);
+                });
         }
 
-        auto ReversePickleComparator(const std::shared_ptr<const messages::Pickle>& lhs, const std::shared_ptr<const messages::Pickle>& rhs) -> std::int32_t
+        auto ReversePickleComparator(const messages::Pickle& lhs, const messages::Pickle& rhs) -> std::int32_t
         {
-            if (lhs->uri != rhs->uri)
+            if (lhs.uri != rhs.uri)
             {
-                return static_cast<std::int32_t>(lhs->uri.compare(rhs->uri));
+                return static_cast<std::int32_t>(lhs.uri.compare(rhs.uri));
             }
-            if (!lhs->location.has_value() || !rhs->location.has_value())
+            if (!lhs.location || !rhs.location)
             {
                 return 0;
             }
-            if (lhs->location.value()->line != rhs->location.value()->line)
+            if (lhs.location->line != rhs.location->line)
             {
-                return static_cast<std::int32_t>(rhs->location.value()->line) - static_cast<std::int32_t>(lhs->location.value()->line);
+                return static_cast<std::int32_t>(rhs.location->line) - static_cast<std::int32_t>(lhs.location->line);
             }
-            return static_cast<std::int32_t>(rhs->location.value()->column.value_or(0)) - static_cast<std::int32_t>(lhs->location.value()->column.value_or(0));
+            return static_cast<std::int32_t>(rhs.location->column.value_or(0)) - static_cast<std::int32_t>(lhs.location->column.value_or(0));
         }
 
         struct QueryAcceptanceTest : testing::TestWithParam<DataSet>
@@ -158,7 +153,7 @@ namespace cucumber::query
         protected:
             auto SetUp() -> void override
             {
-                query = LoadQuery(GetParam().source);
+                LoadQuery(GetParam().source, archive, query);
             }
 
             static auto Verify(std::string_view queryName, const nlohmann::json& actual) -> void
@@ -174,6 +169,7 @@ namespace cucumber::query
                 EXPECT_THAT(actual, testing::Eq(nlohmann::json::parse(ifstream)));
             }
 
+            EnvelopeArchive archive;
             Query query;
         };
 
@@ -263,7 +259,7 @@ namespace cucumber::query
             nlohmann::json actual;
             for (const auto& testCaseFinished : allResults)
             {
-                actual.push_back(testCaseFinished->testCaseStartedId);
+                actual.push_back(testCaseFinished.testCaseStartedId);
             }
 
             Verify("findAllTestCaseFinishedOrderBy", actual);
@@ -281,7 +277,7 @@ namespace cucumber::query
             nlohmann::json actual;
             for (const auto& testCaseStarted : allResults)
             {
-                actual.push_back(testCaseStarted->id);
+                actual.push_back(testCaseStarted.id);
             }
 
             Verify("findAllTestCaseStartedOrderBy", actual);
@@ -293,7 +289,7 @@ namespace cucumber::query
 
             for (const auto& undefinedParameterType : query.FindAllUndefinedParameterTypes())
             {
-                actual.push_back({ undefinedParameterType->name, undefinedParameterType->expression });
+                actual.push_back({ undefinedParameterType.name, undefinedParameterType.expression });
             }
 
             Verify("findAllUndefinedParameterTypes", actual);
@@ -313,7 +309,7 @@ namespace cucumber::query
 
                     for (const auto& attachment : attachments)
                     {
-                        actual["testStepFinished"].push_back({ ToJson(attachment->testStepId), ToJson(attachment->testCaseStartedId), attachment->mediaType, attachment->contentEncoding });
+                        actual["testStepFinished"].push_back({ ToJson(attachment.testStepId), ToJson(attachment.testCaseStartedId), attachment.mediaType, attachment.contentEncoding });
                     }
                 }
             }
@@ -325,7 +321,7 @@ namespace cucumber::query
 
                 for (const auto& attachment : attachments)
                 {
-                    actual["testRunHookFinished"].push_back({ ToJson(attachment->testRunHookStartedId), attachment->mediaType, attachment->contentEncoding });
+                    actual["testRunHookFinished"].push_back({ ToJson(attachment.testRunHookStartedId), attachment.mediaType, attachment.contentEncoding });
                 }
             }
 
@@ -340,10 +336,10 @@ namespace cucumber::query
 
                 for (const auto& testStep : testSteps)
                 {
-                    const auto& hook = query.FindHookBy(testStep);
-                    if (hook.has_value())
+                    const auto* hook = query.FindHookBy(testStep);
+                    if (hook != nullptr)
                     {
-                        actual.push_back(hook.value()->id);
+                        actual.push_back(hook->id);
                     }
                 }
 
@@ -370,9 +366,9 @@ namespace cucumber::query
                 for (const auto& item : items)
                 {
                     const auto& lineageAndPickle = query.FindLineageBy(item);
-                    if (lineageAndPickle.has_value())
+                    if (lineageAndPickle)
                     {
-                        const auto& [lineage, pickle] = lineageAndPickle.value();
+                        const auto& [lineage, pickle] = *lineageAndPickle;
                         actual.push_back(namingStrategy->Reduce(*lineage, *pickle));
                     }
                 }
@@ -395,10 +391,10 @@ namespace cucumber::query
 
             for (const auto& pickle : query.FindAllPickles())
             {
-                const auto location = query.FindLocationOf(pickle);
-                if (location.has_value())
+                const auto* location = query.FindLocationOf(pickle);
+                if (location != nullptr)
                 {
-                    actual.push_back({ { "line", location.value()->line }, { "column", ToJson(location.value()->column) } });
+                    actual.push_back({ { "line", location->line }, { "column", ToJson(location->column) } });
                 }
             }
 
@@ -407,12 +403,12 @@ namespace cucumber::query
 
         TEST_P(QueryAcceptanceTest, findMeta)
         {
-            const auto meta = query.FindMeta();
+            const auto* meta = query.FindMeta();
 
             nlohmann::json actual;
-            if (meta.has_value())
+            if (meta != nullptr)
             {
-                actual = meta.value()->implementation->name;
+                actual = meta->implementation.name;
             }
 
             Verify("findMeta", actual);
@@ -426,10 +422,10 @@ namespace cucumber::query
 
                 for (const auto& item : items)
                 {
-                    const auto mostSevereTestStepResult = query.FindMostSevereTestStepResultBy(item);
-                    if (mostSevereTestStepResult.has_value())
+                    const auto* mostSevereTestStepResult = query.FindMostSevereTestStepResultBy(item);
+                    if (mostSevereTestStepResult != nullptr)
                     {
-                        actual.emplace_back(to_string(mostSevereTestStepResult.value()->status));
+                        actual.emplace_back(to_string(mostSevereTestStepResult->status));
                     }
                 }
 
@@ -452,10 +448,10 @@ namespace cucumber::query
 
                 for (const auto& item : items)
                 {
-                    const auto pickle = query.FindPickleBy(item);
-                    if (pickle.has_value())
+                    const auto* pickle = query.FindPickleBy(item);
+                    if (pickle != nullptr)
                     {
-                        actual.push_back(pickle.value()->name);
+                        actual.push_back(pickle->name);
                     }
                 }
 
@@ -478,10 +474,10 @@ namespace cucumber::query
 
             for (const auto& testStep : query.FindAllTestSteps())
             {
-                const auto pickleStep = query.FindPickleStepBy(testStep);
-                if (pickleStep.has_value())
+                const auto* pickleStep = query.FindPickleStepBy(testStep);
+                if (pickleStep != nullptr)
                 {
-                    actual.emplace_back(pickleStep.value()->text);
+                    actual.emplace_back(pickleStep->text);
                 }
             }
 
@@ -494,10 +490,10 @@ namespace cucumber::query
 
             for (const auto& pickleStep : query.FindAllPickleSteps())
             {
-                const auto step = query.FindStepBy(pickleStep);
-                if (step.has_value())
+                const auto* step = query.FindStepBy(pickleStep);
+                if (step != nullptr)
                 {
-                    actual.emplace_back(step.value()->text);
+                    actual.emplace_back(step->text);
                 }
             }
 
@@ -514,7 +510,7 @@ namespace cucumber::query
 
                 for (const auto& stepDefinition : query.FindStepDefinitionsBy(testStep))
                 {
-                    actualIds.emplace_back(stepDefinition->id);
+                    actualIds.emplace_back(stepDefinition.id);
                 }
             }
 
@@ -531,7 +527,7 @@ namespace cucumber::query
                 {
                     for (const auto& suggestion : query.FindSuggestionsBy(item))
                     {
-                        actual.emplace_back(suggestion->id);
+                        actual.emplace_back(suggestion.id);
                     }
                 }
 
@@ -554,10 +550,10 @@ namespace cucumber::query
 
                 for (const auto& item : items)
                 {
-                    const auto& testCase = query.FindTestCaseBy(item);
-                    if (testCase.has_value())
+                    const auto* testCase = query.FindTestCaseBy(item);
+                    if (testCase != nullptr)
                     {
-                        actual.push_back(testCase.value()->id);
+                        actual.push_back(testCase->id);
                     }
                 }
                 return actual;
@@ -582,9 +578,9 @@ namespace cucumber::query
                 for (const auto& item : items)
                 {
                     const auto& testCase = query.FindTestCaseDurationBy(item);
-                    if (testCase.has_value())
+                    if (testCase)
                     {
-                        testCase.value()->to_json(actual.emplace_back());
+                        testCase->to_json(actual.emplace_back());
                     }
                 }
                 return actual;
@@ -604,10 +600,10 @@ namespace cucumber::query
 
             for (const auto& testCaseStarted : query.FindAllTestCaseStarted())
             {
-                const auto& testCaseFinished = query.FindTestCaseFinishedBy(testCaseStarted);
-                if (testCaseFinished.has_value())
+                const auto* testCaseFinished = query.FindTestCaseFinishedBy(testCaseStarted);
+                if (testCaseFinished != nullptr)
                 {
-                    actual.push_back(testCaseFinished.value()->testCaseStartedId);
+                    actual.push_back(testCaseFinished->testCaseStartedId);
                 }
             }
 
@@ -621,10 +617,10 @@ namespace cucumber::query
                 nlohmann::json actual = nlohmann::json::array();
                 for (const auto& testCaseFinished : items)
                 {
-                    const auto& testCaseStarted = query.FindTestCaseStartedBy(testCaseFinished);
-                    if (testCaseStarted.has_value())
+                    const auto* testCaseStarted = query.FindTestCaseStartedBy(testCaseFinished);
+                    if (testCaseStarted != nullptr)
                     {
-                        actual.push_back(testCaseStarted.value()->id);
+                        actual.push_back(testCaseStarted->id);
                     }
                 }
 
@@ -645,9 +641,9 @@ namespace cucumber::query
             nlohmann::json actual;
 
             const auto testRunDuration = query.FindTestRunDuration();
-            if (testRunDuration.has_value())
+            if (testRunDuration)
             {
-                testRunDuration.value()->to_json(actual);
+                testRunDuration->to_json(actual);
             }
 
             Verify("findTestRunDuration", actual);
@@ -657,10 +653,10 @@ namespace cucumber::query
         {
             nlohmann::json actual;
 
-            const auto testRunFinished = query.FindTestRunFinished();
-            if (testRunFinished.has_value())
+            const auto* testRunFinished = query.FindTestRunFinished();
+            if (testRunFinished != nullptr)
             {
-                testRunFinished.value()->to_json(actual);
+                testRunFinished->to_json(actual);
             }
 
             Verify("findTestRunFinished", actual);
@@ -672,10 +668,10 @@ namespace cucumber::query
 
             for (const auto& testRunHookStarted : query.FindAllTestRunHookStarted())
             {
-                const auto& testRunHookFinished = query.FindTestRunHookFinishedBy(testRunHookStarted);
-                if (testRunHookFinished.has_value())
+                const auto* testRunHookFinished = query.FindTestRunHookFinishedBy(testRunHookStarted);
+                if (testRunHookFinished != nullptr)
                 {
-                    actual.emplace_back(testRunHookFinished.value()->testRunHookStartedId);
+                    actual.emplace_back(testRunHookFinished->testRunHookStartedId);
                 }
             }
 
@@ -688,10 +684,10 @@ namespace cucumber::query
 
             for (const auto& testRunHookFinished : query.FindAllTestRunHookFinished())
             {
-                const auto& testRunHookStarted = query.FindTestRunHookStartedBy(testRunHookFinished);
-                if (testRunHookStarted.has_value())
+                const auto* testRunHookStarted = query.FindTestRunHookStartedBy(testRunHookFinished);
+                if (testRunHookStarted != nullptr)
                 {
-                    actual.emplace_back(testRunHookStarted.value()->id);
+                    actual.emplace_back(testRunHookStarted->id);
                 }
             }
 
@@ -702,10 +698,10 @@ namespace cucumber::query
         {
             nlohmann::json actual;
 
-            const auto testRunStarted = query.FindTestRunStarted();
-            if (testRunStarted.has_value())
+            const auto* testRunStarted = query.FindTestRunStarted();
+            if (testRunStarted != nullptr)
             {
-                testRunStarted.value()->to_json(actual);
+                testRunStarted->to_json(actual);
             }
 
             Verify("findTestRunStarted", actual);
@@ -722,10 +718,10 @@ namespace cucumber::query
             {
                 for (const auto& testStepEvent : testSteps)
                 {
-                    const auto& testStep = query.FindTestStepBy(testStepEvent);
-                    if (testStep.has_value())
+                    const auto* testStep = query.FindTestStepBy(testStepEvent);
+                    if (testStep != nullptr)
                     {
-                        actual[key].emplace_back(testStep.value()->id);
+                        actual[key].emplace_back(testStep->id);
                     }
                 }
             };
@@ -767,7 +763,7 @@ namespace cucumber::query
 
                     for (const auto& testStepFinished : testStepsFinished)
                     {
-                        nested.push_back(testStepFinished->testStepId);
+                        nested.push_back(testStepFinished.testStepId);
                     }
                 }
 
@@ -795,7 +791,7 @@ namespace cucumber::query
 
                     for (const auto& testStepFinished : testStepsFinished)
                     {
-                        nested.push_back(testStepFinished->testStepId);
+                        nested.push_back(testStepFinished.testStepId);
                     }
                 }
 
@@ -816,10 +812,10 @@ namespace cucumber::query
 
             for (const auto& testStep : query.FindAllTestSteps())
             {
-                const auto& stepDefinition = query.FindUnambiguousStepDefinitionBy(testStep);
-                if (stepDefinition.has_value())
+                const auto* stepDefinition = query.FindUnambiguousStepDefinitionBy(testStep);
+                if (stepDefinition != nullptr)
                 {
-                    actual.push_back(stepDefinition.value()->id);
+                    actual.push_back(stepDefinition->id);
                 }
             }
 
@@ -831,7 +827,7 @@ namespace cucumber::query
         protected:
             auto SetUp() -> void override
             {
-                query = LoadQuery(GetParam().source);
+                LoadQuery(GetParam().source, archive, query);
             }
 
             auto Verify(std::string_view variant, const NamingStrategy& strategy) const -> void
@@ -841,9 +837,9 @@ namespace cucumber::query
                 for (const auto& pickle : query.FindAllPickles())
                 {
                     const auto lineageAndPickle = query.FindLineageBy(pickle);
-                    if (lineageAndPickle.has_value())
+                    if (lineageAndPickle)
                     {
-                        actual += strategy.Reduce(*lineageAndPickle.value().lineage, *lineageAndPickle.value().pickle) + "\n";
+                        actual += strategy.Reduce(*lineageAndPickle->lineage, *lineageAndPickle->pickle) + "\n";
                     }
                 }
 
@@ -853,6 +849,7 @@ namespace cucumber::query
                 EXPECT_EQ(actual, std::string(std::istreambuf_iterator<char>{ ifstream }, std::istreambuf_iterator<char>{}));
             }
 
+            EnvelopeArchive archive;
             Query query;
         };
 

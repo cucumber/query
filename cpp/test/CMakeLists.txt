@@ -3,6 +3,7 @@ add_executable(cucumber_query_lib.test)
 target_sources(cucumber_query_lib.test
     PRIVATE
         TestQuery.cpp
+        TestView.cpp
 )
 
 target_link_libraries(cucumber_query_lib.test

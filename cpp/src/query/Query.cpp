@@ -3,6 +3,7 @@
 #include "cucumber/messages/DurationUtil.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
 #include "cucumber/query/Lineage.hpp"
+#include "cucumber/query/View.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
@@ -18,145 +19,118 @@ namespace cucumber::query
 {
     namespace
     {
-        template<class T, typename Proj>
-        auto SortBy(std::vector<T>& container, const Proj& projection) -> void
-        {
-            std::sort(container.begin(), container.end(),
-                [&projection](const auto& lhs, const auto& rhs)
-                {
-                    return std::stoi(std::invoke(projection, lhs)) < std::stoi(std::invoke(projection, rhs));
-                });
-        }
-
         auto SortBySeverity(std::vector<TestStepFinishedAndTestStep>& container) -> void
         {
             std::sort(container.begin(), container.end(),
                 [](const auto& lhs, const auto& rhs)
                 {
                     using underlying_type = std::underlying_type_t<messages::TestStepResultStatus>;
-                    return static_cast<underlying_type>(lhs.testStepFinished->testStepResult->status) > static_cast<underlying_type>(rhs.testStepFinished->testStepResult->status);
+                    return static_cast<underlying_type>(lhs.testStepFinished->testStepResult.status) > static_cast<underlying_type>(rhs.testStepFinished->testStepResult.status);
                 });
         }
 
-        template<typename T, typename C>
-        auto MapValuesToVector(const std::map<std::string, T, C>& container)
+        template<typename T>
+        auto Empty() -> const Pointers<T>&
         {
-            std::vector<T> result;
-            result.reserve(container.size());
-
-            for (const auto& [key, value] : container)
-            {
-                result.push_back(value);
-            }
-
-            return result;
+            static const Pointers<T> empty;
+            return empty;
         }
 
-        template<typename T, typename C>
-        auto MapValuesToVectorSortBy(const std::map<std::string, T, C>& container)
+        template<typename T>
+        auto FindOne(const ById<T>& container, const std::string& id) -> const T*
         {
-            return MapValuesToVector(container);
+            const auto iter = container.find(id);
+            return iter != container.end() ? iter->second : nullptr;
         }
 
-        template<typename T, typename C>
-        auto MapValuesToVector(const std::map<std::string, std::vector<T>, C>& container)
+        auto FindOne(const std::map<std::string, Lineage, StringIdCompare>& container, const std::string& id) -> const Lineage*
         {
-            std::vector<T> result;
-            result.reserve(container.size());
-
-            for (const auto& [key, value] : container)
-            {
-                result.insert(result.end(), value.begin(), value.end());
-            }
-
-            return result;
+            const auto iter = container.find(id);
+            return iter != container.end() ? &iter->second : nullptr;
         }
 
-        template<typename T, typename C>
-        auto MapValuesToVectorSortBy(const std::map<std::string, std::vector<T>, C>& container)
+        template<typename T>
+        auto FindMany(const ManyById<T>& container, const std::string& id) -> const Pointers<T>&
         {
-            return MapValuesToVector(container);
+            const auto iter = container.find(id);
+            return iter != container.end() ? iter->second : Empty<T>();
         }
+    }
 
-        template<class... Ts>
-        struct overloaded : Ts...
-        {
-            using Ts::operator()...;
-        };
-        // explicit deduction guide (not needed as of C++20)
-        template<class... Ts>
-        overloaded(Ts...) -> overloaded<Ts...>;
+    auto Query::Update(const std::shared_ptr<const cucumber::messages::Envelope>& envelope) -> void
+    {
+        Update(*envelope);
     }
 
     auto Query::Update(const cucumber::messages::Envelope& envelope) -> void
     {
-        if (envelope.meta.has_value())
+        if (envelope.meta)
         {
-            meta = envelope.meta.value();
+            meta = std::addressof(*envelope.meta);
         }
-        if (envelope.gherkinDocument.has_value())
+        if (envelope.gherkinDocument)
         {
-            UpdateGherkinDocument(envelope.gherkinDocument.value());
+            UpdateGherkinDocument(*envelope.gherkinDocument);
         }
-        if (envelope.pickle.has_value())
+        if (envelope.pickle)
         {
-            UpdatePickle(envelope.pickle.value());
+            UpdatePickle(*envelope.pickle);
         }
-        if (envelope.hook.has_value())
+        if (envelope.hook)
         {
-            hookById[envelope.hook.value()->id] = envelope.hook.value();
+            hookById[envelope.hook->id] = std::addressof(*envelope.hook);
         }
-        if (envelope.stepDefinition.has_value())
+        if (envelope.stepDefinition)
         {
-            stepDefinitionById[envelope.stepDefinition.value()->id] = envelope.stepDefinition.value();
+            stepDefinitionById[envelope.stepDefinition->id] = std::addressof(*envelope.stepDefinition);
         }
-        if (envelope.testRunStarted.has_value())
+        if (envelope.testRunStarted)
         {
-            testRunStarted = envelope.testRunStarted.value();
+            testRunStarted = std::addressof(*envelope.testRunStarted);
         }
-        if (envelope.testRunHookStarted.has_value())
+        if (envelope.testRunHookStarted)
         {
-            UpdateTestRunHookStarted(envelope.testRunHookStarted.value());
+            UpdateTestRunHookStarted(*envelope.testRunHookStarted);
         }
-        if (envelope.testRunHookFinished.has_value())
+        if (envelope.testRunHookFinished)
         {
-            UpdateTestRunHookFinished(envelope.testRunHookFinished.value());
+            UpdateTestRunHookFinished(*envelope.testRunHookFinished);
         }
-        if (envelope.testCase.has_value())
+        if (envelope.testCase)
         {
-            UpdateTestCase(envelope.testCase.value());
+            UpdateTestCase(*envelope.testCase);
         }
-        if (envelope.testCaseStarted.has_value())
+        if (envelope.testCaseStarted)
         {
-            UpdateTestCaseStarted(envelope.testCaseStarted.value());
+            UpdateTestCaseStarted(*envelope.testCaseStarted);
         }
-        if (envelope.testStepStarted.has_value())
+        if (envelope.testStepStarted)
         {
-            testStepStartedByTestCaseStartedId[envelope.testStepStarted.value()->testCaseStartedId].push_back(envelope.testStepStarted.value());
+            testStepStartedByTestCaseStartedId[envelope.testStepStarted->testCaseStartedId].push_back(std::addressof(*envelope.testStepStarted));
         }
-        if (envelope.attachment.has_value())
+        if (envelope.attachment)
         {
-            UpdateAttachment(envelope.attachment.value());
+            UpdateAttachment(*envelope.attachment);
         }
-        if (envelope.testStepFinished.has_value())
+        if (envelope.testStepFinished)
         {
-            UpdateTestStepFinished(envelope.testStepFinished.value());
+            UpdateTestStepFinished(*envelope.testStepFinished);
         }
-        if (envelope.testCaseFinished.has_value())
+        if (envelope.testCaseFinished)
         {
-            UpdateTestCaseFinished(envelope.testCaseFinished.value());
+            UpdateTestCaseFinished(*envelope.testCaseFinished);
         }
-        if (envelope.testRunFinished.has_value())
+        if (envelope.testRunFinished)
         {
-            testRunFinished = envelope.testRunFinished.value();
+            testRunFinished = std::addressof(*envelope.testRunFinished);
         }
-        if (envelope.suggestion.has_value())
+        if (envelope.suggestion)
         {
-            suggestionsByPickleStepId[envelope.suggestion.value()->pickleStepId] = envelope.suggestion.value();
+            suggestionsByPickleStepId[envelope.suggestion->pickleStepId] = std::addressof(*envelope.suggestion);
         }
-        if (envelope.undefinedParameterType.has_value())
+        if (envelope.undefinedParameterType)
         {
-            undefinedParameterTypes.push_back(envelope.undefinedParameterType.value());
+            undefinedParameterTypes.push_back(std::addressof(*envelope.undefinedParameterType));
         }
     }
 
@@ -179,7 +153,7 @@ namespace cucumber::query
             {
                 SortBySeverity(testStepFinishedAndTestStep);
 
-                ++result[testStepFinishedAndTestStep.front().testStepFinished->testStepResult->status];
+                ++result[testStepFinishedAndTestStep.front().testStepFinished->testStepResult.status];
             }
         }
 
@@ -191,691 +165,619 @@ namespace cucumber::query
         return FindAllTestCaseStarted().size();
     }
 
-    auto Query::FindAllPickles() const -> std::vector<std::shared_ptr<const messages::Pickle>>
+    auto Query::FindAllPickles() const -> ValuesView<messages::Pickle>
     {
-        return MapValuesToVectorSortBy(pickleById);
+        return pickleById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllPickleSteps() const -> std::vector<std::shared_ptr<const messages::PickleStep>>
+    auto Query::FindAllPickleSteps() const -> ValuesView<messages::PickleStep>
     {
-        return MapValuesToVectorSortBy(pickleStepById);
+        return pickleStepById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllStepDefinitions() const -> std::vector<std::shared_ptr<const messages::StepDefinition>>
+    auto Query::FindAllStepDefinitions() const -> ValuesView<messages::StepDefinition>
     {
-        return MapValuesToVectorSortBy(stepDefinitionById);
+        return stepDefinitionById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllTestCaseStarted() const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>
+    auto Query::FindAllTestCaseStarted() const -> FilteredValuesView<messages::TestCaseStarted>
     {
-        std::vector<std::shared_ptr<const messages::TestCaseStarted>> result;
+        return testCaseStartedById | views::Values() | views::Dereference() |
+               views::Filter(Predicate<messages::TestCaseStarted>{ [this](const messages::TestCaseStarted& testCaseStarted)
+                   {
+                       const auto* testCaseFinished = FindTestCaseFinishedBy(testCaseStarted);
+                       return testCaseFinished == nullptr || !testCaseFinished->willBeRetried;
+                   } });
+    }
 
-        for (const auto& [testCaseStartedId, testCaseStarted] : testCaseStartedById)
+    auto Query::FindAllTestCaseFinished() const -> FilteredValuesView<messages::TestCaseFinished>
+    {
+        return testCaseFinishedByTestCaseStartedId | views::Values() | views::Dereference() |
+               views::Filter(Predicate<messages::TestCaseFinished>{ [](const messages::TestCaseFinished& testCaseFinished)
+                   {
+                       return !testCaseFinished.willBeRetried;
+                   } });
+    }
+
+    auto Query::FindAllTestSteps() const -> ValuesView<messages::TestStep>
+    {
+        return testStepById | views::Values() | views::Dereference();
+    }
+
+    auto Query::FindAllTestCases() const -> ValuesView<messages::TestCase>
+    {
+        return testCaseById | views::Values() | views::Dereference();
+    }
+
+    auto Query::FindAllTestStepStarted() const -> JoinedValuesView<messages::TestStepStarted>
+    {
+        return testStepStartedByTestCaseStartedId | views::Values() | views::Join() | views::Dereference();
+    }
+
+    auto Query::FindAllTestStepFinished() const -> JoinedValuesView<messages::TestStepFinished>
+    {
+        return testStepFinishedByTestCaseStartedId | views::Values() | views::Join() | views::Dereference();
+    }
+
+    auto Query::FindAllTestRunHookStarted() const -> ValuesView<messages::TestRunHookStarted>
+    {
+        return testRunHookStartedById | views::Values() | views::Dereference();
+    }
+
+    auto Query::FindAllTestRunHookFinished() const -> ValuesView<messages::TestRunHookFinished>
+    {
+        return testRunHookFinishedByTestRunHookStartedId | views::Values() | views::Dereference();
+    }
+
+    auto Query::FindAllUndefinedParameterTypes() const -> ElementsView<messages::UndefinedParameterType>
+    {
+        return undefinedParameterTypes | views::Dereference();
+    }
+
+    auto Query::FindAttachmentsBy(const messages::TestStepFinished& element) const -> FilteredElementsView<messages::Attachment>
+    {
+        return FindMany(attachmentsByTestCaseStartedId, element.testCaseStartedId) | views::Dereference() |
+               views::Filter(Predicate<messages::Attachment>{ [testStepId = element.testStepId](const messages::Attachment& attachment)
+                   {
+                       return attachment.testStepId == testStepId;
+                   } });
+    }
+
+    auto Query::FindAttachmentsBy(const messages::TestRunHookFinished& element) const -> ElementsView<messages::Attachment>
+    {
+        return FindMany(attachmentsByTestRunHookStartedId, element.testRunHookStartedId) | views::Dereference();
+    }
+
+    auto Query::FindHookBy(const messages::TestStep& element) const -> const messages::Hook*
+    {
+        if (element.hookId)
         {
-            auto iter = testCaseFinishedByTestCaseStartedId.find(testCaseStarted->id);
-
-            if (iter == testCaseFinishedByTestCaseStartedId.end() || !iter->second->willBeRetried)
-            {
-                result.push_back(testCaseStarted);
-            }
+            return FindOne(hookById, *element.hookId);
         }
-
-        SortBy(result, &messages::TestCaseStarted::id);
-
-        return result;
+        return nullptr;
     }
 
-    auto Query::FindAllTestCaseFinished() const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>
+    auto Query::FindHookBy(const messages::TestRunHookStarted& element) const -> const messages::Hook*
     {
-        std::vector<std::shared_ptr<const messages::TestCaseFinished>> result;
+        return FindOne(hookById, element.hookId);
+    }
 
-        for (const auto& [testCaseStartedId, testCaseFinished] : testCaseFinishedByTestCaseStartedId)
+    auto Query::FindHookBy(const messages::TestRunHookFinished& element) const -> const messages::Hook*
+    {
+        const auto* testRunHookStarted = FindTestRunHookStartedBy(element);
+        if (testRunHookStarted != nullptr)
         {
-            if (!testCaseFinished->willBeRetried)
-            {
-                result.push_back(testCaseFinished);
-            }
+            return FindHookBy(*testRunHookStarted);
         }
-
-        SortBy(result, &messages::TestCaseFinished::testCaseStartedId);
-
-        return result;
+        return nullptr;
     }
 
-    auto Query::FindAllTestSteps() const -> std::vector<std::shared_ptr<const messages::TestStep>>
-    {
-        return MapValuesToVectorSortBy(testStepById);
-    }
-
-    auto Query::FindAllTestCases() const -> std::vector<std::shared_ptr<const messages::TestCase>>
-    {
-        return MapValuesToVectorSortBy(testCaseById);
-    }
-
-    auto Query::FindAllTestStepStarted() const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
-    {
-        return MapValuesToVectorSortBy(testStepStartedByTestCaseStartedId);
-    }
-
-    auto Query::FindAllTestStepFinished() const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
-    {
-        return MapValuesToVectorSortBy(testStepFinishedByTestCaseStartedId);
-    }
-
-    auto Query::FindAllTestRunHookStarted() const -> std::vector<std::shared_ptr<const messages::TestRunHookStarted>>
-    {
-        return MapValuesToVectorSortBy(testRunHookStartedById);
-    }
-
-    auto Query::FindAllTestRunHookFinished() const -> std::vector<std::shared_ptr<const messages::TestRunHookFinished>>
-    {
-        return MapValuesToVectorSortBy(testRunHookFinishedByTestRunHookStartedId);
-    }
-
-    auto Query::FindAllUndefinedParameterTypes() const -> std::vector<std::shared_ptr<const messages::UndefinedParameterType>>
-    {
-        return undefinedParameterTypes;
-    }
-
-    auto Query::FindAttachmentsBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::vector<std::shared_ptr<const messages::Attachment>>
-    {
-        std::vector<std::shared_ptr<const messages::Attachment>> result;
-        if (attachmentsByTestCaseStartedId.find(element->testCaseStartedId) != attachmentsByTestCaseStartedId.end())
-        {
-            for (const auto& attachment : attachmentsByTestCaseStartedId.at(element->testCaseStartedId))
-            {
-                if (attachment->testStepId == element->testStepId)
-                {
-                    result.push_back(attachment);
-                }
-            }
-        }
-        return result;
-    }
-
-    auto Query::FindAttachmentsBy(const std::shared_ptr<const messages::TestRunHookFinished>& element) const -> std::vector<std::shared_ptr<const messages::Attachment>>
-    {
-        if (attachmentsByTestRunHookStartedId.find(element->testRunHookStartedId) != attachmentsByTestRunHookStartedId.end())
-        {
-            return attachmentsByTestRunHookStartedId.at(element->testRunHookStartedId);
-        }
-        return {};
-    }
-
-    auto Query::FindHookBy(const std::shared_ptr<const messages::TestStep>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>
-    {
-        if (element->hookId.has_value())
-        {
-            return hookById.at(element->hookId.value());
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindHookBy(const std::shared_ptr<const messages::TestRunHookStarted>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>
-    {
-        if (hookById.find(element->hookId) != hookById.end())
-        {
-            return hookById.at(element->hookId);
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindHookBy(const std::shared_ptr<const messages::TestRunHookFinished>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>
-    {
-        const auto testRunHookStarted = FindTestRunHookStartedBy(element);
-        if (testRunHookStarted.has_value())
-        {
-            return FindHookBy(testRunHookStarted.value());
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindMeta() const -> std::optional<std::shared_ptr<const messages::Meta>>
+    auto Query::FindMeta() const -> const messages::Meta*
     {
         return meta;
     }
 
-    auto Query::FindMostSevereTestStepResultBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestStepResult>>
+    auto Query::FindMostSevereTestStepResultBy(const messages::TestCaseStarted& element) const -> const messages::TestStepResult*
     {
         auto testStepFinishedAndTestStep = FindTestStepFinishedAndTestStepBy(element);
         if (!testStepFinishedAndTestStep.empty())
         {
             SortBySeverity(testStepFinishedAndTestStep);
 
-            return testStepFinishedAndTestStep.front().testStepFinished->testStepResult;
+            return std::addressof(testStepFinishedAndTestStep.front().testStepFinished->testStepResult);
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindMostSevereTestStepResultBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestStepResult>>
+    auto Query::FindMostSevereTestStepResultBy(const messages::TestCaseFinished& element) const -> const messages::TestStepResult*
     {
-        const auto testCaseStarted = FindTestCaseStartedBy(element);
-        if (testCaseStarted.has_value())
+        const auto* testCaseStarted = FindTestCaseStartedBy(element);
+        if (testCaseStarted != nullptr)
         {
-            return FindMostSevereTestStepResultBy(testCaseStarted.value());
+            return FindMostSevereTestStepResultBy(*testCaseStarted);
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const -> std::optional<std::shared_ptr<const messages::Location>>
+    auto Query::FindLocationOf(const messages::Pickle& pickle) const -> const messages::Location*
     {
-        if (pickle->location.has_value())
+        if (pickle.location)
         {
-            return pickle->location.value();
+            return std::addressof(*pickle.location);
         }
 
         const auto lineageAndPickle = FindLineageBy(pickle);
 
-        if (lineageAndPickle.has_value())
+        if (lineageAndPickle)
         {
-            const auto& lineage = lineageAndPickle.value().lineage;
+            const auto* lineage = lineageAndPickle->lineage;
 
             if (lineage->example)
             {
-                return lineage->example->location;
+                return std::addressof(lineage->example->location);
             }
 
             if (lineage->scenario)
             {
-                return lineage->scenario->location;
+                return std::addressof(lineage->scenario->location);
             }
         }
 
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    auto Query::FindPickleBy(const messages::TestCaseStarted& element) const -> const messages::Pickle*
     {
-        const auto& testCase = FindTestCaseBy(element);
-        if (testCase.has_value())
+        const auto* testCase = FindTestCaseBy(element);
+        if (testCase != nullptr)
         {
-            return pickleById.at(testCase.value()->pickleId);
+            return FindOne(pickleById, testCase->pickleId);
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    auto Query::FindPickleBy(const messages::TestCaseFinished& element) const -> const messages::Pickle*
     {
-        const auto& testCase = FindTestCaseBy(element);
-        if (testCase.has_value())
+        const auto* testCase = FindTestCaseBy(element);
+        if (testCase != nullptr)
         {
-            return pickleById.at(testCase.value()->pickleId);
+            return FindOne(pickleById, testCase->pickleId);
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    auto Query::FindPickleBy(const messages::TestStepStarted& element) const -> const messages::Pickle*
     {
-        const auto& testCase = FindTestCaseBy(element);
-        if (testCase.has_value())
+        const auto* testCase = FindTestCaseBy(element);
+        if (testCase != nullptr)
         {
-            return pickleById.at(testCase.value()->pickleId);
+            return FindOne(pickleById, testCase->pickleId);
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindPickleBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>
+    auto Query::FindPickleBy(const messages::TestStepFinished& element) const -> const messages::Pickle*
     {
-        const auto& testCase = FindTestCaseBy(element);
-        if (testCase.has_value())
+        const auto* testCase = FindTestCaseBy(element);
+        if (testCase != nullptr)
         {
-            return pickleById.at(testCase.value()->pickleId);
+            return FindOne(pickleById, testCase->pickleId);
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindPickleStepBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::optional<std::shared_ptr<const messages::PickleStep>>
+    auto Query::FindPickleStepBy(const messages::TestStep& testStep) const -> const messages::PickleStep*
     {
-        if (testStep->pickleStepId.has_value())
+        if (testStep.pickleStepId)
         {
-            return pickleStepById.at(testStep->pickleStepId.value());
+            return FindOne(pickleStepById, *testStep.pickleStepId);
         }
-        return std::nullopt;
+        return nullptr;
     }
 
-    auto Query::FindStepBy(const std::shared_ptr<const messages::PickleStep>& pickleStep) const -> std::optional<std::shared_ptr<const messages::Step>>
+    auto Query::FindStepBy(const messages::PickleStep& pickleStep) const -> const messages::Step*
     {
-        const auto stepId = pickleStep->astNodeIds.front();
-
-        if (stepById.find(stepId) != stepById.end())
-        {
-            return stepById.at(pickleStep->astNodeIds.front());
-        }
-        return std::nullopt;
+        return FindOne(stepById, pickleStep.astNodeIds.front());
     }
 
-    auto Query::FindStepDefinitionsBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::vector<std::shared_ptr<const messages::StepDefinition>>
+    auto Query::FindStepDefinitionsBy(const messages::TestStep& testStep) const -> OwningView<messages::StepDefinition>
     {
-        std::vector<std::shared_ptr<const messages::StepDefinition>> result;
+        std::vector<const messages::StepDefinition*> result;
 
-        if (testStep->stepDefinitionIds.has_value())
+        if (testStep.stepDefinitionIds)
         {
-            for (const auto& stepDefinitionId : testStep->stepDefinitionIds.value())
+            for (const auto& stepDefinitionId : *testStep.stepDefinitionIds)
             {
-                if (stepDefinitionById.find(stepDefinitionId) != stepDefinitionById.end())
+                const auto* stepDefinition = FindOne(stepDefinitionById, stepDefinitionId);
+                if (stepDefinition != nullptr)
                 {
-                    result.push_back(stepDefinitionById.at(stepDefinitionId));
+                    result.push_back(stepDefinition);
                 }
             }
         }
 
-        return result;
+        return OwningView<messages::StepDefinition>{ std::move(result), views::SelectPointee{} };
     }
 
-    auto Query::FindSuggestionsBy(const std::shared_ptr<const messages::PickleStep>& element) const -> std::vector<std::shared_ptr<const messages::Suggestion>>
+    auto Query::FindSuggestionsBy(const messages::PickleStep& element) const -> OwningView<messages::Suggestion>
     {
-        if (suggestionsByPickleStepId.find(element->id) != suggestionsByPickleStepId.end())
+        std::vector<const messages::Suggestion*> result;
+
+        const auto* suggestion = FindOne(suggestionsByPickleStepId, element.id);
+        if (suggestion != nullptr)
         {
-            return { suggestionsByPickleStepId.at(element->id) };
+            result.push_back(suggestion);
         }
 
-        return {};
+        return OwningView<messages::Suggestion>{ std::move(result), views::SelectPointee{} };
     }
 
-    auto Query::FindSuggestionsBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::vector<std::shared_ptr<const messages::Suggestion>>
+    auto Query::FindSuggestionsBy(const messages::Pickle& element) const -> OwningView<messages::Suggestion>
     {
-        std::vector<std::shared_ptr<const messages::Suggestion>> result;
-        for (const auto& pickleStep : element->steps)
-        {
-            const auto suggestions = FindSuggestionsBy(pickleStep);
-            result.insert(result.end(), suggestions.begin(), suggestions.end());
-        }
-        return result;
-    }
+        std::vector<const messages::Suggestion*> result;
 
-    auto Query::FindUnambiguousStepDefinitionBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::optional<std::shared_ptr<const messages::StepDefinition>>
-    {
-        if (testStep->stepDefinitionIds.has_value() && testStep->stepDefinitionIds.value().size() == 1)
+        for (const auto& pickleStep : element.steps)
         {
-            const auto stepDefinitionId = testStep->stepDefinitionIds.value().front();
-            if (stepDefinitionById.find(stepDefinitionId) != stepDefinitionById.end())
+            const auto* suggestion = FindOne(suggestionsByPickleStepId, pickleStep.id);
+            if (suggestion != nullptr)
             {
-                return stepDefinitionById.at(stepDefinitionId);
+                result.push_back(suggestion);
             }
         }
+
+        return OwningView<messages::Suggestion>{ std::move(result), views::SelectPointee{} };
+    }
+
+    auto Query::FindUnambiguousStepDefinitionBy(const messages::TestStep& testStep) const -> const messages::StepDefinition*
+    {
+        if (testStep.stepDefinitionIds && testStep.stepDefinitionIds->size() == 1)
+        {
+            return FindOne(stepDefinitionById, testStep.stepDefinitionIds->front());
+        }
+        return nullptr;
+    }
+
+    auto Query::FindTestCaseBy(const messages::TestCaseStarted& element) const -> const messages::TestCase*
+    {
+        return FindOne(testCaseById, element.testCaseId);
+    }
+
+    auto Query::FindTestCaseBy(const messages::TestCaseFinished& element) const -> const messages::TestCase*
+    {
+        const auto* testCaseStarted = FindTestCaseStartedBy(element);
+        if (testCaseStarted != nullptr)
+        {
+            return FindTestCaseBy(*testCaseStarted);
+        }
+        return nullptr;
+    }
+
+    auto Query::FindTestCaseBy(const messages::TestStepStarted& element) const -> const messages::TestCase*
+    {
+        const auto* testCaseStarted = FindTestCaseStartedBy(element);
+        if (testCaseStarted != nullptr)
+        {
+            return FindTestCaseBy(*testCaseStarted);
+        }
+        return nullptr;
+    }
+
+    auto Query::FindTestCaseBy(const messages::TestStepFinished& element) const -> const messages::TestCase*
+    {
+        const auto* testCaseStarted = FindTestCaseStartedBy(element);
+        if (testCaseStarted != nullptr)
+        {
+            return FindTestCaseBy(*testCaseStarted);
+        }
+        return nullptr;
+    }
+
+    auto Query::FindTestCaseDurationBy(const messages::TestCaseStarted& element) const -> std::optional<messages::Duration>
+    {
+        const auto* testCaseFinished = FindTestCaseFinishedBy(element);
+        if (testCaseFinished != nullptr)
+        {
+            return testCaseFinished->timestamp - element.timestamp;
+        }
         return std::nullopt;
     }
 
-    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    auto Query::FindTestCaseDurationBy(const messages::TestCaseFinished& element) const -> std::optional<messages::Duration>
     {
-        if (testCaseById.find(element->testCaseId) != testCaseById.end())
+        const auto* testCaseStarted = FindTestCaseStartedBy(element);
+
+        if (testCaseStarted != nullptr)
         {
-            return testCaseById.at(element->testCaseId);
+            return FindTestCaseDurationBy(*testCaseStarted);
         }
 
         return std::nullopt;
     }
 
-    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    auto Query::FindTestCaseStartedBy(const messages::TestCaseFinished& element) const -> const messages::TestCaseStarted*
     {
-        const auto& testCaseStarted = FindTestCaseStartedBy(element);
-        if (testCaseStarted.has_value())
-        {
-            return FindTestCaseBy(testCaseStarted.value());
-        }
-        return std::nullopt;
+        return FindOne(testCaseStartedById, element.testCaseStartedId);
     }
 
-    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    auto Query::FindTestCaseStartedBy(const messages::TestStepStarted& element) const -> const messages::TestCaseStarted*
     {
-        const auto& testCaseStarted = FindTestCaseStartedBy(element);
-        if (testCaseStarted.has_value())
-        {
-            return FindTestCaseBy(testCaseStarted.value());
-        }
-        return std::nullopt;
+        return FindOne(testCaseStartedById, element.testCaseStartedId);
     }
 
-    auto Query::FindTestCaseBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>
+    auto Query::FindTestCaseStartedBy(const messages::TestStepFinished& element) const -> const messages::TestCaseStarted*
     {
-        const auto& testCaseStarted = FindTestCaseStartedBy(element);
-        if (testCaseStarted.has_value())
-        {
-            return FindTestCaseBy(testCaseStarted.value());
-        }
-        return std::nullopt;
+        return FindOne(testCaseStartedById, element.testCaseStartedId);
     }
 
-    auto Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::Duration>>
+    auto Query::FindTestCaseFinishedBy(const messages::TestCaseStarted& testCaseStarted) const -> const messages::TestCaseFinished*
     {
-        const auto& testCaseFinished = FindTestCaseFinishedBy(element);
-        if (testCaseFinished.has_value())
-        {
-            return std::make_shared<messages::Duration>(*testCaseFinished.value()->timestamp - *element->timestamp);
-        }
-        return std::nullopt;
+        return FindOne(testCaseFinishedByTestCaseStartedId, testCaseStarted.id);
     }
 
-    auto Query::FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::Duration>>
+    auto Query::FindTestRunHookStartedBy(const messages::TestRunHookFinished& testRunHookFinished) const -> const messages::TestRunHookStarted*
     {
-        const auto testCaseStarted = FindTestCaseStartedBy(element);
+        return FindOne(testRunHookStartedById, testRunHookFinished.testRunHookStartedId);
+    }
 
-        if (testCaseStarted.has_value())
+    auto Query::FindTestRunHookFinishedBy(const messages::TestRunHookStarted& testRunHookStarted) const -> const messages::TestRunHookFinished*
+    {
+        return FindOne(testRunHookFinishedByTestRunHookStartedId, testRunHookStarted.id);
+    }
+
+    auto Query::FindTestRunDuration() const -> std::optional<messages::Duration>
+    {
+        if (testRunStarted != nullptr && testRunFinished != nullptr)
         {
-            return FindTestCaseDurationBy(testCaseStarted.value());
+            return testRunFinished->timestamp - testRunStarted->timestamp;
         }
 
         return std::nullopt;
     }
 
-    auto Query::FindTestCaseStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-    {
-        const auto iter = testCaseStartedById.find(element->testCaseStartedId);
-        if (iter != testCaseStartedById.end())
-        {
-            return iter->second;
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindTestCaseStartedBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-    {
-        const auto iter = testCaseStartedById.find(element->testCaseStartedId);
-        if (iter != testCaseStartedById.end())
-        {
-            return iter->second;
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindTestCaseStartedBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>
-    {
-        const auto iter = testCaseStartedById.find(element->testCaseStartedId);
-        if (iter != testCaseStartedById.end())
-        {
-            return iter->second;
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindTestCaseFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::optional<std::shared_ptr<const messages::TestCaseFinished>>
-    {
-        if (testCaseFinishedByTestCaseStartedId.find(testCaseStarted->id) != testCaseFinishedByTestCaseStartedId.end())
-        {
-            return testCaseFinishedByTestCaseStartedId.at(testCaseStarted->id);
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindTestRunHookStartedBy(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const -> std::optional<std::shared_ptr<const messages::TestRunHookStarted>>
-    {
-        const auto iter = testRunHookStartedById.find(testRunHookFinished->testRunHookStartedId);
-        if (iter != testRunHookStartedById.end())
-        {
-            return iter->second;
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindTestRunHookFinishedBy(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) const -> std::optional<std::shared_ptr<const messages::TestRunHookFinished>>
-    {
-        if (testRunHookFinishedByTestRunHookStartedId.find(testRunHookStarted->id) != testRunHookFinishedByTestRunHookStartedId.end())
-        {
-            return testRunHookFinishedByTestRunHookStartedId.at(testRunHookStarted->id);
-        }
-        return std::nullopt;
-    }
-
-    auto Query::FindTestRunDuration() const -> std::optional<std::shared_ptr<const messages::Duration>>
-    {
-        if (testRunStarted.has_value() && testRunFinished.has_value())
-        {
-            return std::make_shared<messages::Duration>(*testRunFinished.value()->timestamp - *testRunStarted.value()->timestamp);
-        }
-
-        return std::nullopt;
-    }
-
-    auto Query::FindTestRunFinished() const -> std::optional<std::shared_ptr<const messages::TestRunFinished>>
+    auto Query::FindTestRunFinished() const -> const messages::TestRunFinished*
     {
         return testRunFinished;
     }
 
-    auto Query::FindTestRunStarted() const -> std::optional<std::shared_ptr<const messages::TestRunStarted>>
+    auto Query::FindTestRunStarted() const -> const messages::TestRunStarted*
     {
         return testRunStarted;
     }
 
-    auto Query::FindTestStepBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestStep>>
+    auto Query::FindTestStepBy(const messages::TestStepStarted& element) const -> const messages::TestStep*
     {
-        if (testStepById.find(element->testStepId) != testStepById.end())
-        {
-            return testStepById.at(element->testStepId);
-        }
-        return std::nullopt;
+        return FindOne(testStepById, element.testStepId);
     }
 
-    auto Query::FindTestStepBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestStep>>
+    auto Query::FindTestStepBy(const messages::TestStepFinished& element) const -> const messages::TestStep*
     {
-        if (testStepById.find(element->testStepId) != testStepById.end())
-        {
-            return testStepById.at(element->testStepId);
-        }
-        return std::nullopt;
+        return FindOne(testStepById, element.testStepId);
     }
 
-    auto Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
+    auto Query::FindTestStepsStartedBy(const messages::TestCaseStarted& testCaseStarted) const -> ElementsView<messages::TestStepStarted>
     {
-        if (testStepStartedByTestCaseStartedId.find(testCaseStarted->id) != testStepStartedByTestCaseStartedId.end())
-        {
-            return testStepStartedByTestCaseStartedId.at(testCaseStarted->id);
-        }
-        return {};
+        return FindMany(testStepStartedByTestCaseStartedId, testCaseStarted.id) | views::Dereference();
     }
 
-    auto Query::FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& testCaseFinished) const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>
+    auto Query::FindTestStepsStartedBy(const messages::TestCaseFinished& testCaseFinished) const -> ElementsView<messages::TestStepStarted>
     {
-        if (testStepStartedByTestCaseStartedId.find(testCaseFinished->testCaseStartedId) != testStepStartedByTestCaseStartedId.end())
-        {
-            return testStepStartedByTestCaseStartedId.at(testCaseFinished->testCaseStartedId);
-        }
-        return {};
+        return FindMany(testStepStartedByTestCaseStartedId, testCaseFinished.testCaseStartedId) | views::Dereference();
     }
 
-    auto Query::FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
+    auto Query::FindTestStepsFinishedBy(const messages::TestCaseStarted& element) const -> ElementsView<messages::TestStepFinished>
     {
-        if (testStepFinishedByTestCaseStartedId.find(element->id) != testStepFinishedByTestCaseStartedId.end())
-        {
-            return testStepFinishedByTestCaseStartedId.at(element->id);
-        }
-
-        return {};
+        return FindMany(testStepFinishedByTestCaseStartedId, element.id) | views::Dereference();
     }
 
-    auto Query::FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>
+    auto Query::FindTestStepsFinishedBy(const messages::TestCaseFinished& element) const -> ElementsView<messages::TestStepFinished>
     {
-        const auto& testCaseStarted = FindTestCaseStartedBy(element);
-
-        if (testCaseStarted.has_value())
-        {
-            return FindTestStepsFinishedBy(testCaseStarted.value());
-        }
-
-        return {};
+        return FindMany(testStepFinishedByTestCaseStartedId, element.testCaseStartedId) | views::Dereference();
     }
 
-    auto Query::FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>
+    auto Query::FindTestStepFinishedAndTestStepBy(const messages::TestCaseStarted& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>
     {
         std::vector<TestStepFinishedAndTestStep> result;
-        const auto testStepsFinishedIter = testStepFinishedByTestCaseStartedId.find(testCaseStarted->id);
 
-        if (testStepsFinishedIter != testStepFinishedByTestCaseStartedId.end())
+        for (const auto& testStepFinished : FindTestStepsFinishedBy(testCaseStarted))
         {
-            for (const auto& testStepFinished : testStepsFinishedIter->second)
+            const auto* testStep = FindTestStepBy(testStepFinished);
+            if (testStep != nullptr)
             {
-                const auto& testStep = FindTestStepBy(testStepFinished);
-                if (testStep.has_value())
-                {
-                    result.emplace_back(TestStepFinishedAndTestStep{ testStepFinished, *testStep });
-                }
+                result.emplace_back(TestStepFinishedAndTestStep{ &testStepFinished, testStep });
             }
         }
 
         return result;
     }
 
-    auto Query::FindLineageBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::optional<LineageAndPickle>
+    auto Query::FindLineageBy(const messages::Pickle& element) const -> std::optional<LineageAndPickle>
     {
-        if (lineageById.find(element->astNodeIds.back()) != lineageById.end())
+        const auto* lineage = FindOne(lineageById, element.astNodeIds.back());
+
+        if (lineage != nullptr)
         {
-            return LineageAndPickle{ lineageById.at(element->astNodeIds.back()), element };
+            return LineageAndPickle{ lineage, &element };
         }
 
         return std::nullopt;
     }
 
-    auto Query::FindLineageBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<LineageAndPickle>
+    auto Query::FindLineageBy(const messages::TestCaseStarted& element) const -> std::optional<LineageAndPickle>
     {
-        const auto& pickle = FindPickleBy(element);
+        const auto* pickle = FindPickleBy(element);
 
-        if (pickle.has_value())
+        if (pickle != nullptr)
         {
-            return FindLineageBy(pickle.value());
+            return FindLineageBy(*pickle);
         }
 
         return std::nullopt;
     }
 
-    auto Query::FindLineageBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<LineageAndPickle>
+    auto Query::FindLineageBy(const messages::TestCaseFinished& element) const -> std::optional<LineageAndPickle>
     {
-        const auto& pickle = FindPickleBy(element);
+        const auto* pickle = FindPickleBy(element);
 
-        if (pickle.has_value())
+        if (pickle != nullptr)
         {
-            return FindLineageBy(pickle.value());
+            return FindLineageBy(*pickle);
         }
 
         return std::nullopt;
     }
 
-    auto Query::UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument) -> void
+    auto Query::AllTestCaseStarted() const -> std::vector<const messages::TestCaseStarted*>
     {
-        if (gherkinDocument->feature.has_value())
+        std::vector<const messages::TestCaseStarted*> result;
+
+        for (const auto& testCaseStarted : FindAllTestCaseStarted())
         {
-            UpdateFeature(gherkinDocument->feature.value(), std::make_shared<Lineage>(Lineage{ gherkinDocument }));
+            result.push_back(&testCaseStarted);
+        }
+
+        return result;
+    }
+
+    auto Query::AllTestCaseFinished() const -> std::vector<const messages::TestCaseFinished*>
+    {
+        std::vector<const messages::TestCaseFinished*> result;
+
+        for (const auto& testCaseFinished : FindAllTestCaseFinished())
+        {
+            result.push_back(&testCaseFinished);
+        }
+
+        return result;
+    }
+
+    auto Query::UpdateGherkinDocument(const messages::GherkinDocument& gherkinDocument) -> void
+    {
+        if (gherkinDocument.feature)
+        {
+            UpdateFeature(*gherkinDocument.feature, Lineage{ &gherkinDocument });
         }
     }
 
-    auto Query::UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, const std::shared_ptr<Lineage>& lineage) -> void
+    auto Query::UpdateFeature(const messages::Feature& feature, Lineage lineage) -> void
     {
-        for (const auto& featureChild : feature->children)
+        for (const auto& featureChild : feature.children)
         {
-            if (featureChild->background.has_value())
+            if (featureChild.background)
             {
-                lineage->background = featureChild->background.value();
-                UpdateSteps(featureChild->background.value()->steps);
+                lineage.background = std::addressof(*featureChild.background);
+                UpdateSteps(featureChild.background->steps);
             }
 
-            if (featureChild->scenario.has_value())
+            if (featureChild.scenario)
             {
-                UpdateScenario(featureChild->scenario.value(), std::make_shared<Lineage>(*lineage + Lineage{ {}, feature }));
+                UpdateScenario(*featureChild.scenario, lineage + Lineage{ nullptr, &feature });
             }
 
-            if (featureChild->rule.has_value())
+            if (featureChild.rule)
             {
-                UpdateRule(featureChild->rule.value(), std::make_shared<Lineage>(*lineage + Lineage{ {}, feature }));
+                UpdateRule(*featureChild.rule, lineage + Lineage{ nullptr, &feature });
             }
         }
     }
 
-    auto Query::UpdateRule(const std::shared_ptr<const messages::Rule>& rule, const std::shared_ptr<Lineage>& lineage) -> void
+    auto Query::UpdateRule(const messages::Rule& rule, Lineage lineage) -> void
     {
-        for (const auto& ruleChild : rule->children)
+        for (const auto& ruleChild : rule.children)
         {
-            if (ruleChild->background.has_value())
+            if (ruleChild.background)
             {
-                lineage->ruleBackground = ruleChild->background.value();
-                UpdateSteps(ruleChild->background.value()->steps);
+                lineage.ruleBackground = std::addressof(*ruleChild.background);
+                UpdateSteps(ruleChild.background->steps);
             }
 
-            if (ruleChild->scenario.has_value())
+            if (ruleChild.scenario)
             {
-                UpdateScenario(ruleChild->scenario.value(), std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, rule }));
+                UpdateScenario(*ruleChild.scenario, lineage + Lineage{ nullptr, nullptr, nullptr, &rule });
             }
         }
     }
 
-    auto Query::UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, const std::shared_ptr<Lineage>& lineage) -> void
+    auto Query::UpdateScenario(const messages::Scenario& scenario, const Lineage& lineage) -> void
     {
-        lineageById[scenario->id] = std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario });
+        lineageById[scenario.id] = lineage + Lineage{ nullptr, nullptr, nullptr, nullptr, nullptr, &scenario };
 
         std::size_t examplesIndex = 0;
-        for (const auto& examples : scenario->examples)
+        for (const auto& examples : scenario.examples)
         {
-            lineageById[examples->id] = std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario, examples, examplesIndex });
+            lineageById[examples.id] = lineage + Lineage{ nullptr, nullptr, nullptr, nullptr, nullptr, &scenario, std::addressof(examples), examplesIndex };
 
             std::size_t exampleIndex = 0;
-            for (const auto& example : examples->tableBody)
+            for (const auto& example : examples.tableBody)
             {
-                lineageById[example->id] = std::make_shared<Lineage>(*lineage + Lineage{ {}, {}, {}, {}, {}, scenario, examples, examplesIndex, example, exampleIndex });
+                lineageById[example.id] = lineage + Lineage{ nullptr, nullptr, nullptr, nullptr, nullptr, &scenario, std::addressof(examples), examplesIndex, std::addressof(example), exampleIndex };
                 ++exampleIndex;
             }
             ++examplesIndex;
         }
 
-        UpdateSteps(scenario->steps);
+        UpdateSteps(scenario.steps);
     }
 
-    auto Query::UpdateSteps(const std::vector<std::shared_ptr<messages::Step>>& steps) -> void
+    auto Query::UpdateSteps(const std::vector<messages::Step>& steps) -> void
     {
         for (const auto& step : steps)
         {
-            stepById[step->id] = step;
+            stepById[step.id] = std::addressof(step);
         }
     }
 
-    auto Query::UpdatePickle(std::shared_ptr<const messages::Pickle> pickle) -> void
+    auto Query::UpdatePickle(const messages::Pickle& pickle) -> void
     {
-        auto&& entry = pickleById[pickle->id] = std::move(pickle);
-        for (const auto& pickleStep : entry->steps)
+        pickleById[pickle.id] = &pickle;
+        for (const auto& pickleStep : pickle.steps)
         {
-            pickleStepById[pickleStep->id] = pickleStep;
+            pickleStepById[pickleStep.id] = std::addressof(pickleStep);
         }
     }
 
-    auto Query::UpdateTestRunHookStarted(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) -> void
+    auto Query::UpdateTestRunHookStarted(const messages::TestRunHookStarted& testRunHookStarted) -> void
     {
-        testRunHookStartedById[testRunHookStarted->id] = testRunHookStarted;
+        testRunHookStartedById[testRunHookStarted.id] = &testRunHookStarted;
     }
 
-    auto Query::UpdateTestRunHookFinished(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) -> void
+    auto Query::UpdateTestRunHookFinished(const messages::TestRunHookFinished& testRunHookFinished) -> void
     {
-        testRunHookFinishedByTestRunHookStartedId[testRunHookFinished->testRunHookStartedId] = testRunHookFinished;
+        testRunHookFinishedByTestRunHookStartedId[testRunHookFinished.testRunHookStartedId] = &testRunHookFinished;
     }
 
-    auto Query::UpdateTestCase(std::shared_ptr<const messages::TestCase> testCase) -> void
+    auto Query::UpdateTestCase(const messages::TestCase& testCase) -> void
     {
-        for (const auto& testStep : testCase->testSteps)
+        for (const auto& testStep : testCase.testSteps)
         {
-            testStepById[testStep->id] = testStep;
+            testStepById[testStep.id] = std::addressof(testStep);
         }
-        testCaseById[testCase->id] = std::move(testCase);
+        testCaseById[testCase.id] = &testCase;
     }
 
-    auto Query::UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted) -> void
+    auto Query::UpdateTestCaseStarted(const messages::TestCaseStarted& testCaseStarted) -> void
     {
-        testCaseStartedById[testCaseStarted->id] = std::move(testCaseStarted);
+        testCaseStartedById[testCaseStarted.id] = &testCaseStarted;
     }
 
-    auto Query::UpdateAttachment(const std::shared_ptr<const messages::Attachment>& attachment) -> void
+    auto Query::UpdateAttachment(const messages::Attachment& attachment) -> void
     {
-        if (attachment->testCaseStartedId.has_value())
+        if (attachment.testCaseStartedId)
         {
-            attachmentsByTestCaseStartedId[attachment->testCaseStartedId.value()].push_back(attachment);
+            attachmentsByTestCaseStartedId[*attachment.testCaseStartedId].push_back(&attachment);
         }
-        if (attachment->testRunHookStartedId.has_value())
+        if (attachment.testRunHookStartedId)
         {
-            attachmentsByTestRunHookStartedId[attachment->testRunHookStartedId.value()].push_back(attachment);
+            attachmentsByTestRunHookStartedId[*attachment.testRunHookStartedId].push_back(&attachment);
         }
     }
 
-    auto Query::UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished) -> void
+    auto Query::UpdateTestStepFinished(const messages::TestStepFinished& testStepFinished) -> void
     {
-        testStepFinishedByTestCaseStartedId[testStepFinished->testCaseStartedId].push_back(std::move(testStepFinished));
+        testStepFinishedByTestCaseStartedId[testStepFinished.testCaseStartedId].push_back(&testStepFinished);
     }
 
-    auto Query::UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished) -> void
+    auto Query::UpdateTestCaseFinished(const messages::TestCaseFinished& testCaseFinished) -> void
     {
-        testCaseFinishedByTestCaseStartedId[testCaseFinished->testCaseStartedId] = std::move(testCaseFinished);
+        testCaseFinishedByTestCaseStartedId[testCaseFinished.testCaseStartedId] = &testCaseFinished;
     }
 }

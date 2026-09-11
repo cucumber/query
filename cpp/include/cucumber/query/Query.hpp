@@ -12,6 +12,7 @@
 #include "cucumber/messages/TestStepFinished.hpp"
 #include "cucumber/messages/TestStepResultStatus.hpp"
 #include "cucumber/query/Lineage.hpp"
+#include "cucumber/query/View.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -27,14 +28,14 @@ namespace cucumber::query
 {
     struct LineageAndPickle
     {
-        std::shared_ptr<const Lineage> lineage;
-        std::shared_ptr<const messages::Pickle> pickle;
+        const Lineage* lineage;
+        const messages::Pickle* pickle;
     };
 
     struct TestStepFinishedAndTestStep
     {
-        std::shared_ptr<const messages::TestStepFinished> testStepFinished;
-        std::shared_ptr<const messages::TestStep> testStep;
+        const messages::TestStepFinished* testStepFinished;
+        const messages::TestStep* testStep;
     };
 
     struct StringIdCompare
@@ -45,218 +46,247 @@ namespace cucumber::query
         }
     };
 
+    template<typename T>
+    using Pointers = std::vector<const T*>;
+
+    template<typename T>
+    using ById = std::map<std::string, const T*, StringIdCompare>;
+
+    template<typename T>
+    using ManyById = std::map<std::string, Pointers<T>, StringIdCompare>;
+
+    template<typename T>
+    using Predicate = std::function<bool(const T&)>;
+
+    // All views below are lazy and non-owning, except OwningView, and yield `const T&` on iteration.
+    template<typename T>
+    using ElementsView = TransformView<RefView<const Pointers<T>>, views::SelectPointee>;
+
+    template<typename T>
+    using FilteredElementsView = FilterView<ElementsView<T>, Predicate<T>>;
+
+    template<typename T>
+    using ValuesView = TransformView<TransformView<RefView<const ById<T>>, views::SelectSecond>, views::SelectPointee>;
+
+    template<typename T>
+    using FilteredValuesView = FilterView<ValuesView<T>, Predicate<T>>;
+
+    template<typename T>
+    using JoinedValuesView = TransformView<JoinView<TransformView<RefView<const ManyById<T>>, views::SelectSecond>>, views::SelectPointee>;
+
+    template<typename T>
+    using OwningView = TransformView<std::vector<const T*>, views::SelectPointee>;
+
     class Query
     {
     public:
+        auto Update(const std::shared_ptr<const cucumber::messages::Envelope>& envelope) -> void;
         auto Update(const cucumber::messages::Envelope& envelope) -> void;
 
         [[nodiscard]] auto CountMostSevereTestStepResultStatus() const -> std::unordered_map<messages::TestStepResultStatus, std::size_t>;
 
         [[nodiscard]] auto CountTestCasesStarted() const -> std::size_t;
 
-        [[nodiscard]] auto FindAllPickles() const -> std::vector<std::shared_ptr<const messages::Pickle>>;
+        [[nodiscard]] auto FindAllPickles() const -> ValuesView<messages::Pickle>;
 
-        [[nodiscard]] auto FindAllPickleSteps() const -> std::vector<std::shared_ptr<const messages::PickleStep>>;
+        [[nodiscard]] auto FindAllPickleSteps() const -> ValuesView<messages::PickleStep>;
 
-        [[nodiscard]] auto FindAllStepDefinitions() const -> std::vector<std::shared_ptr<const messages::StepDefinition>>;
+        [[nodiscard]] auto FindAllStepDefinitions() const -> ValuesView<messages::StepDefinition>;
 
-        [[nodiscard]] auto FindAllTestCaseStarted() const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>;
+        [[nodiscard]] auto FindAllTestCaseStarted() const -> FilteredValuesView<messages::TestCaseStarted>;
 
-        [[nodiscard]] auto FindAllTestCaseFinished() const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>;
-
-        template<typename Transform, typename Cmp>
-        [[nodiscard]] auto FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>;
+        [[nodiscard]] auto FindAllTestCaseFinished() const -> FilteredValuesView<messages::TestCaseFinished>;
 
         template<typename Transform, typename Cmp>
-        [[nodiscard]] auto FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>;
+        [[nodiscard]] auto FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseStarted>;
 
-        [[nodiscard]] auto FindAllTestSteps() const -> std::vector<std::shared_ptr<const messages::TestStep>>;
+        template<typename Transform, typename Cmp>
+        [[nodiscard]] auto FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseFinished>;
 
-        [[nodiscard]] auto FindAllTestCases() const -> std::vector<std::shared_ptr<const messages::TestCase>>;
+        [[nodiscard]] auto FindAllTestSteps() const -> ValuesView<messages::TestStep>;
 
-        [[nodiscard]] auto FindAllTestStepStarted() const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>;
+        [[nodiscard]] auto FindAllTestCases() const -> ValuesView<messages::TestCase>;
 
-        [[nodiscard]] auto FindAllTestStepFinished() const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>;
+        [[nodiscard]] auto FindAllTestStepStarted() const -> JoinedValuesView<messages::TestStepStarted>;
 
-        [[nodiscard]] auto FindAllTestRunHookStarted() const -> std::vector<std::shared_ptr<const messages::TestRunHookStarted>>;
+        [[nodiscard]] auto FindAllTestStepFinished() const -> JoinedValuesView<messages::TestStepFinished>;
 
-        [[nodiscard]] auto FindAllTestRunHookFinished() const -> std::vector<std::shared_ptr<const messages::TestRunHookFinished>>;
+        [[nodiscard]] auto FindAllTestRunHookStarted() const -> ValuesView<messages::TestRunHookStarted>;
 
-        [[nodiscard]] auto FindAllUndefinedParameterTypes() const -> std::vector<std::shared_ptr<const messages::UndefinedParameterType>>;
+        [[nodiscard]] auto FindAllTestRunHookFinished() const -> ValuesView<messages::TestRunHookFinished>;
 
-        [[nodiscard]] auto FindAttachmentsBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::vector<std::shared_ptr<const messages::Attachment>>;
-        [[nodiscard]] auto FindAttachmentsBy(const std::shared_ptr<const messages::TestRunHookFinished>& element) const -> std::vector<std::shared_ptr<const messages::Attachment>>;
+        [[nodiscard]] auto FindAllUndefinedParameterTypes() const -> ElementsView<messages::UndefinedParameterType>;
 
-        [[nodiscard]] auto FindHookBy(const std::shared_ptr<const messages::TestStep>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>;
-        [[nodiscard]] auto FindHookBy(const std::shared_ptr<const messages::TestRunHookStarted>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>;
-        [[nodiscard]] auto FindHookBy(const std::shared_ptr<const messages::TestRunHookFinished>& element) const -> std::optional<std::shared_ptr<const messages::Hook>>;
+        [[nodiscard]] auto FindAttachmentsBy(const messages::TestStepFinished& element) const -> FilteredElementsView<messages::Attachment>;
+        [[nodiscard]] auto FindAttachmentsBy(const messages::TestRunHookFinished& element) const -> ElementsView<messages::Attachment>;
 
-        [[nodiscard]] auto FindMeta() const -> std::optional<std::shared_ptr<const messages::Meta>>;
+        [[nodiscard]] auto FindHookBy(const messages::TestStep& element) const -> const messages::Hook*;
+        [[nodiscard]] auto FindHookBy(const messages::TestRunHookStarted& element) const -> const messages::Hook*;
+        [[nodiscard]] auto FindHookBy(const messages::TestRunHookFinished& element) const -> const messages::Hook*;
 
-        [[nodiscard]] auto FindMostSevereTestStepResultBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestStepResult>>;
-        [[nodiscard]] auto FindMostSevereTestStepResultBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestStepResult>>;
+        [[nodiscard]] auto FindMeta() const -> const messages::Meta*;
 
-        [[nodiscard]] auto FindLocationOf(const std::shared_ptr<const messages::Pickle>& pickle) const -> std::optional<std::shared_ptr<const messages::Location>>;
+        [[nodiscard]] auto FindMostSevereTestStepResultBy(const messages::TestCaseStarted& element) const -> const messages::TestStepResult*;
+        [[nodiscard]] auto FindMostSevereTestStepResultBy(const messages::TestCaseFinished& element) const -> const messages::TestStepResult*;
 
-        [[nodiscard]] auto FindPickleBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>;
-        [[nodiscard]] auto FindPickleBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>;
-        [[nodiscard]] auto FindPickleBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>;
-        [[nodiscard]] auto FindPickleBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::Pickle>>;
+        [[nodiscard]] auto FindLocationOf(const messages::Pickle& pickle) const -> const messages::Location*;
 
-        [[nodiscard]] auto FindPickleStepBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::optional<std::shared_ptr<const messages::PickleStep>>;
+        [[nodiscard]] auto FindPickleBy(const messages::TestCaseStarted& element) const -> const messages::Pickle*;
+        [[nodiscard]] auto FindPickleBy(const messages::TestCaseFinished& element) const -> const messages::Pickle*;
+        [[nodiscard]] auto FindPickleBy(const messages::TestStepStarted& element) const -> const messages::Pickle*;
+        [[nodiscard]] auto FindPickleBy(const messages::TestStepFinished& element) const -> const messages::Pickle*;
 
-        [[nodiscard]] auto FindStepBy(const std::shared_ptr<const messages::PickleStep>& pickleStep) const -> std::optional<std::shared_ptr<const messages::Step>>;
+        [[nodiscard]] auto FindPickleStepBy(const messages::TestStep& testStep) const -> const messages::PickleStep*;
 
-        [[nodiscard]] auto FindStepDefinitionsBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::vector<std::shared_ptr<const messages::StepDefinition>>;
+        [[nodiscard]] auto FindStepBy(const messages::PickleStep& pickleStep) const -> const messages::Step*;
 
-        [[nodiscard]] auto FindSuggestionsBy(const std::shared_ptr<const messages::PickleStep>& element) const -> std::vector<std::shared_ptr<const messages::Suggestion>>;
-        [[nodiscard]] auto FindSuggestionsBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::vector<std::shared_ptr<const messages::Suggestion>>;
+        [[nodiscard]] auto FindStepDefinitionsBy(const messages::TestStep& testStep) const -> OwningView<messages::StepDefinition>;
 
-        [[nodiscard]] auto FindUnambiguousStepDefinitionBy(const std::shared_ptr<const messages::TestStep>& testStep) const -> std::optional<std::shared_ptr<const messages::StepDefinition>>;
+        [[nodiscard]] auto FindSuggestionsBy(const messages::PickleStep& element) const -> OwningView<messages::Suggestion>;
+        [[nodiscard]] auto FindSuggestionsBy(const messages::Pickle& element) const -> OwningView<messages::Suggestion>;
 
-        [[nodiscard]] auto FindTestCaseBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>;
-        [[nodiscard]] auto FindTestCaseBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>;
-        [[nodiscard]] auto FindTestCaseBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>;
-        [[nodiscard]] auto FindTestCaseBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCase>>;
+        [[nodiscard]] auto FindUnambiguousStepDefinitionBy(const messages::TestStep& testStep) const -> const messages::StepDefinition*;
 
-        [[nodiscard]] auto FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<std::shared_ptr<const messages::Duration>>;
+        [[nodiscard]] auto FindTestCaseBy(const messages::TestCaseStarted& element) const -> const messages::TestCase*;
+        [[nodiscard]] auto FindTestCaseBy(const messages::TestCaseFinished& element) const -> const messages::TestCase*;
+        [[nodiscard]] auto FindTestCaseBy(const messages::TestStepStarted& element) const -> const messages::TestCase*;
+        [[nodiscard]] auto FindTestCaseBy(const messages::TestStepFinished& element) const -> const messages::TestCase*;
 
-        [[nodiscard]] auto FindTestCaseDurationBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::Duration>>;
+        [[nodiscard]] auto FindTestCaseDurationBy(const messages::TestCaseStarted& element) const -> std::optional<messages::Duration>;
 
-        [[nodiscard]] auto FindTestCaseStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>;
-        [[nodiscard]] auto FindTestCaseStartedBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>;
-        [[nodiscard]] auto FindTestCaseStartedBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestCaseStarted>>;
+        [[nodiscard]] auto FindTestCaseDurationBy(const messages::TestCaseFinished& element) const -> std::optional<messages::Duration>;
 
-        [[nodiscard]] auto FindTestCaseFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::optional<std::shared_ptr<const messages::TestCaseFinished>>;
+        [[nodiscard]] auto FindTestCaseStartedBy(const messages::TestCaseFinished& element) const -> const messages::TestCaseStarted*;
+        [[nodiscard]] auto FindTestCaseStartedBy(const messages::TestStepStarted& element) const -> const messages::TestCaseStarted*;
+        [[nodiscard]] auto FindTestCaseStartedBy(const messages::TestStepFinished& element) const -> const messages::TestCaseStarted*;
 
-        [[nodiscard]] auto FindTestRunHookStartedBy(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) const
-            -> std::optional<std::shared_ptr<const messages::TestRunHookStarted>>;
+        [[nodiscard]] auto FindTestCaseFinishedBy(const messages::TestCaseStarted& testCaseStarted) const -> const messages::TestCaseFinished*;
 
-        [[nodiscard]] auto FindTestRunHookFinishedBy(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) const
-            -> std::optional<std::shared_ptr<const messages::TestRunHookFinished>>;
+        [[nodiscard]] auto FindTestRunHookStartedBy(const messages::TestRunHookFinished& testRunHookFinished) const -> const messages::TestRunHookStarted*;
 
-        [[nodiscard]] auto FindTestRunDuration() const -> std::optional<std::shared_ptr<const messages::Duration>>;
+        [[nodiscard]] auto FindTestRunHookFinishedBy(const messages::TestRunHookStarted& testRunHookStarted) const -> const messages::TestRunHookFinished*;
 
-        [[nodiscard]] auto FindTestRunFinished() const -> std::optional<std::shared_ptr<const messages::TestRunFinished>>;
+        [[nodiscard]] auto FindTestRunDuration() const -> std::optional<messages::Duration>;
 
-        [[nodiscard]] auto FindTestRunStarted() const -> std::optional<std::shared_ptr<const messages::TestRunStarted>>;
+        [[nodiscard]] auto FindTestRunFinished() const -> const messages::TestRunFinished*;
 
-        [[nodiscard]] auto FindTestStepBy(const std::shared_ptr<const messages::TestStepStarted>& element) const -> std::optional<std::shared_ptr<const messages::TestStep>>;
-        [[nodiscard]] auto FindTestStepBy(const std::shared_ptr<const messages::TestStepFinished>& element) const -> std::optional<std::shared_ptr<const messages::TestStep>>;
+        [[nodiscard]] auto FindTestRunStarted() const -> const messages::TestRunStarted*;
 
-        [[nodiscard]] auto FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>;
-        [[nodiscard]] auto FindTestStepsStartedBy(const std::shared_ptr<const messages::TestCaseFinished>& testCaseFinished) const -> std::vector<std::shared_ptr<const messages::TestStepStarted>>;
+        [[nodiscard]] auto FindTestStepBy(const messages::TestStepStarted& element) const -> const messages::TestStep*;
+        [[nodiscard]] auto FindTestStepBy(const messages::TestStepFinished& element) const -> const messages::TestStep*;
 
-        [[nodiscard]] auto FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>;
-        [[nodiscard]] auto FindTestStepsFinishedBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::vector<std::shared_ptr<const messages::TestStepFinished>>;
+        [[nodiscard]] auto FindTestStepsStartedBy(const messages::TestCaseStarted& testCaseStarted) const -> ElementsView<messages::TestStepStarted>;
+        [[nodiscard]] auto FindTestStepsStartedBy(const messages::TestCaseFinished& testCaseFinished) const -> ElementsView<messages::TestStepStarted>;
 
-        [[nodiscard]] auto FindTestStepFinishedAndTestStepBy(const std::shared_ptr<const messages::TestCaseStarted>& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>;
+        [[nodiscard]] auto FindTestStepsFinishedBy(const messages::TestCaseStarted& element) const -> ElementsView<messages::TestStepFinished>;
+        [[nodiscard]] auto FindTestStepsFinishedBy(const messages::TestCaseFinished& element) const -> ElementsView<messages::TestStepFinished>;
 
-        [[nodiscard]] auto FindLineageBy(const std::shared_ptr<const messages::Pickle>& element) const -> std::optional<LineageAndPickle>;
-        [[nodiscard]] auto FindLineageBy(const std::shared_ptr<const messages::TestCaseStarted>& element) const -> std::optional<LineageAndPickle>;
-        [[nodiscard]] auto FindLineageBy(const std::shared_ptr<const messages::TestCaseFinished>& element) const -> std::optional<LineageAndPickle>;
+        [[nodiscard]] auto FindTestStepFinishedAndTestStepBy(const messages::TestCaseStarted& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>;
+
+        [[nodiscard]] auto FindLineageBy(const messages::Pickle& element) const -> std::optional<LineageAndPickle>;
+        [[nodiscard]] auto FindLineageBy(const messages::TestCaseStarted& element) const -> std::optional<LineageAndPickle>;
+        [[nodiscard]] auto FindLineageBy(const messages::TestCaseFinished& element) const -> std::optional<LineageAndPickle>;
 
     private:
-        auto UpdateGherkinDocument(const std::shared_ptr<const messages::GherkinDocument>& gherkinDocument) -> void;
-        auto UpdateFeature(const std::shared_ptr<const messages::Feature>& feature, const std::shared_ptr<Lineage>& lineage) -> void;
-        auto UpdateRule(const std::shared_ptr<const messages::Rule>& rule, const std::shared_ptr<Lineage>& lineage) -> void;
-        auto UpdateScenario(const std::shared_ptr<const messages::Scenario>& scenario, const std::shared_ptr<Lineage>& lineage) -> void;
-        auto UpdateSteps(const std::vector<std::shared_ptr<messages::Step>>& steps) -> void;
-        auto UpdatePickle(std::shared_ptr<const messages::Pickle> pickle) -> void;
-        auto UpdateTestRunHookStarted(const std::shared_ptr<const messages::TestRunHookStarted>& testRunHookStarted) -> void;
-        auto UpdateTestRunHookFinished(const std::shared_ptr<const messages::TestRunHookFinished>& testRunHookFinished) -> void;
-        auto UpdateTestCase(std::shared_ptr<const messages::TestCase> testCase) -> void;
-        auto UpdateTestCaseStarted(std::shared_ptr<const messages::TestCaseStarted> testCaseStarted) -> void;
-        auto UpdateAttachment(const std::shared_ptr<const messages::Attachment>& attachment) -> void;
-        auto UpdateTestStepFinished(std::shared_ptr<const messages::TestStepFinished> testStepFinished) -> void;
-        auto UpdateTestCaseFinished(std::shared_ptr<const messages::TestCaseFinished> testCaseFinished) -> void;
+        [[nodiscard]] auto AllTestCaseStarted() const -> std::vector<const messages::TestCaseStarted*>;
+        [[nodiscard]] auto AllTestCaseFinished() const -> std::vector<const messages::TestCaseFinished*>;
 
-        std::optional<std::shared_ptr<const messages::Meta>> meta;
+        auto UpdateGherkinDocument(const messages::GherkinDocument& gherkinDocument) -> void;
+        auto UpdateFeature(const messages::Feature& feature, Lineage lineage) -> void;
+        auto UpdateRule(const messages::Rule& rule, Lineage lineage) -> void;
+        auto UpdateScenario(const messages::Scenario& scenario, const Lineage& lineage) -> void;
+        auto UpdateSteps(const std::vector<messages::Step>& steps) -> void;
+        auto UpdatePickle(const messages::Pickle& pickle) -> void;
+        auto UpdateTestRunHookStarted(const messages::TestRunHookStarted& testRunHookStarted) -> void;
+        auto UpdateTestRunHookFinished(const messages::TestRunHookFinished& testRunHookFinished) -> void;
+        auto UpdateTestCase(const messages::TestCase& testCase) -> void;
+        auto UpdateTestCaseStarted(const messages::TestCaseStarted& testCaseStarted) -> void;
+        auto UpdateAttachment(const messages::Attachment& attachment) -> void;
+        auto UpdateTestStepFinished(const messages::TestStepFinished& testStepFinished) -> void;
+        auto UpdateTestCaseFinished(const messages::TestCaseFinished& testCaseFinished) -> void;
 
-        std::optional<std::shared_ptr<const messages::TestRunStarted>> testRunStarted;
-        std::optional<std::shared_ptr<const messages::TestRunFinished>> testRunFinished;
+        const messages::Meta* meta{ nullptr };
 
-        std::map<std::string, std::shared_ptr<const messages::TestCaseStarted>, StringIdCompare> testCaseStartedById;
-        std::map<std::string, std::shared_ptr<const Lineage>, StringIdCompare> lineageById;
-        std::map<std::string, std::shared_ptr<const messages::Step>, StringIdCompare> stepById;
-        std::map<std::string, std::shared_ptr<const messages::Pickle>, StringIdCompare> pickleById;
-        std::map<std::string, std::shared_ptr<const messages::PickleStep>, StringIdCompare> pickleStepById;
-        std::map<std::string, std::shared_ptr<const messages::Hook>, StringIdCompare> hookById;
-        std::map<std::string, std::shared_ptr<const messages::StepDefinition>, StringIdCompare> stepDefinitionById;
-        std::map<std::string, std::shared_ptr<const messages::TestCase>, StringIdCompare> testCaseById;
-        std::map<std::string, std::shared_ptr<const messages::TestStep>, StringIdCompare> testStepById;
-        std::map<std::string, std::shared_ptr<const messages::TestCaseFinished>, StringIdCompare> testCaseFinishedByTestCaseStartedId;
-        std::map<std::string, std::shared_ptr<const messages::TestRunHookStarted>, StringIdCompare> testRunHookStartedById;
-        std::map<std::string, std::shared_ptr<const messages::TestRunHookFinished>, StringIdCompare> testRunHookFinishedByTestRunHookStartedId;
-        std::map<std::string, std::vector<std::shared_ptr<const messages::TestStepStarted>>, StringIdCompare> testStepStartedByTestCaseStartedId;
-        std::map<std::string, std::vector<std::shared_ptr<const messages::TestStepFinished>>, StringIdCompare> testStepFinishedByTestCaseStartedId;
-        std::map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>, StringIdCompare> attachmentsByTestCaseStartedId;
-        std::map<std::string, std::vector<std::shared_ptr<const messages::Attachment>>, StringIdCompare> attachmentsByTestRunHookStartedId;
-        std::map<std::string, std::shared_ptr<const messages::Suggestion>, StringIdCompare> suggestionsByPickleStepId;
-        std::vector<std::shared_ptr<const messages::UndefinedParameterType>> undefinedParameterTypes;
+        const messages::TestRunStarted* testRunStarted{ nullptr };
+        const messages::TestRunFinished* testRunFinished{ nullptr };
+
+        ById<messages::TestCaseStarted> testCaseStartedById;
+        std::map<std::string, Lineage, StringIdCompare> lineageById;
+        ById<messages::Step> stepById;
+        ById<messages::Pickle> pickleById;
+        ById<messages::PickleStep> pickleStepById;
+        ById<messages::Hook> hookById;
+        ById<messages::StepDefinition> stepDefinitionById;
+        ById<messages::TestCase> testCaseById;
+        ById<messages::TestStep> testStepById;
+        ById<messages::TestCaseFinished> testCaseFinishedByTestCaseStartedId;
+        ById<messages::TestRunHookStarted> testRunHookStartedById;
+        ById<messages::TestRunHookFinished> testRunHookFinishedByTestRunHookStartedId;
+        ManyById<messages::TestStepStarted> testStepStartedByTestCaseStartedId;
+        ManyById<messages::TestStepFinished> testStepFinishedByTestCaseStartedId;
+        ManyById<messages::Attachment> attachmentsByTestCaseStartedId;
+        ManyById<messages::Attachment> attachmentsByTestRunHookStartedId;
+        ById<messages::Suggestion> suggestionsByPickleStepId;
+        Pointers<messages::UndefinedParameterType> undefinedParameterTypes;
     };
 
-    static inline std::optional<std::shared_ptr<const messages::Pickle>> (query::Query::* const findPickleByTestCaseFinished)(
-        const std::shared_ptr<const messages::TestCaseFinished>&) const = &query::Query::FindPickleBy;
+    static inline const messages::Pickle* (query::Query::* const findPickleByTestCaseFinished)(const messages::TestCaseFinished&) const = &query::Query::FindPickleBy;
 
     namespace detail
     {
         template<typename TElement, typename Transform, typename Cmp>
-        [[nodiscard]] auto FindAllOrderBy(const Query& query, const std::vector<std::shared_ptr<const TElement>>& allElements, Transform findOrderBy, Cmp order)
-            -> std::vector<std::shared_ptr<const TElement>>
+        [[nodiscard]] auto FindAllOrderBy(const Query& query, std::vector<const TElement*> allElements, Transform findOrderBy, Cmp order) -> OwningView<TElement>
         {
-            using TransformResult = decltype(std::invoke(findOrderBy, query, std::declval<std::shared_ptr<const TElement>>()));
+            using TransformResult = decltype(std::invoke(findOrderBy, query, std::declval<const TElement&>()));
 
-            std::vector<std::pair<std::shared_ptr<const TElement>, TransformResult>> transformed;
+            std::vector<std::pair<const TElement*, TransformResult>> transformed;
             transformed.reserve(allElements.size());
 
-            for (const auto& element : allElements)
+            for (const auto* element : allElements)
             {
-                transformed.emplace_back(element, std::invoke(findOrderBy, query, element));
+                transformed.emplace_back(element, std::invoke(findOrderBy, query, *element));
             }
 
             std::sort(transformed.begin(), transformed.end(),
                 [&](const auto& lhs, const auto& rhs)
                 {
-                    const auto lhsHasValue = lhs.second.has_value();
-                    const auto rhsHasValue = rhs.second.has_value();
-                    if (!lhsHasValue && !rhsHasValue)
+                    if (lhs.second == nullptr && rhs.second == nullptr)
                     {
                         return false;
                     }
-                    if (!lhsHasValue)
+                    if (lhs.second == nullptr)
                     {
                         return true;
                     }
-                    if (!rhsHasValue)
+                    if (rhs.second == nullptr)
                     {
                         return false;
                     }
 
-                    return std::invoke(order, lhs.second.value(), rhs.second.value()) < 0;
+                    return std::invoke(order, *lhs.second, *rhs.second) < 0;
                 });
 
-            std::vector<std::shared_ptr<const TElement>> result;
-            result.reserve(allElements.size());
+            std::vector<const TElement*> result;
+            result.reserve(transformed.size());
             for (const auto& pair : transformed)
             {
                 result.push_back(pair.first);
             }
 
-            return result;
+            return OwningView<TElement>{ std::move(result), views::SelectPointee{} };
         }
     }
 
     template<typename Transform, typename Cmp>
-    [[nodiscard]] auto Query::FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseStarted>>
+    [[nodiscard]] auto Query::FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseStarted>
     {
-        return detail::FindAllOrderBy<messages::TestCaseStarted>(*this, FindAllTestCaseStarted(), std::forward<Transform>(findOrderBy), std::move(order));
+        return detail::FindAllOrderBy<messages::TestCaseStarted>(*this, AllTestCaseStarted(), std::forward<Transform>(findOrderBy), std::move(order));
     }
 
     template<typename Transform, typename Cmp>
-    [[nodiscard]] auto Query::FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> std::vector<std::shared_ptr<const messages::TestCaseFinished>>
+    [[nodiscard]] auto Query::FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseFinished>
     {
-        return detail::FindAllOrderBy<messages::TestCaseFinished>(*this, FindAllTestCaseFinished(), std::forward<Transform>(findOrderBy), std::move(order));
+        return detail::FindAllOrderBy<messages::TestCaseFinished>(*this, AllTestCaseFinished(), std::forward<Transform>(findOrderBy), std::move(order));
     }
 }
 

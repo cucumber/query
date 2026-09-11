@@ -115,12 +115,17 @@ add_library(cucumber::query ALIAS cucumber_query_lib)
 target_sources(
     cucumber_query_lib
     PRIVATE
+        include/cucumber/query/EnvelopeArchive.hpp
         include/cucumber/query/Lineage.hpp
+        include/cucumber/query/NdjsonEnvelopeReader.hpp
         include/cucumber/query/Query.hpp
+        src/query/EnvelopeArchive.cpp
         src/query/Lineage.cpp
+        src/query/NdjsonEnvelopeReader.cpp
         src/query/Query.cpp
         include/cucumber/query/NamingStrategy.hpp
         src/query/NamingStrategy.cpp
+        include/cucumber/query/View.hpp
 )
 
 target_include_directories(
