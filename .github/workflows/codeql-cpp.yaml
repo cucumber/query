@@ -46,24 +46,16 @@ jobs:
           append-timestamp: false
           save: ${{ github.ref == 'refs/heads/main' }}
 
-      - name: Checkout cucumber/messages
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: cucumber/messages
-          ref: ${{ env.MESSAGES_REF }}
-          path: messages-src
-          persist-credentials: false
-
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ccache nlohmann-json3-dev
+          sudo apt-get install -y nlohmann-json3-dev
 
-      - name: Build and install cucumber_messages
-        working-directory: messages-src/cpp
-        run: |
-          cmake --workflow --preset host-system
-          sudo cmake --install build/host-system
+      - name: Install cucumber/messages
+        uses: cucumber/ci-actions/install-cpp-dep@9ba4a623ec838b1358e18683a85a0914f3779363
+        with:
+          repository: cucumber/messages
+          ref: ${{ env.MESSAGES_REF }}
 
       - uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
         with:
