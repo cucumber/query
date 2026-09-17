@@ -4,7 +4,7 @@
 
 namespace cucumber::query
 {
-    auto EnvelopeArchive::Store(messages::Envelope&& envelope) -> const messages::Envelope&
+    const messages::Envelope& EnvelopeArchive::Store(messages::Envelope&& envelope)
     {
         return envelopes.emplace_back(std::move(envelope));
     }

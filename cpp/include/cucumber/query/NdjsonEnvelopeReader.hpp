@@ -11,7 +11,7 @@ namespace cucumber::query
 {
     namespace detail
     {
-        auto TryReadNextEnvelope(std::istream& input) -> std::optional<messages::Envelope>;
+        std::optional<messages::Envelope> TryReadNextEnvelope(std::istream& input);
     }
 
     template<typename Observer>

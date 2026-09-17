@@ -19,7 +19,7 @@ namespace cucumber::query
 {
     namespace
     {
-        auto SortBySeverity(std::vector<TestStepFinishedAndTestStep>& container) -> void
+        void SortBySeverity(std::vector<TestStepFinishedAndTestStep>& container)
         {
             std::sort(container.begin(), container.end(),
                 [](const auto& lhs, const auto& rhs)
@@ -30,39 +30,39 @@ namespace cucumber::query
         }
 
         template<typename T>
-        auto Empty() -> const Pointers<T>&
+        const Pointers<T>& Empty()
         {
             static const Pointers<T> empty;
             return empty;
         }
 
         template<typename T>
-        auto FindOne(const ById<T>& container, const std::string& id) -> const T*
+        const T* FindOne(const ById<T>& container, const std::string& id)
         {
             const auto iter = container.find(id);
             return iter != container.end() ? iter->second : nullptr;
         }
 
-        auto FindOne(const std::map<std::string, Lineage, StringIdCompare>& container, const std::string& id) -> const Lineage*
+        const Lineage* FindOne(const std::map<std::string, Lineage, StringIdCompare>& container, const std::string& id)
         {
             const auto iter = container.find(id);
             return iter != container.end() ? &iter->second : nullptr;
         }
 
         template<typename T>
-        auto FindMany(const ManyById<T>& container, const std::string& id) -> const Pointers<T>&
+        const Pointers<T>& FindMany(const ManyById<T>& container, const std::string& id)
         {
             const auto iter = container.find(id);
             return iter != container.end() ? iter->second : Empty<T>();
         }
     }
 
-    auto Query::Update(const std::shared_ptr<const cucumber::messages::Envelope>& envelope) -> void
+    void Query::Update(const std::shared_ptr<const cucumber::messages::Envelope>& envelope)
     {
         Update(*envelope);
     }
 
-    auto Query::Update(const cucumber::messages::Envelope& envelope) -> void
+    void Query::Update(const cucumber::messages::Envelope& envelope)
     {
         if (envelope.meta)
         {
@@ -134,7 +134,7 @@ namespace cucumber::query
         }
     }
 
-    auto Query::CountMostSevereTestStepResultStatus() const -> std::unordered_map<messages::TestStepResultStatus, std::size_t>
+    std::unordered_map<messages::TestStepResultStatus, std::size_t> Query::CountMostSevereTestStepResultStatus() const
     {
         std::unordered_map<messages::TestStepResultStatus, std::size_t> result{
             { messages::TestStepResultStatus::AMBIGUOUS, 0 },
@@ -160,27 +160,27 @@ namespace cucumber::query
         return result;
     }
 
-    auto Query::CountTestCasesStarted() const -> std::size_t
+    std::size_t Query::CountTestCasesStarted() const
     {
         return FindAllTestCaseStarted().size();
     }
 
-    auto Query::FindAllPickles() const -> ValuesView<messages::Pickle>
+    ValuesView<messages::Pickle> Query::FindAllPickles() const
     {
         return pickleById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllPickleSteps() const -> ValuesView<messages::PickleStep>
+    ValuesView<messages::PickleStep> Query::FindAllPickleSteps() const
     {
         return pickleStepById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllStepDefinitions() const -> ValuesView<messages::StepDefinition>
+    ValuesView<messages::StepDefinition> Query::FindAllStepDefinitions() const
     {
         return stepDefinitionById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllTestCaseStarted() const -> FilteredValuesView<messages::TestCaseStarted>
+    FilteredValuesView<messages::TestCaseStarted> Query::FindAllTestCaseStarted() const
     {
         return testCaseStartedById | views::Values() | views::Dereference() |
                views::Filter(Predicate<messages::TestCaseStarted>{ [this](const messages::TestCaseStarted& testCaseStarted)
@@ -190,7 +190,7 @@ namespace cucumber::query
                    } });
     }
 
-    auto Query::FindAllTestCaseFinished() const -> FilteredValuesView<messages::TestCaseFinished>
+    FilteredValuesView<messages::TestCaseFinished> Query::FindAllTestCaseFinished() const
     {
         return testCaseFinishedByTestCaseStartedId | views::Values() | views::Dereference() |
                views::Filter(Predicate<messages::TestCaseFinished>{ [](const messages::TestCaseFinished& testCaseFinished)
@@ -199,42 +199,42 @@ namespace cucumber::query
                    } });
     }
 
-    auto Query::FindAllTestSteps() const -> ValuesView<messages::TestStep>
+    ValuesView<messages::TestStep> Query::FindAllTestSteps() const
     {
         return testStepById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllTestCases() const -> ValuesView<messages::TestCase>
+    ValuesView<messages::TestCase> Query::FindAllTestCases() const
     {
         return testCaseById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllTestStepStarted() const -> JoinedValuesView<messages::TestStepStarted>
+    JoinedValuesView<messages::TestStepStarted> Query::FindAllTestStepStarted() const
     {
         return testStepStartedByTestCaseStartedId | views::Values() | views::Join() | views::Dereference();
     }
 
-    auto Query::FindAllTestStepFinished() const -> JoinedValuesView<messages::TestStepFinished>
+    JoinedValuesView<messages::TestStepFinished> Query::FindAllTestStepFinished() const
     {
         return testStepFinishedByTestCaseStartedId | views::Values() | views::Join() | views::Dereference();
     }
 
-    auto Query::FindAllTestRunHookStarted() const -> ValuesView<messages::TestRunHookStarted>
+    ValuesView<messages::TestRunHookStarted> Query::FindAllTestRunHookStarted() const
     {
         return testRunHookStartedById | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllTestRunHookFinished() const -> ValuesView<messages::TestRunHookFinished>
+    ValuesView<messages::TestRunHookFinished> Query::FindAllTestRunHookFinished() const
     {
         return testRunHookFinishedByTestRunHookStartedId | views::Values() | views::Dereference();
     }
 
-    auto Query::FindAllUndefinedParameterTypes() const -> ElementsView<messages::UndefinedParameterType>
+    ElementsView<messages::UndefinedParameterType> Query::FindAllUndefinedParameterTypes() const
     {
         return undefinedParameterTypes | views::Dereference();
     }
 
-    auto Query::FindAttachmentsBy(const messages::TestStepFinished& element) const -> FilteredElementsView<messages::Attachment>
+    FilteredElementsView<messages::Attachment> Query::FindAttachmentsBy(const messages::TestStepFinished& element) const
     {
         return FindMany(attachmentsByTestCaseStartedId, element.testCaseStartedId) | views::Dereference() |
                views::Filter(Predicate<messages::Attachment>{ [testStepId = element.testStepId](const messages::Attachment& attachment)
@@ -243,12 +243,12 @@ namespace cucumber::query
                    } });
     }
 
-    auto Query::FindAttachmentsBy(const messages::TestRunHookFinished& element) const -> ElementsView<messages::Attachment>
+    ElementsView<messages::Attachment> Query::FindAttachmentsBy(const messages::TestRunHookFinished& element) const
     {
         return FindMany(attachmentsByTestRunHookStartedId, element.testRunHookStartedId) | views::Dereference();
     }
 
-    auto Query::FindHookBy(const messages::TestStep& element) const -> const messages::Hook*
+    const messages::Hook* Query::FindHookBy(const messages::TestStep& element) const
     {
         if (element.hookId)
         {
@@ -257,12 +257,12 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindHookBy(const messages::TestRunHookStarted& element) const -> const messages::Hook*
+    const messages::Hook* Query::FindHookBy(const messages::TestRunHookStarted& element) const
     {
         return FindOne(hookById, element.hookId);
     }
 
-    auto Query::FindHookBy(const messages::TestRunHookFinished& element) const -> const messages::Hook*
+    const messages::Hook* Query::FindHookBy(const messages::TestRunHookFinished& element) const
     {
         const auto* testRunHookStarted = FindTestRunHookStartedBy(element);
         if (testRunHookStarted != nullptr)
@@ -272,12 +272,12 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindMeta() const -> const messages::Meta*
+    const messages::Meta* Query::FindMeta() const
     {
         return meta;
     }
 
-    auto Query::FindMostSevereTestStepResultBy(const messages::TestCaseStarted& element) const -> const messages::TestStepResult*
+    const messages::TestStepResult* Query::FindMostSevereTestStepResultBy(const messages::TestCaseStarted& element) const
     {
         auto testStepFinishedAndTestStep = FindTestStepFinishedAndTestStepBy(element);
         if (!testStepFinishedAndTestStep.empty())
@@ -289,7 +289,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindMostSevereTestStepResultBy(const messages::TestCaseFinished& element) const -> const messages::TestStepResult*
+    const messages::TestStepResult* Query::FindMostSevereTestStepResultBy(const messages::TestCaseFinished& element) const
     {
         const auto* testCaseStarted = FindTestCaseStartedBy(element);
         if (testCaseStarted != nullptr)
@@ -299,7 +299,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindLocationOf(const messages::Pickle& pickle) const -> const messages::Location*
+    const messages::Location* Query::FindLocationOf(const messages::Pickle& pickle) const
     {
         if (pickle.location)
         {
@@ -326,7 +326,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindPickleBy(const messages::TestCaseStarted& element) const -> const messages::Pickle*
+    const messages::Pickle* Query::FindPickleBy(const messages::TestCaseStarted& element) const
     {
         const auto* testCase = FindTestCaseBy(element);
         if (testCase != nullptr)
@@ -336,7 +336,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindPickleBy(const messages::TestCaseFinished& element) const -> const messages::Pickle*
+    const messages::Pickle* Query::FindPickleBy(const messages::TestCaseFinished& element) const
     {
         const auto* testCase = FindTestCaseBy(element);
         if (testCase != nullptr)
@@ -346,7 +346,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindPickleBy(const messages::TestStepStarted& element) const -> const messages::Pickle*
+    const messages::Pickle* Query::FindPickleBy(const messages::TestStepStarted& element) const
     {
         const auto* testCase = FindTestCaseBy(element);
         if (testCase != nullptr)
@@ -356,7 +356,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindPickleBy(const messages::TestStepFinished& element) const -> const messages::Pickle*
+    const messages::Pickle* Query::FindPickleBy(const messages::TestStepFinished& element) const
     {
         const auto* testCase = FindTestCaseBy(element);
         if (testCase != nullptr)
@@ -366,7 +366,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindPickleStepBy(const messages::TestStep& testStep) const -> const messages::PickleStep*
+    const messages::PickleStep* Query::FindPickleStepBy(const messages::TestStep& testStep) const
     {
         if (testStep.pickleStepId)
         {
@@ -375,12 +375,12 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindStepBy(const messages::PickleStep& pickleStep) const -> const messages::Step*
+    const messages::Step* Query::FindStepBy(const messages::PickleStep& pickleStep) const
     {
         return FindOne(stepById, pickleStep.astNodeIds.front());
     }
 
-    auto Query::FindStepDefinitionsBy(const messages::TestStep& testStep) const -> OwningView<messages::StepDefinition>
+    OwningView<messages::StepDefinition> Query::FindStepDefinitionsBy(const messages::TestStep& testStep) const
     {
         std::vector<const messages::StepDefinition*> result;
 
@@ -399,7 +399,7 @@ namespace cucumber::query
         return OwningView<messages::StepDefinition>{ std::move(result), views::SelectPointee{} };
     }
 
-    auto Query::FindSuggestionsBy(const messages::PickleStep& element) const -> OwningView<messages::Suggestion>
+    OwningView<messages::Suggestion> Query::FindSuggestionsBy(const messages::PickleStep& element) const
     {
         std::vector<const messages::Suggestion*> result;
 
@@ -412,7 +412,7 @@ namespace cucumber::query
         return OwningView<messages::Suggestion>{ std::move(result), views::SelectPointee{} };
     }
 
-    auto Query::FindSuggestionsBy(const messages::Pickle& element) const -> OwningView<messages::Suggestion>
+    OwningView<messages::Suggestion> Query::FindSuggestionsBy(const messages::Pickle& element) const
     {
         std::vector<const messages::Suggestion*> result;
 
@@ -428,7 +428,7 @@ namespace cucumber::query
         return OwningView<messages::Suggestion>{ std::move(result), views::SelectPointee{} };
     }
 
-    auto Query::FindUnambiguousStepDefinitionBy(const messages::TestStep& testStep) const -> const messages::StepDefinition*
+    const messages::StepDefinition* Query::FindUnambiguousStepDefinitionBy(const messages::TestStep& testStep) const
     {
         if (testStep.stepDefinitionIds && testStep.stepDefinitionIds->size() == 1)
         {
@@ -437,12 +437,12 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindTestCaseBy(const messages::TestCaseStarted& element) const -> const messages::TestCase*
+    const messages::TestCase* Query::FindTestCaseBy(const messages::TestCaseStarted& element) const
     {
         return FindOne(testCaseById, element.testCaseId);
     }
 
-    auto Query::FindTestCaseBy(const messages::TestCaseFinished& element) const -> const messages::TestCase*
+    const messages::TestCase* Query::FindTestCaseBy(const messages::TestCaseFinished& element) const
     {
         const auto* testCaseStarted = FindTestCaseStartedBy(element);
         if (testCaseStarted != nullptr)
@@ -452,7 +452,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindTestCaseBy(const messages::TestStepStarted& element) const -> const messages::TestCase*
+    const messages::TestCase* Query::FindTestCaseBy(const messages::TestStepStarted& element) const
     {
         const auto* testCaseStarted = FindTestCaseStartedBy(element);
         if (testCaseStarted != nullptr)
@@ -462,7 +462,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindTestCaseBy(const messages::TestStepFinished& element) const -> const messages::TestCase*
+    const messages::TestCase* Query::FindTestCaseBy(const messages::TestStepFinished& element) const
     {
         const auto* testCaseStarted = FindTestCaseStartedBy(element);
         if (testCaseStarted != nullptr)
@@ -472,7 +472,7 @@ namespace cucumber::query
         return nullptr;
     }
 
-    auto Query::FindTestCaseDurationBy(const messages::TestCaseStarted& element) const -> std::optional<messages::Duration>
+    std::optional<messages::Duration> Query::FindTestCaseDurationBy(const messages::TestCaseStarted& element) const
     {
         const auto* testCaseFinished = FindTestCaseFinishedBy(element);
         if (testCaseFinished != nullptr)
@@ -482,7 +482,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindTestCaseDurationBy(const messages::TestCaseFinished& element) const -> std::optional<messages::Duration>
+    std::optional<messages::Duration> Query::FindTestCaseDurationBy(const messages::TestCaseFinished& element) const
     {
         const auto* testCaseStarted = FindTestCaseStartedBy(element);
 
@@ -494,37 +494,37 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindTestCaseStartedBy(const messages::TestCaseFinished& element) const -> const messages::TestCaseStarted*
+    const messages::TestCaseStarted* Query::FindTestCaseStartedBy(const messages::TestCaseFinished& element) const
     {
         return FindOne(testCaseStartedById, element.testCaseStartedId);
     }
 
-    auto Query::FindTestCaseStartedBy(const messages::TestStepStarted& element) const -> const messages::TestCaseStarted*
+    const messages::TestCaseStarted* Query::FindTestCaseStartedBy(const messages::TestStepStarted& element) const
     {
         return FindOne(testCaseStartedById, element.testCaseStartedId);
     }
 
-    auto Query::FindTestCaseStartedBy(const messages::TestStepFinished& element) const -> const messages::TestCaseStarted*
+    const messages::TestCaseStarted* Query::FindTestCaseStartedBy(const messages::TestStepFinished& element) const
     {
         return FindOne(testCaseStartedById, element.testCaseStartedId);
     }
 
-    auto Query::FindTestCaseFinishedBy(const messages::TestCaseStarted& testCaseStarted) const -> const messages::TestCaseFinished*
+    const messages::TestCaseFinished* Query::FindTestCaseFinishedBy(const messages::TestCaseStarted& testCaseStarted) const
     {
         return FindOne(testCaseFinishedByTestCaseStartedId, testCaseStarted.id);
     }
 
-    auto Query::FindTestRunHookStartedBy(const messages::TestRunHookFinished& testRunHookFinished) const -> const messages::TestRunHookStarted*
+    const messages::TestRunHookStarted* Query::FindTestRunHookStartedBy(const messages::TestRunHookFinished& testRunHookFinished) const
     {
         return FindOne(testRunHookStartedById, testRunHookFinished.testRunHookStartedId);
     }
 
-    auto Query::FindTestRunHookFinishedBy(const messages::TestRunHookStarted& testRunHookStarted) const -> const messages::TestRunHookFinished*
+    const messages::TestRunHookFinished* Query::FindTestRunHookFinishedBy(const messages::TestRunHookStarted& testRunHookStarted) const
     {
         return FindOne(testRunHookFinishedByTestRunHookStartedId, testRunHookStarted.id);
     }
 
-    auto Query::FindTestRunDuration() const -> std::optional<messages::Duration>
+    std::optional<messages::Duration> Query::FindTestRunDuration() const
     {
         if (testRunStarted != nullptr && testRunFinished != nullptr)
         {
@@ -534,47 +534,47 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindTestRunFinished() const -> const messages::TestRunFinished*
+    const messages::TestRunFinished* Query::FindTestRunFinished() const
     {
         return testRunFinished;
     }
 
-    auto Query::FindTestRunStarted() const -> const messages::TestRunStarted*
+    const messages::TestRunStarted* Query::FindTestRunStarted() const
     {
         return testRunStarted;
     }
 
-    auto Query::FindTestStepBy(const messages::TestStepStarted& element) const -> const messages::TestStep*
+    const messages::TestStep* Query::FindTestStepBy(const messages::TestStepStarted& element) const
     {
         return FindOne(testStepById, element.testStepId);
     }
 
-    auto Query::FindTestStepBy(const messages::TestStepFinished& element) const -> const messages::TestStep*
+    const messages::TestStep* Query::FindTestStepBy(const messages::TestStepFinished& element) const
     {
         return FindOne(testStepById, element.testStepId);
     }
 
-    auto Query::FindTestStepsStartedBy(const messages::TestCaseStarted& testCaseStarted) const -> ElementsView<messages::TestStepStarted>
+    ElementsView<messages::TestStepStarted> Query::FindTestStepsStartedBy(const messages::TestCaseStarted& testCaseStarted) const
     {
         return FindMany(testStepStartedByTestCaseStartedId, testCaseStarted.id) | views::Dereference();
     }
 
-    auto Query::FindTestStepsStartedBy(const messages::TestCaseFinished& testCaseFinished) const -> ElementsView<messages::TestStepStarted>
+    ElementsView<messages::TestStepStarted> Query::FindTestStepsStartedBy(const messages::TestCaseFinished& testCaseFinished) const
     {
         return FindMany(testStepStartedByTestCaseStartedId, testCaseFinished.testCaseStartedId) | views::Dereference();
     }
 
-    auto Query::FindTestStepsFinishedBy(const messages::TestCaseStarted& element) const -> ElementsView<messages::TestStepFinished>
+    ElementsView<messages::TestStepFinished> Query::FindTestStepsFinishedBy(const messages::TestCaseStarted& element) const
     {
         return FindMany(testStepFinishedByTestCaseStartedId, element.id) | views::Dereference();
     }
 
-    auto Query::FindTestStepsFinishedBy(const messages::TestCaseFinished& element) const -> ElementsView<messages::TestStepFinished>
+    ElementsView<messages::TestStepFinished> Query::FindTestStepsFinishedBy(const messages::TestCaseFinished& element) const
     {
         return FindMany(testStepFinishedByTestCaseStartedId, element.testCaseStartedId) | views::Dereference();
     }
 
-    auto Query::FindTestStepFinishedAndTestStepBy(const messages::TestCaseStarted& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>
+    std::vector<TestStepFinishedAndTestStep> Query::FindTestStepFinishedAndTestStepBy(const messages::TestCaseStarted& testCaseStarted) const
     {
         std::vector<TestStepFinishedAndTestStep> result;
 
@@ -590,7 +590,7 @@ namespace cucumber::query
         return result;
     }
 
-    auto Query::FindLineageBy(const messages::Pickle& element) const -> std::optional<LineageAndPickle>
+    std::optional<LineageAndPickle> Query::FindLineageBy(const messages::Pickle& element) const
     {
         const auto* lineage = FindOne(lineageById, element.astNodeIds.back());
 
@@ -602,7 +602,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindLineageBy(const messages::TestCaseStarted& element) const -> std::optional<LineageAndPickle>
+    std::optional<LineageAndPickle> Query::FindLineageBy(const messages::TestCaseStarted& element) const
     {
         const auto* pickle = FindPickleBy(element);
 
@@ -614,7 +614,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::FindLineageBy(const messages::TestCaseFinished& element) const -> std::optional<LineageAndPickle>
+    std::optional<LineageAndPickle> Query::FindLineageBy(const messages::TestCaseFinished& element) const
     {
         const auto* pickle = FindPickleBy(element);
 
@@ -626,7 +626,7 @@ namespace cucumber::query
         return std::nullopt;
     }
 
-    auto Query::AllTestCaseStarted() const -> std::vector<const messages::TestCaseStarted*>
+    std::vector<const messages::TestCaseStarted*> Query::AllTestCaseStarted() const
     {
         std::vector<const messages::TestCaseStarted*> result;
 
@@ -638,7 +638,7 @@ namespace cucumber::query
         return result;
     }
 
-    auto Query::AllTestCaseFinished() const -> std::vector<const messages::TestCaseFinished*>
+    std::vector<const messages::TestCaseFinished*> Query::AllTestCaseFinished() const
     {
         std::vector<const messages::TestCaseFinished*> result;
 
@@ -650,7 +650,7 @@ namespace cucumber::query
         return result;
     }
 
-    auto Query::UpdateGherkinDocument(const messages::GherkinDocument& gherkinDocument) -> void
+    void Query::UpdateGherkinDocument(const messages::GherkinDocument& gherkinDocument)
     {
         if (gherkinDocument.feature)
         {
@@ -658,7 +658,7 @@ namespace cucumber::query
         }
     }
 
-    auto Query::UpdateFeature(const messages::Feature& feature, Lineage lineage) -> void
+    void Query::UpdateFeature(const messages::Feature& feature, Lineage lineage)
     {
         for (const auto& featureChild : feature.children)
         {
@@ -680,7 +680,7 @@ namespace cucumber::query
         }
     }
 
-    auto Query::UpdateRule(const messages::Rule& rule, Lineage lineage) -> void
+    void Query::UpdateRule(const messages::Rule& rule, Lineage lineage)
     {
         for (const auto& ruleChild : rule.children)
         {
@@ -697,7 +697,7 @@ namespace cucumber::query
         }
     }
 
-    auto Query::UpdateScenario(const messages::Scenario& scenario, const Lineage& lineage) -> void
+    void Query::UpdateScenario(const messages::Scenario& scenario, const Lineage& lineage)
     {
         lineageById[scenario.id] = lineage + Lineage{ nullptr, nullptr, nullptr, nullptr, nullptr, &scenario };
 
@@ -718,7 +718,7 @@ namespace cucumber::query
         UpdateSteps(scenario.steps);
     }
 
-    auto Query::UpdateSteps(const std::vector<messages::Step>& steps) -> void
+    void Query::UpdateSteps(const std::vector<messages::Step>& steps)
     {
         for (const auto& step : steps)
         {
@@ -726,7 +726,7 @@ namespace cucumber::query
         }
     }
 
-    auto Query::UpdatePickle(const messages::Pickle& pickle) -> void
+    void Query::UpdatePickle(const messages::Pickle& pickle)
     {
         pickleById[pickle.id] = &pickle;
         for (const auto& pickleStep : pickle.steps)
@@ -735,17 +735,17 @@ namespace cucumber::query
         }
     }
 
-    auto Query::UpdateTestRunHookStarted(const messages::TestRunHookStarted& testRunHookStarted) -> void
+    void Query::UpdateTestRunHookStarted(const messages::TestRunHookStarted& testRunHookStarted)
     {
         testRunHookStartedById[testRunHookStarted.id] = &testRunHookStarted;
     }
 
-    auto Query::UpdateTestRunHookFinished(const messages::TestRunHookFinished& testRunHookFinished) -> void
+    void Query::UpdateTestRunHookFinished(const messages::TestRunHookFinished& testRunHookFinished)
     {
         testRunHookFinishedByTestRunHookStartedId[testRunHookFinished.testRunHookStartedId] = &testRunHookFinished;
     }
 
-    auto Query::UpdateTestCase(const messages::TestCase& testCase) -> void
+    void Query::UpdateTestCase(const messages::TestCase& testCase)
     {
         for (const auto& testStep : testCase.testSteps)
         {
@@ -754,12 +754,12 @@ namespace cucumber::query
         testCaseById[testCase.id] = &testCase;
     }
 
-    auto Query::UpdateTestCaseStarted(const messages::TestCaseStarted& testCaseStarted) -> void
+    void Query::UpdateTestCaseStarted(const messages::TestCaseStarted& testCaseStarted)
     {
         testCaseStartedById[testCaseStarted.id] = &testCaseStarted;
     }
 
-    auto Query::UpdateAttachment(const messages::Attachment& attachment) -> void
+    void Query::UpdateAttachment(const messages::Attachment& attachment)
     {
         if (attachment.testCaseStartedId)
         {
@@ -771,12 +771,12 @@ namespace cucumber::query
         }
     }
 
-    auto Query::UpdateTestStepFinished(const messages::TestStepFinished& testStepFinished) -> void
+    void Query::UpdateTestStepFinished(const messages::TestStepFinished& testStepFinished)
     {
         testStepFinishedByTestCaseStartedId[testStepFinished.testCaseStartedId].push_back(&testStepFinished);
     }
 
-    auto Query::UpdateTestCaseFinished(const messages::TestCaseFinished& testCaseFinished) -> void
+    void Query::UpdateTestCaseFinished(const messages::TestCaseFinished& testCaseFinished)
     {
         testCaseFinishedByTestCaseStartedId[testCaseFinished.testCaseStartedId] = &testCaseFinished;
     }

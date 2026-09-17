@@ -27,13 +27,13 @@ namespace cucumber::query
 {
     namespace
     {
-        auto EndsWith(std::string_view value, std::string_view suffix) -> bool
+        bool EndsWith(std::string_view value, std::string_view suffix)
         {
             return value.size() >= suffix.size() && value.compare(value.size() - suffix.size(), suffix.size(), suffix) == 0;
         }
 
         template<typename T>
-        auto ToJson(const std::optional<T>& value) -> nlohmann::json
+        nlohmann::json ToJson(const std::optional<T>& value)
         {
             return value.has_value() ? nlohmann::json(*value) : nlohmann::json(nullptr);
         }
@@ -50,13 +50,13 @@ namespace cucumber::query
         };
 
         // Determines how ctest names the generated tests.
-        auto PrintTo(const DataSet& dataSet, std::ostream* stream) -> void
+        void PrintTo(const DataSet& dataSet, std::ostream* stream)
         {
             *stream << dataSet.source.stem().string();
         }
 
         // Data sets are `<stem>.ndjson`, their expectations `<stem><infix><discriminator><suffix>`.
-        auto GetDataSets(const Expectation& expectation) -> std::vector<DataSet>
+        std::vector<DataSet> GetDataSets(const Expectation& expectation)
         {
             std::vector<std::filesystem::path> sources;
             std::vector<std::string> expectations;
@@ -101,12 +101,12 @@ namespace cucumber::query
             return dataSets;
         }
 
-        auto ExpectedPath(const std::filesystem::path& dataSet, const std::string& suffix) -> std::filesystem::path
+        std::filesystem::path ExpectedPath(const std::filesystem::path& dataSet, const std::string& suffix)
         {
             return dataSet.parent_path() / (dataSet.stem().string() + suffix);
         }
 
-        auto DataSetName(const testing::TestParamInfo<DataSet>& info) -> std::string
+        std::string DataSetName(const testing::TestParamInfo<DataSet>& info)
         {
             auto name = info.param.source.stem().string();
 
@@ -121,7 +121,7 @@ namespace cucumber::query
             return name;
         }
 
-        auto LoadQuery(const std::filesystem::path& source, EnvelopeArchive& archive, Query& query) -> void
+        void LoadQuery(const std::filesystem::path& source, EnvelopeArchive& archive, Query& query)
         {
             std::ifstream ifstream{ source };
             LoadNdjson(archive, ifstream,
@@ -131,7 +131,7 @@ namespace cucumber::query
                 });
         }
 
-        auto ReversePickleComparator(const messages::Pickle& lhs, const messages::Pickle& rhs) -> std::int32_t
+        std::int32_t ReversePickleComparator(const messages::Pickle& lhs, const messages::Pickle& rhs)
         {
             if (lhs.uri != rhs.uri)
             {
@@ -151,12 +151,12 @@ namespace cucumber::query
         struct QueryAcceptanceTest : testing::TestWithParam<DataSet>
         {
         protected:
-            auto SetUp() -> void override
+            void SetUp() override
             {
                 LoadQuery(GetParam().source, archive, query);
             }
 
-            static auto Verify(std::string_view queryName, const nlohmann::json& actual) -> void
+            static void Verify(std::string_view queryName, const nlohmann::json& actual)
             {
                 const auto expected = ExpectedPath(GetParam().source, "." + std::string{ queryName } + ".results.json");
 
@@ -825,12 +825,12 @@ namespace cucumber::query
         struct NamingStrategyAcceptanceTest : testing::TestWithParam<DataSet>
         {
         protected:
-            auto SetUp() -> void override
+            void SetUp() override
             {
                 LoadQuery(GetParam().source, archive, query);
             }
 
-            auto Verify(std::string_view variant, const NamingStrategy& strategy) const -> void
+            void Verify(std::string_view variant, const NamingStrategy& strategy) const
             {
                 std::string actual;
 

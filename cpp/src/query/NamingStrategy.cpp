@@ -15,7 +15,7 @@ namespace cucumber::query
         , exampleName{ exampleName }
     {}
 
-    auto BuiltinNamingStrategy::Reduce(const Lineage& lineage, const messages::Pickle& pickle) const -> std::string
+    std::string BuiltinNamingStrategy::Reduce(const Lineage& lineage, const messages::Pickle& pickle) const
     {
         static constexpr std::size_t namingStrategyPartsCount = 8;
 
@@ -92,7 +92,7 @@ namespace cucumber::query
             });
     }
 
-    auto CreateNamingStrategy(NamingStrategyLength length, NamingStrategyFeatureName featureName, NamingStrategyExampleName exampleName) -> std::unique_ptr<const NamingStrategy>
+    std::unique_ptr<const NamingStrategy> CreateNamingStrategy(NamingStrategyLength length, NamingStrategyFeatureName featureName, NamingStrategyExampleName exampleName)
     {
         return std::make_unique<const BuiltinNamingStrategy>(length, featureName, exampleName);
     }

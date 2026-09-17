@@ -40,7 +40,7 @@ namespace cucumber::query
 
     struct StringIdCompare
     {
-        auto operator()(const std::string& lhs, const std::string& rhs) const -> bool
+        bool operator()(const std::string& lhs, const std::string& rhs) const
         {
             return std::stoi(lhs) < std::stoi(rhs);
         }
@@ -80,130 +80,130 @@ namespace cucumber::query
     class Query
     {
     public:
-        auto Update(const std::shared_ptr<const cucumber::messages::Envelope>& envelope) -> void;
-        auto Update(const cucumber::messages::Envelope& envelope) -> void;
+        void Update(const std::shared_ptr<const cucumber::messages::Envelope>& envelope);
+        void Update(const cucumber::messages::Envelope& envelope);
 
-        [[nodiscard]] auto CountMostSevereTestStepResultStatus() const -> std::unordered_map<messages::TestStepResultStatus, std::size_t>;
+        [[nodiscard]] std::unordered_map<messages::TestStepResultStatus, std::size_t> CountMostSevereTestStepResultStatus() const;
 
-        [[nodiscard]] auto CountTestCasesStarted() const -> std::size_t;
+        [[nodiscard]] std::size_t CountTestCasesStarted() const;
 
-        [[nodiscard]] auto FindAllPickles() const -> ValuesView<messages::Pickle>;
+        [[nodiscard]] ValuesView<messages::Pickle> FindAllPickles() const;
 
-        [[nodiscard]] auto FindAllPickleSteps() const -> ValuesView<messages::PickleStep>;
+        [[nodiscard]] ValuesView<messages::PickleStep> FindAllPickleSteps() const;
 
-        [[nodiscard]] auto FindAllStepDefinitions() const -> ValuesView<messages::StepDefinition>;
+        [[nodiscard]] ValuesView<messages::StepDefinition> FindAllStepDefinitions() const;
 
-        [[nodiscard]] auto FindAllTestCaseStarted() const -> FilteredValuesView<messages::TestCaseStarted>;
+        [[nodiscard]] FilteredValuesView<messages::TestCaseStarted> FindAllTestCaseStarted() const;
 
-        [[nodiscard]] auto FindAllTestCaseFinished() const -> FilteredValuesView<messages::TestCaseFinished>;
-
-        template<typename Transform, typename Cmp>
-        [[nodiscard]] auto FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseStarted>;
+        [[nodiscard]] FilteredValuesView<messages::TestCaseFinished> FindAllTestCaseFinished() const;
 
         template<typename Transform, typename Cmp>
-        [[nodiscard]] auto FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseFinished>;
+        [[nodiscard]] OwningView<messages::TestCaseStarted> FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const;
 
-        [[nodiscard]] auto FindAllTestSteps() const -> ValuesView<messages::TestStep>;
+        template<typename Transform, typename Cmp>
+        [[nodiscard]] OwningView<messages::TestCaseFinished> FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const;
 
-        [[nodiscard]] auto FindAllTestCases() const -> ValuesView<messages::TestCase>;
+        [[nodiscard]] ValuesView<messages::TestStep> FindAllTestSteps() const;
 
-        [[nodiscard]] auto FindAllTestStepStarted() const -> JoinedValuesView<messages::TestStepStarted>;
+        [[nodiscard]] ValuesView<messages::TestCase> FindAllTestCases() const;
 
-        [[nodiscard]] auto FindAllTestStepFinished() const -> JoinedValuesView<messages::TestStepFinished>;
+        [[nodiscard]] JoinedValuesView<messages::TestStepStarted> FindAllTestStepStarted() const;
 
-        [[nodiscard]] auto FindAllTestRunHookStarted() const -> ValuesView<messages::TestRunHookStarted>;
+        [[nodiscard]] JoinedValuesView<messages::TestStepFinished> FindAllTestStepFinished() const;
 
-        [[nodiscard]] auto FindAllTestRunHookFinished() const -> ValuesView<messages::TestRunHookFinished>;
+        [[nodiscard]] ValuesView<messages::TestRunHookStarted> FindAllTestRunHookStarted() const;
 
-        [[nodiscard]] auto FindAllUndefinedParameterTypes() const -> ElementsView<messages::UndefinedParameterType>;
+        [[nodiscard]] ValuesView<messages::TestRunHookFinished> FindAllTestRunHookFinished() const;
 
-        [[nodiscard]] auto FindAttachmentsBy(const messages::TestStepFinished& element) const -> FilteredElementsView<messages::Attachment>;
-        [[nodiscard]] auto FindAttachmentsBy(const messages::TestRunHookFinished& element) const -> ElementsView<messages::Attachment>;
+        [[nodiscard]] ElementsView<messages::UndefinedParameterType> FindAllUndefinedParameterTypes() const;
 
-        [[nodiscard]] auto FindHookBy(const messages::TestStep& element) const -> const messages::Hook*;
-        [[nodiscard]] auto FindHookBy(const messages::TestRunHookStarted& element) const -> const messages::Hook*;
-        [[nodiscard]] auto FindHookBy(const messages::TestRunHookFinished& element) const -> const messages::Hook*;
+        [[nodiscard]] FilteredElementsView<messages::Attachment> FindAttachmentsBy(const messages::TestStepFinished& element) const;
+        [[nodiscard]] ElementsView<messages::Attachment> FindAttachmentsBy(const messages::TestRunHookFinished& element) const;
 
-        [[nodiscard]] auto FindMeta() const -> const messages::Meta*;
+        [[nodiscard]] const messages::Hook* FindHookBy(const messages::TestStep& element) const;
+        [[nodiscard]] const messages::Hook* FindHookBy(const messages::TestRunHookStarted& element) const;
+        [[nodiscard]] const messages::Hook* FindHookBy(const messages::TestRunHookFinished& element) const;
 
-        [[nodiscard]] auto FindMostSevereTestStepResultBy(const messages::TestCaseStarted& element) const -> const messages::TestStepResult*;
-        [[nodiscard]] auto FindMostSevereTestStepResultBy(const messages::TestCaseFinished& element) const -> const messages::TestStepResult*;
+        [[nodiscard]] const messages::Meta* FindMeta() const;
 
-        [[nodiscard]] auto FindLocationOf(const messages::Pickle& pickle) const -> const messages::Location*;
+        [[nodiscard]] const messages::TestStepResult* FindMostSevereTestStepResultBy(const messages::TestCaseStarted& element) const;
+        [[nodiscard]] const messages::TestStepResult* FindMostSevereTestStepResultBy(const messages::TestCaseFinished& element) const;
 
-        [[nodiscard]] auto FindPickleBy(const messages::TestCaseStarted& element) const -> const messages::Pickle*;
-        [[nodiscard]] auto FindPickleBy(const messages::TestCaseFinished& element) const -> const messages::Pickle*;
-        [[nodiscard]] auto FindPickleBy(const messages::TestStepStarted& element) const -> const messages::Pickle*;
-        [[nodiscard]] auto FindPickleBy(const messages::TestStepFinished& element) const -> const messages::Pickle*;
+        [[nodiscard]] const messages::Location* FindLocationOf(const messages::Pickle& pickle) const;
 
-        [[nodiscard]] auto FindPickleStepBy(const messages::TestStep& testStep) const -> const messages::PickleStep*;
+        [[nodiscard]] const messages::Pickle* FindPickleBy(const messages::TestCaseStarted& element) const;
+        [[nodiscard]] const messages::Pickle* FindPickleBy(const messages::TestCaseFinished& element) const;
+        [[nodiscard]] const messages::Pickle* FindPickleBy(const messages::TestStepStarted& element) const;
+        [[nodiscard]] const messages::Pickle* FindPickleBy(const messages::TestStepFinished& element) const;
 
-        [[nodiscard]] auto FindStepBy(const messages::PickleStep& pickleStep) const -> const messages::Step*;
+        [[nodiscard]] const messages::PickleStep* FindPickleStepBy(const messages::TestStep& testStep) const;
 
-        [[nodiscard]] auto FindStepDefinitionsBy(const messages::TestStep& testStep) const -> OwningView<messages::StepDefinition>;
+        [[nodiscard]] const messages::Step* FindStepBy(const messages::PickleStep& pickleStep) const;
 
-        [[nodiscard]] auto FindSuggestionsBy(const messages::PickleStep& element) const -> OwningView<messages::Suggestion>;
-        [[nodiscard]] auto FindSuggestionsBy(const messages::Pickle& element) const -> OwningView<messages::Suggestion>;
+        [[nodiscard]] OwningView<messages::StepDefinition> FindStepDefinitionsBy(const messages::TestStep& testStep) const;
 
-        [[nodiscard]] auto FindUnambiguousStepDefinitionBy(const messages::TestStep& testStep) const -> const messages::StepDefinition*;
+        [[nodiscard]] OwningView<messages::Suggestion> FindSuggestionsBy(const messages::PickleStep& element) const;
+        [[nodiscard]] OwningView<messages::Suggestion> FindSuggestionsBy(const messages::Pickle& element) const;
 
-        [[nodiscard]] auto FindTestCaseBy(const messages::TestCaseStarted& element) const -> const messages::TestCase*;
-        [[nodiscard]] auto FindTestCaseBy(const messages::TestCaseFinished& element) const -> const messages::TestCase*;
-        [[nodiscard]] auto FindTestCaseBy(const messages::TestStepStarted& element) const -> const messages::TestCase*;
-        [[nodiscard]] auto FindTestCaseBy(const messages::TestStepFinished& element) const -> const messages::TestCase*;
+        [[nodiscard]] const messages::StepDefinition* FindUnambiguousStepDefinitionBy(const messages::TestStep& testStep) const;
 
-        [[nodiscard]] auto FindTestCaseDurationBy(const messages::TestCaseStarted& element) const -> std::optional<messages::Duration>;
+        [[nodiscard]] const messages::TestCase* FindTestCaseBy(const messages::TestCaseStarted& element) const;
+        [[nodiscard]] const messages::TestCase* FindTestCaseBy(const messages::TestCaseFinished& element) const;
+        [[nodiscard]] const messages::TestCase* FindTestCaseBy(const messages::TestStepStarted& element) const;
+        [[nodiscard]] const messages::TestCase* FindTestCaseBy(const messages::TestStepFinished& element) const;
 
-        [[nodiscard]] auto FindTestCaseDurationBy(const messages::TestCaseFinished& element) const -> std::optional<messages::Duration>;
+        [[nodiscard]] std::optional<messages::Duration> FindTestCaseDurationBy(const messages::TestCaseStarted& element) const;
 
-        [[nodiscard]] auto FindTestCaseStartedBy(const messages::TestCaseFinished& element) const -> const messages::TestCaseStarted*;
-        [[nodiscard]] auto FindTestCaseStartedBy(const messages::TestStepStarted& element) const -> const messages::TestCaseStarted*;
-        [[nodiscard]] auto FindTestCaseStartedBy(const messages::TestStepFinished& element) const -> const messages::TestCaseStarted*;
+        [[nodiscard]] std::optional<messages::Duration> FindTestCaseDurationBy(const messages::TestCaseFinished& element) const;
 
-        [[nodiscard]] auto FindTestCaseFinishedBy(const messages::TestCaseStarted& testCaseStarted) const -> const messages::TestCaseFinished*;
+        [[nodiscard]] const messages::TestCaseStarted* FindTestCaseStartedBy(const messages::TestCaseFinished& element) const;
+        [[nodiscard]] const messages::TestCaseStarted* FindTestCaseStartedBy(const messages::TestStepStarted& element) const;
+        [[nodiscard]] const messages::TestCaseStarted* FindTestCaseStartedBy(const messages::TestStepFinished& element) const;
 
-        [[nodiscard]] auto FindTestRunHookStartedBy(const messages::TestRunHookFinished& testRunHookFinished) const -> const messages::TestRunHookStarted*;
+        [[nodiscard]] const messages::TestCaseFinished* FindTestCaseFinishedBy(const messages::TestCaseStarted& testCaseStarted) const;
 
-        [[nodiscard]] auto FindTestRunHookFinishedBy(const messages::TestRunHookStarted& testRunHookStarted) const -> const messages::TestRunHookFinished*;
+        [[nodiscard]] const messages::TestRunHookStarted* FindTestRunHookStartedBy(const messages::TestRunHookFinished& testRunHookFinished) const;
 
-        [[nodiscard]] auto FindTestRunDuration() const -> std::optional<messages::Duration>;
+        [[nodiscard]] const messages::TestRunHookFinished* FindTestRunHookFinishedBy(const messages::TestRunHookStarted& testRunHookStarted) const;
 
-        [[nodiscard]] auto FindTestRunFinished() const -> const messages::TestRunFinished*;
+        [[nodiscard]] std::optional<messages::Duration> FindTestRunDuration() const;
 
-        [[nodiscard]] auto FindTestRunStarted() const -> const messages::TestRunStarted*;
+        [[nodiscard]] const messages::TestRunFinished* FindTestRunFinished() const;
 
-        [[nodiscard]] auto FindTestStepBy(const messages::TestStepStarted& element) const -> const messages::TestStep*;
-        [[nodiscard]] auto FindTestStepBy(const messages::TestStepFinished& element) const -> const messages::TestStep*;
+        [[nodiscard]] const messages::TestRunStarted* FindTestRunStarted() const;
 
-        [[nodiscard]] auto FindTestStepsStartedBy(const messages::TestCaseStarted& testCaseStarted) const -> ElementsView<messages::TestStepStarted>;
-        [[nodiscard]] auto FindTestStepsStartedBy(const messages::TestCaseFinished& testCaseFinished) const -> ElementsView<messages::TestStepStarted>;
+        [[nodiscard]] const messages::TestStep* FindTestStepBy(const messages::TestStepStarted& element) const;
+        [[nodiscard]] const messages::TestStep* FindTestStepBy(const messages::TestStepFinished& element) const;
 
-        [[nodiscard]] auto FindTestStepsFinishedBy(const messages::TestCaseStarted& element) const -> ElementsView<messages::TestStepFinished>;
-        [[nodiscard]] auto FindTestStepsFinishedBy(const messages::TestCaseFinished& element) const -> ElementsView<messages::TestStepFinished>;
+        [[nodiscard]] ElementsView<messages::TestStepStarted> FindTestStepsStartedBy(const messages::TestCaseStarted& testCaseStarted) const;
+        [[nodiscard]] ElementsView<messages::TestStepStarted> FindTestStepsStartedBy(const messages::TestCaseFinished& testCaseFinished) const;
 
-        [[nodiscard]] auto FindTestStepFinishedAndTestStepBy(const messages::TestCaseStarted& testCaseStarted) const -> std::vector<TestStepFinishedAndTestStep>;
+        [[nodiscard]] ElementsView<messages::TestStepFinished> FindTestStepsFinishedBy(const messages::TestCaseStarted& element) const;
+        [[nodiscard]] ElementsView<messages::TestStepFinished> FindTestStepsFinishedBy(const messages::TestCaseFinished& element) const;
 
-        [[nodiscard]] auto FindLineageBy(const messages::Pickle& element) const -> std::optional<LineageAndPickle>;
-        [[nodiscard]] auto FindLineageBy(const messages::TestCaseStarted& element) const -> std::optional<LineageAndPickle>;
-        [[nodiscard]] auto FindLineageBy(const messages::TestCaseFinished& element) const -> std::optional<LineageAndPickle>;
+        [[nodiscard]] std::vector<TestStepFinishedAndTestStep> FindTestStepFinishedAndTestStepBy(const messages::TestCaseStarted& testCaseStarted) const;
+
+        [[nodiscard]] std::optional<LineageAndPickle> FindLineageBy(const messages::Pickle& element) const;
+        [[nodiscard]] std::optional<LineageAndPickle> FindLineageBy(const messages::TestCaseStarted& element) const;
+        [[nodiscard]] std::optional<LineageAndPickle> FindLineageBy(const messages::TestCaseFinished& element) const;
 
     private:
-        [[nodiscard]] auto AllTestCaseStarted() const -> std::vector<const messages::TestCaseStarted*>;
-        [[nodiscard]] auto AllTestCaseFinished() const -> std::vector<const messages::TestCaseFinished*>;
+        [[nodiscard]] std::vector<const messages::TestCaseStarted*> AllTestCaseStarted() const;
+        [[nodiscard]] std::vector<const messages::TestCaseFinished*> AllTestCaseFinished() const;
 
-        auto UpdateGherkinDocument(const messages::GherkinDocument& gherkinDocument) -> void;
-        auto UpdateFeature(const messages::Feature& feature, Lineage lineage) -> void;
-        auto UpdateRule(const messages::Rule& rule, Lineage lineage) -> void;
-        auto UpdateScenario(const messages::Scenario& scenario, const Lineage& lineage) -> void;
-        auto UpdateSteps(const std::vector<messages::Step>& steps) -> void;
-        auto UpdatePickle(const messages::Pickle& pickle) -> void;
-        auto UpdateTestRunHookStarted(const messages::TestRunHookStarted& testRunHookStarted) -> void;
-        auto UpdateTestRunHookFinished(const messages::TestRunHookFinished& testRunHookFinished) -> void;
-        auto UpdateTestCase(const messages::TestCase& testCase) -> void;
-        auto UpdateTestCaseStarted(const messages::TestCaseStarted& testCaseStarted) -> void;
-        auto UpdateAttachment(const messages::Attachment& attachment) -> void;
-        auto UpdateTestStepFinished(const messages::TestStepFinished& testStepFinished) -> void;
-        auto UpdateTestCaseFinished(const messages::TestCaseFinished& testCaseFinished) -> void;
+        void UpdateGherkinDocument(const messages::GherkinDocument& gherkinDocument);
+        void UpdateFeature(const messages::Feature& feature, Lineage lineage);
+        void UpdateRule(const messages::Rule& rule, Lineage lineage);
+        void UpdateScenario(const messages::Scenario& scenario, const Lineage& lineage);
+        void UpdateSteps(const std::vector<messages::Step>& steps);
+        void UpdatePickle(const messages::Pickle& pickle);
+        void UpdateTestRunHookStarted(const messages::TestRunHookStarted& testRunHookStarted);
+        void UpdateTestRunHookFinished(const messages::TestRunHookFinished& testRunHookFinished);
+        void UpdateTestCase(const messages::TestCase& testCase);
+        void UpdateTestCaseStarted(const messages::TestCaseStarted& testCaseStarted);
+        void UpdateAttachment(const messages::Attachment& attachment);
+        void UpdateTestStepFinished(const messages::TestStepFinished& testStepFinished);
+        void UpdateTestCaseFinished(const messages::TestCaseFinished& testCaseFinished);
 
         const messages::Meta* meta{ nullptr };
 
@@ -235,7 +235,7 @@ namespace cucumber::query
     namespace detail
     {
         template<typename TElement, typename Transform, typename Cmp>
-        [[nodiscard]] auto FindAllOrderBy(const Query& query, std::vector<const TElement*> allElements, Transform findOrderBy, Cmp order) -> OwningView<TElement>
+        [[nodiscard]] OwningView<TElement> FindAllOrderBy(const Query& query, std::vector<const TElement*> allElements, Transform findOrderBy, Cmp order)
         {
             using TransformResult = decltype(std::invoke(findOrderBy, query, std::declval<const TElement&>()));
 
@@ -278,13 +278,13 @@ namespace cucumber::query
     }
 
     template<typename Transform, typename Cmp>
-    [[nodiscard]] auto Query::FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseStarted>
+    [[nodiscard]] OwningView<messages::TestCaseStarted> Query::FindAllTestCaseStartedOrderBy(Transform&& findOrderBy, Cmp order) const
     {
         return detail::FindAllOrderBy<messages::TestCaseStarted>(*this, AllTestCaseStarted(), std::forward<Transform>(findOrderBy), std::move(order));
     }
 
     template<typename Transform, typename Cmp>
-    [[nodiscard]] auto Query::FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const -> OwningView<messages::TestCaseFinished>
+    [[nodiscard]] OwningView<messages::TestCaseFinished> Query::FindAllTestCaseFinishedOrderBy(Transform&& findOrderBy, Cmp order) const
     {
         return detail::FindAllOrderBy<messages::TestCaseFinished>(*this, AllTestCaseFinished(), std::forward<Transform>(findOrderBy), std::move(order));
     }

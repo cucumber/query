@@ -8,7 +8,7 @@
 
 namespace cucumber::query::detail
 {
-    auto TryReadNextEnvelope(std::istream& input) -> std::optional<messages::Envelope>
+    std::optional<messages::Envelope> TryReadNextEnvelope(std::istream& input)
     {
         std::string line;
         if (!std::getline(input, line))

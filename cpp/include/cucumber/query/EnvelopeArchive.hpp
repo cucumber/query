@@ -8,7 +8,7 @@ namespace cucumber::query
 {
     struct EnvelopeArchive
     {
-        auto Store(messages::Envelope&& envelope) -> const messages::Envelope&;
+        const messages::Envelope& Store(messages::Envelope&& envelope);
 
     private:
         std::deque<messages::Envelope> envelopes;

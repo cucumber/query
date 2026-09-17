@@ -48,23 +48,23 @@ namespace cucumber::query
                 return Self().End();
             }
 
-            [[nodiscard]] auto size() const -> std::size_t
+            [[nodiscard]] std::size_t size() const
             {
                 return static_cast<std::size_t>(std::distance(begin(), end()));
             }
 
-            [[nodiscard]] auto empty() const -> bool
+            [[nodiscard]] bool empty() const
             {
                 return begin() == end();
             }
 
-            [[nodiscard]] auto front() const -> decltype(auto)
+            [[nodiscard]] decltype(auto) front() const
             {
                 return *begin();
             }
 
         private:
-            [[nodiscard]] auto Self() const -> const Derived&
+            [[nodiscard]] const Derived& Self() const
             {
                 return static_cast<const Derived&>(*this);
             }
@@ -103,52 +103,52 @@ namespace cucumber::query
             , count(container.size())
         {}
 
-        [[nodiscard]] constexpr auto data() const noexcept -> T*
+        [[nodiscard]] constexpr T* data() const noexcept
         {
             return first;
         }
 
-        [[nodiscard]] constexpr auto size() const noexcept -> size_type
+        [[nodiscard]] constexpr size_type size() const noexcept
         {
             return count;
         }
 
-        [[nodiscard]] constexpr auto empty() const noexcept -> bool
+        [[nodiscard]] constexpr bool empty() const noexcept
         {
             return count == 0;
         }
 
-        [[nodiscard]] constexpr auto begin() const noexcept -> iterator
+        [[nodiscard]] constexpr iterator begin() const noexcept
         {
             return first;
         }
 
-        [[nodiscard]] constexpr auto end() const noexcept -> iterator
+        [[nodiscard]] constexpr iterator end() const noexcept
         {
             return first + count;
         }
 
-        [[nodiscard]] constexpr auto front() const -> reference
+        [[nodiscard]] constexpr reference front() const
         {
             return *first;
         }
 
-        [[nodiscard]] constexpr auto back() const -> reference
+        [[nodiscard]] constexpr reference back() const
         {
             return *(first + count - 1);
         }
 
-        [[nodiscard]] constexpr auto operator[](size_type index) const -> reference
+        [[nodiscard]] constexpr reference operator[](size_type index) const
         {
             return *(first + index);
         }
 
-        [[nodiscard]] constexpr auto Subspan(size_type offset, size_type length) const -> Span
+        [[nodiscard]] constexpr Span Subspan(size_type offset, size_type length) const
         {
             return Span{ first + offset, length };
         }
 
-        [[nodiscard]] constexpr auto Subspan(size_type offset) const -> Span
+        [[nodiscard]] constexpr Span Subspan(size_type offset) const
         {
             return Subspan(offset, count - offset);
         }
@@ -187,13 +187,13 @@ namespace cucumber::query
     namespace detail
     {
         template<typename Range, typename = std::enable_if_t<IsView<Range>::value>>
-        auto MakeAllView(Range&& range) -> std::decay_t<Range>
+        std::decay_t<Range> MakeAllView(Range&& range)
         {
             return std::forward<Range>(range);
         }
 
         template<typename Range, typename = std::enable_if_t<!IsView<Range>::value>>
-        auto MakeAllView(Range& range) -> RefView<Range>
+        RefView<Range> MakeAllView(Range& range)
         {
             static_assert(IsRange<Range>::value, "the argument is not a range");
             return RefView<Range>{ range };
@@ -221,42 +221,42 @@ namespace cucumber::query
                 SkipToMatch();
             }
 
-            auto operator*() const -> reference
+            reference operator*() const
             {
                 return *current;
             }
 
-            auto operator->() const -> pointer
+            pointer operator->() const
             {
                 return std::addressof(*current);
             }
 
-            auto operator++() -> FilterIterator&
+            FilterIterator& operator++()
             {
                 ++current;
                 SkipToMatch();
                 return *this;
             }
 
-            auto operator++(int) -> FilterIterator
+            FilterIterator operator++(int)
             {
                 auto copy = *this;
                 ++*this;
                 return copy;
             }
 
-            friend auto operator==(const FilterIterator& lhs, const FilterIterator& rhs) -> bool
+            friend bool operator==(const FilterIterator& lhs, const FilterIterator& rhs)
             {
                 return lhs.current == rhs.current;
             }
 
-            friend auto operator!=(const FilterIterator& lhs, const FilterIterator& rhs) -> bool
+            friend bool operator!=(const FilterIterator& lhs, const FilterIterator& rhs)
             {
                 return !(lhs == rhs);
             }
 
         private:
-            auto SkipToMatch() -> void
+            void SkipToMatch()
             {
                 while (current != last && !(*predicate)(*current))
                 {
@@ -288,30 +288,30 @@ namespace cucumber::query
                 , projection(projection)
             {}
 
-            auto operator*() const -> reference
+            reference operator*() const
             {
                 return (*projection)(*current);
             }
 
-            auto operator++() -> TransformIterator&
+            TransformIterator& operator++()
             {
                 ++current;
                 return *this;
             }
 
-            auto operator++(int) -> TransformIterator
+            TransformIterator operator++(int)
             {
                 auto copy = *this;
                 ++*this;
                 return copy;
             }
 
-            friend auto operator==(const TransformIterator& lhs, const TransformIterator& rhs) -> bool
+            friend bool operator==(const TransformIterator& lhs, const TransformIterator& rhs)
             {
                 return lhs.current == rhs.current;
             }
 
-            friend auto operator!=(const TransformIterator& lhs, const TransformIterator& rhs) -> bool
+            friend bool operator!=(const TransformIterator& lhs, const TransformIterator& rhs)
             {
                 return !(lhs == rhs);
             }
@@ -340,17 +340,17 @@ namespace cucumber::query
                 SkipToNonEmpty();
             }
 
-            auto operator*() const -> reference
+            reference operator*() const
             {
                 return *currentInner;
             }
 
-            auto operator->() const -> pointer
+            pointer operator->() const
             {
                 return std::addressof(*currentInner);
             }
 
-            auto operator++() -> JoinIterator&
+            JoinIterator& operator++()
             {
                 ++currentInner;
                 if (currentInner == lastInner)
@@ -361,25 +361,25 @@ namespace cucumber::query
                 return *this;
             }
 
-            auto operator++(int) -> JoinIterator
+            JoinIterator operator++(int)
             {
                 auto copy = *this;
                 ++*this;
                 return copy;
             }
 
-            friend auto operator==(const JoinIterator& lhs, const JoinIterator& rhs) -> bool
+            friend bool operator==(const JoinIterator& lhs, const JoinIterator& rhs)
             {
                 return lhs.currentOuter == rhs.currentOuter && lhs.currentInner == rhs.currentInner;
             }
 
-            friend auto operator!=(const JoinIterator& lhs, const JoinIterator& rhs) -> bool
+            friend bool operator!=(const JoinIterator& lhs, const JoinIterator& rhs)
             {
                 return !(lhs == rhs);
             }
 
         private:
-            auto SkipToNonEmpty() -> void
+            void SkipToNonEmpty()
             {
                 while (currentOuter != lastOuter)
                 {
@@ -413,7 +413,7 @@ namespace cucumber::query
             {}
 
             template<typename Element>
-            auto operator()(Element&& element) const -> bool
+            bool operator()(Element&& element) const
             {
                 return predicate(projection(std::forward<Element>(element)));
             }
@@ -437,12 +437,12 @@ namespace cucumber::query
             , predicate(std::move(predicate))
         {}
 
-        [[nodiscard]] auto Begin() const -> iterator
+        [[nodiscard]] iterator Begin() const
         {
             return iterator{ std::begin(range), std::end(range), &predicate };
         }
 
-        [[nodiscard]] auto End() const -> iterator
+        [[nodiscard]] iterator End() const
         {
             return iterator{ std::end(range), std::end(range), &predicate };
         }
@@ -465,12 +465,12 @@ namespace cucumber::query
             , projection(std::move(projection))
         {}
 
-        [[nodiscard]] auto Begin() const -> iterator
+        [[nodiscard]] iterator Begin() const
         {
             return iterator{ std::begin(range), &projection };
         }
 
-        [[nodiscard]] auto End() const -> iterator
+        [[nodiscard]] iterator End() const
         {
             return iterator{ std::end(range), &projection };
         }
@@ -496,12 +496,12 @@ namespace cucumber::query
             : range(std::move(range))
         {}
 
-        [[nodiscard]] auto Begin() const -> iterator
+        [[nodiscard]] iterator Begin() const
         {
             return iterator{ std::begin(range), std::end(range) };
         }
 
-        [[nodiscard]] auto End() const -> iterator
+        [[nodiscard]] iterator End() const
         {
             return iterator{ std::end(range), std::end(range) };
         }
@@ -515,7 +515,7 @@ namespace cucumber::query
         struct SelectFirst
         {
             template<typename Pair>
-            auto operator()(Pair&& pair) const -> decltype(auto)
+            decltype(auto) operator()(Pair&& pair) const
             {
                 return (std::forward<Pair>(pair).first);
             }
@@ -524,7 +524,7 @@ namespace cucumber::query
         struct SelectSecond
         {
             template<typename Pair>
-            auto operator()(Pair&& pair) const -> decltype(auto)
+            decltype(auto) operator()(Pair&& pair) const
             {
                 return (std::forward<Pair>(pair).second);
             }
@@ -533,7 +533,7 @@ namespace cucumber::query
         struct SelectPointee
         {
             template<typename Pointer>
-            auto operator()(const Pointer& pointer) const -> decltype(auto)
+            decltype(auto) operator()(const Pointer& pointer) const
             {
                 return (*pointer);
             }
@@ -551,7 +551,7 @@ namespace cucumber::query
                 {}
 
                 template<typename Range>
-                auto operator()(Range&& range) const -> decltype(auto)
+                decltype(auto) operator()(Range&& range) const
                 {
                     return adaptor(std::forward<Range>(range));
                 }
@@ -561,7 +561,7 @@ namespace cucumber::query
             };
 
             template<typename Adaptor>
-            auto MakeClosure(Adaptor adaptor) -> Closure<Adaptor>
+            Closure<Adaptor> MakeClosure(Adaptor adaptor)
             {
                 return Closure<Adaptor>{ std::move(adaptor) };
             }
@@ -671,7 +671,7 @@ namespace cucumber::query
 
     // Declared outside `views` so that ordinary lookup finds it anywhere in cucumber::query.
     template<typename Range, typename Adaptor, typename = std::enable_if_t<detail::IsRange<std::remove_reference_t<Range>>::value>>
-    auto operator|(Range&& range, const views::detail::Closure<Adaptor>& closure) -> decltype(auto)
+    decltype(auto) operator|(Range&& range, const views::detail::Closure<Adaptor>& closure)
     {
         return closure(std::forward<Range>(range));
     }

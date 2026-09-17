@@ -7,6 +7,7 @@ Checks:          '
     misc-*,
     -misc-non-private-member-variables-in-classes,
     modernize*,
+    -modernize-use-trailing-return-type,
     performance*,
     readability*,
     '
@@ -16,5 +17,4 @@ HeaderFilterRegex: '.*'
 FormatStyle: file
 CheckOptions:
     AllowSoleDefaultDtor: true
-    modernize-use-trailing-return-type.TransformLambdas: all_except_auto
 ...

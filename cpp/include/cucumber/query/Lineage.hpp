@@ -26,7 +26,7 @@ namespace cucumber::query
         const messages::TableRow* example{ nullptr };
         std::optional<std::size_t> exampleIndex;
 
-        auto operator+(const Lineage& other) const -> Lineage;
+        Lineage operator+(const Lineage& other) const;
     };
 }
 
