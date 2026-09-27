@@ -1,22 +1,5 @@
-# The VERSION here is a placeholder; the real version is in the VERSION file.
-set(VERSION 1.0.0)
-
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION")
-    file(STRINGS "VERSION" LINES)
-    list(GET LINES 0 VERSION)
-endif()
-
-# Crude Semver parsing
-if("${VERSION}" MATCHES "^([^\\.]+)\\.([^\\.]+)\\.([^\\.]+)$")
-    set(VER_MAJOR ${CMAKE_MATCH_1})
-    set(VER_MINOR ${CMAKE_MATCH_2})
-    set(VER_PATCH ${CMAKE_MATCH_3})
-else()
-    message(FATAL_ERROR "unable to parse version: ${VERSION}")
-endif()
-
 cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
-project(cucumber_query VERSION ${VERSION} LANGUAGES CXX)
+project(cucumber_query VERSION 16.1.1 LANGUAGES CXX)
 
 # Options
 if (POLICY CMP0077)
@@ -147,8 +130,8 @@ target_link_libraries(
 set_target_properties(
     cucumber_query_lib
     PROPERTIES
-        VERSION ${VERSION}
-        SOVERSION ${VER_MAJOR}
+        VERSION ${PROJECT_VERSION}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
         EXPORT_NAME query
         OUTPUT_NAME cucumber_query
 )
