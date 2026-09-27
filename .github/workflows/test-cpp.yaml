@@ -17,10 +17,6 @@ on:
       - testdata/**
       - .github/**
 
-env:
-  # renovate: datasource=git-refs depName=cucumber/messages packageName=https://github.com/cucumber/messages currentValue=main
-  MESSAGES_REF: main
-
 jobs:
   test-cpp-system-packages-linux:
     runs-on: ${{ matrix.config.os }}
@@ -56,10 +52,11 @@ jobs:
           sudo apt-get install -y nlohmann-json3-dev libgtest-dev libgmock-dev
 
       - name: Install cucumber/messages
-        uses: cucumber/ci-actions/install-cpp-dep@9ba4a623ec838b1358e18683a85a0914f3779363
+        # TODO: Needs a tagged version
+        uses: cucumber/ci-actions/install-cpp-dep@8d9ced3d3cf3009ee95d09e1647823795a77a69f
         with:
-          repository: cucumber/messages
-          ref: ${{ env.MESSAGES_REF }}
+          dependency: dependencies/messages.version
+          working-directory: cpp
 
       - name: Build and unit test
         working-directory: cpp
