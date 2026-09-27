@@ -84,10 +84,11 @@ jobs:
         run: brew install nlohmann-json googletest
 
       - name: Install cucumber/messages
-        uses: cucumber/ci-actions/install-cpp-dep@9ba4a623ec838b1358e18683a85a0914f3779363
+        # TODO: Needs a tagged version
+        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
-          repository: cucumber/messages
-          ref: ${{ env.MESSAGES_REF }}
+          dependency: dependencies/messages.version
+          working-directory: cpp
 
       - name: Build and unit test
         working-directory: cpp
@@ -115,10 +116,11 @@ jobs:
           echo "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" >> $env:GITHUB_ENV
 
       - name: Install cucumber/messages
-        uses: cucumber/ci-actions/install-cpp-dep@9ba4a623ec838b1358e18683a85a0914f3779363
+        # TODO: Needs a tagged version
+        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
-          repository: cucumber/messages
-          ref: ${{ env.MESSAGES_REF }}
+          dependency: dependencies/messages.version
+          working-directory: cpp
 
       - name: Build and unit test
         working-directory: cpp
@@ -154,10 +156,11 @@ jobs:
           save: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Install cucumber/messages
-        uses: cucumber/ci-actions/install-cpp-dep@9ba4a623ec838b1358e18683a85a0914f3779363
+        # TODO: Needs a tagged version
+        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
-          repository: cucumber/messages
-          ref: ${{ env.MESSAGES_REF }}
+          dependency: dependencies/messages.version
+          working-directory: cpp
 
       - name: Coverage
         working-directory: cpp
@@ -189,10 +192,11 @@ jobs:
           save: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Install cucumber/messages
-        uses: cucumber/ci-actions/install-cpp-dep@9ba4a623ec838b1358e18683a85a0914f3779363
+        # TODO: Needs a tagged version
+        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
-          repository: cucumber/messages
-          ref: ${{ env.MESSAGES_REF }}
+          dependency: dependencies/messages.version
+          working-directory: cpp
 
       - name: Lint
         working-directory: cpp

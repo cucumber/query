@@ -31,9 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       security-events: write
-    env:
-      # renovate: datasource=git-refs depName=cucumber/messages packageName=https://github.com/cucumber/messages currentValue=main
-      MESSAGES_REF: main
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -52,10 +49,11 @@ jobs:
           sudo apt-get install -y nlohmann-json3-dev
 
       - name: Install cucumber/messages
-        uses: cucumber/ci-actions/install-cpp-dep@9ba4a623ec838b1358e18683a85a0914f3779363
+        # TODO: Needs a tagged version
+        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
-          repository: cucumber/messages
-          ref: ${{ env.MESSAGES_REF }}
+          dependency: dependencies/messages.version
+          working-directory: cpp
 
       - uses: github/codeql-action/init@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
         with:
