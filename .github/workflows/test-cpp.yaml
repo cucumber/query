@@ -53,7 +53,7 @@ jobs:
 
       - name: Install cucumber/messages
         # TODO: Needs a tagged version
-        uses: cucumber/ci-actions/install-cpp-dep@8d9ced3d3cf3009ee95d09e1647823795a77a69f
+        uses: cucumber/ci-actions/install-cpp-dep@a996318990b42e433fd46e59b6795c9ed698709f
         with:
           dependency: dependencies/messages.version
           working-directory: cpp
