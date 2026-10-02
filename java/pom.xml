@@ -20,9 +20,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git://github.com/cucumber/query.git</connection>
+        <connection>scm:git:https://github.com/cucumber/query.git</connection>
         <developerConnection>scm:git:git@github.com:cucumber/query.git</developerConnection>
-        <url>git://github.com/cucumber/query.git</url>
+        <url>https://github.com/cucumber/query.git</url>
         <tag>HEAD</tag>
     </scm>
 
