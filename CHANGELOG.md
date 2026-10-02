@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- [CPP] Initial C++ implementation ([#201](https://github.com/cucumber/query/pull/201))
 
 ## [16.1.1] - 2026-08-05
 ### Fixed
