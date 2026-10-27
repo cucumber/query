@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.cucumber</groupId>
         <artifactId>cucumber-parent</artifactId>
-        <version>5.6.0</version>
+        <version>5.7.0</version>
     </parent>
 
     <artifactId>query</artifactId>
@@ -20,9 +20,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:git://github.com/cucumber/query.git</connection>
+        <connection>scm:git:https://github.com/cucumber/query.git</connection>
         <developerConnection>scm:git:git@github.com:cucumber/query.git</developerConnection>
-        <url>git://github.com/cucumber/query.git</url>
+        <url>https://github.com/cucumber/query.git</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -47,7 +47,7 @@
             <dependency>
                 <groupId>tools.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
-                <version>3.2.2</version>
+                <version>3.2.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -121,7 +121,7 @@
             <plugin>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>1.25.9</version>
+                <version>1.30.1</version>
                 <dependencies>
                     <dependency>
                         <groupId>org.pitest</groupId>

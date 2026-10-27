@@ -8,7 +8,6 @@ require_relative 'repository'
 #
 # Queries can be made while the test run is incomplete - and this will naturally return incomplete results
 # see {Cucumber Messages - Message Overview}[https://github.com/cucumber/messages?tab=readme-ov-file#message-overview]
-#
 module Cucumber
   # Provides lookup methods for related Cucumber messages stored in the `Repository` class.
   class Query
@@ -42,10 +41,10 @@ module Cucumber
       repository.step_definition_by_id.values
     end
 
-    # @return [Array<TestCaseStarted>]
-    # This finds all test cases from the following conditions (UNION)
+    # This finds all `TestCaseStarted` messages from test cases that match either of the following conditions (UNION)
     #   -> Test cases that have started, but not yet finished
     #   -> Test cases that have started, finished, but that will NOT be retried
+    # @return [Array<TestCaseStarted>]
     def find_all_test_case_started
       repository.test_case_started_by_id.values.select do |test_case_started|
         test_case_finished = find_test_case_finished_by(test_case_started)
@@ -53,8 +52,8 @@ module Cucumber
       end
     end
 
+    # This finds all `TestCaseFinished` messages from test cases that have finished AND will not be retried
     # @return [Array<TestCaseFinished>]
-    # This finds all test cases that have finished AND will not be retried
     def find_all_test_case_finished
       repository.test_case_finished_by_test_case_started_id.values.reject(&:will_be_retried)
     end
