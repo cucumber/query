@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'lib/cucumber/query/version'
+
 Gem::Specification.new do |s|
   s.name        = 'cucumber-query'
-  s.version     = File.read(File.expand_path('VERSION', __dir__)).strip
+  s.version     = Cucumber::Query::VERSION
   s.authors     = ['Luke Hill']
   s.description = 'Cucumber Query - query messages'
   s.summary     = "#{s.name}-#{s.version}"
@@ -28,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rubocop-performance', '~> 1.26.1'
   s.add_development_dependency 'rubocop-rspec', '~> 3.10.2'
 
-  s.files            = Dir['LICENSE', 'VERSION', 'lib/**/*']
+  s.files            = Dir['LICENSE', 'lib/**/*']
   s.rdoc_options     = ['--charset=UTF-8']
   s.require_path     = 'lib'
 end
