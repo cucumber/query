@@ -121,6 +121,7 @@ jobs:
         with:
           dependency: dependencies/messages.version
           working-directory: cpp
+          preset: test-system
 
       - name: Build and unit test
         working-directory: cpp
