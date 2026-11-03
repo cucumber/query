@@ -80,6 +80,11 @@ module Cucumber
       self.meta = meta
     end
 
+    # This deliberately doesn't perform any handling. Valid `ParameterType` messages are not needed to be stored
+    def update_parameter_type(_parameter_type)
+      :no_op
+    end
+
     def update_pickle(pickle)
       pickle_by_id[pickle.id] = pickle
       pickle.steps.each { |pickle_step| pickle_step_by_id[pickle_step.id] = pickle_step }
