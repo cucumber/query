@@ -44,7 +44,7 @@ module Cucumber
 
     def method_missing(method_name, *args, &)
       if method_name.to_s.start_with?('update_')
-        Kernel.warn("Attempting to update the repository with #{method_name}. Please raise this as a missing message handler")
+        Kernel.warn("Attempting to update the repository using ##{method_name}. Please raise this as a missing message handler")
         Kernel.warn('Create an issue here: https://github.com/cucumber/query/issues')
         nil
       else
@@ -78,6 +78,11 @@ module Cucumber
 
     def update_meta(meta)
       self.meta = meta
+    end
+
+    # This deliberately doesn't perform any handling. Valid `ParameterType` messages are not needed to be stored
+    def update_parameter_type(_parameter_type)
+      :no_op
     end
 
     def update_pickle(pickle)

@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- [Ruby] Move the gem version definition to `Cucumber::Query::VERSION`
 - [CPP] Initial C++ implementation ([#201](https://github.com/cucumber/query/pull/201))
+
+### Changed
+- [Ruby] Move the gem version definition to `Cucumber::Query::VERSION`
+
+### Fixed
+- [Ruby] Added missing handler (no-op), for `update_parameter_type` message ([#225](https://github.com/cucumber/query/pull/225))
 
 ## [16.1.1] - 2026-08-05
 ### Fixed
