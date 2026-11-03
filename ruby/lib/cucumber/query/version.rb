@@ -2,6 +2,6 @@
 
 module Cucumber
   class Query
-    VERSION = '16.1.1'
+    VERSION = '16.2.0'
   end
 end

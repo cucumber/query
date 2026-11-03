@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [16.2.0] - 2026-11-03
 ### Added
 - [CPP] Initial C++ implementation ([#201](https://github.com/cucumber/query/pull/201))
 
@@ -316,7 +318,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v16.1.1...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v16.2.0...HEAD
+[16.2.0]: https://github.com/cucumber/query/compare/v16.1.1...v16.2.0
 [16.1.1]: https://github.com/cucumber/query/compare/v16.1.0...v16.1.1
 [16.1.0]: https://github.com/cucumber/query/compare/v16.0.1...v16.1.0
 [16.0.1]: https://github.com/cucumber/query/compare/v16.0.0...v16.0.1
