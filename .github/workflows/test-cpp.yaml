@@ -53,7 +53,7 @@ jobs:
 
       - name: Install cucumber/messages
         # TODO: Needs a tagged version
-        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
+        uses: cucumber/action-cpp/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
           dependency: dependencies/messages.version
           working-directory: cpp
@@ -85,7 +85,7 @@ jobs:
 
       - name: Install cucumber/messages
         # TODO: Needs a tagged version
-        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
+        uses: cucumber/action-cpp/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
           dependency: dependencies/messages.version
           working-directory: cpp
@@ -117,7 +117,7 @@ jobs:
 
       - name: Install cucumber/messages
         # TODO: Needs a tagged version
-        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
+        uses: cucumber/action-cpp/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
           dependency: dependencies/messages.version
           working-directory: cpp
@@ -158,7 +158,7 @@ jobs:
 
       - name: Install cucumber/messages
         # TODO: Needs a tagged version
-        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
+        uses: cucumber/action-cpp/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
           dependency: dependencies/messages.version
           working-directory: cpp
@@ -194,7 +194,7 @@ jobs:
 
       - name: Install cucumber/messages
         # TODO: Needs a tagged version
-        uses: cucumber/ci-actions/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
+        uses: cucumber/action-cpp/install-cpp-dep@8bbc6bac84313ef426e8a0e6ffa64659d0dc174b
         with:
           dependency: dependencies/messages.version
           working-directory: cpp
