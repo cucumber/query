@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - [Ruby] Move the gem version definition to `Cucumber::Query::VERSION`
+- Update dependency `messages` up to v35
 
 ### Fixed
 - [Ruby] Added missing handler (no-op), for `update_parameter_type` message ([#225](https://github.com/cucumber/query/pull/225))
