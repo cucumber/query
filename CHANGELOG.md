@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [16.4.0] - 2026-11-15
 ### Added
 - [Java] Add OSGI Bundle name ([#231](https://github.com/cucumber/query/pull/231))
 
@@ -324,7 +326,8 @@ from `@cucumber/messages` instead.
 ### Added
 - First JavaScript implementation
 
-[Unreleased]: https://github.com/cucumber/query/compare/v16.3.0...HEAD
+[Unreleased]: https://github.com/cucumber/query/compare/v16.4.0...HEAD
+[16.4.0]: https://github.com/cucumber/query/compare/v16.3.0...v16.4.0
 [16.3.0]: https://github.com/cucumber/query/compare/v16.2.0...v16.3.0
 [16.2.0]: https://github.com/cucumber/query/compare/v16.1.1...v16.2.0
 [16.1.1]: https://github.com/cucumber/query/compare/v16.1.0...v16.1.1
