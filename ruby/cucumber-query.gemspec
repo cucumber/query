@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 3.13'
   s.add_development_dependency 'rubocop', '~> 1.93.0'
   s.add_development_dependency 'rubocop-performance', '~> 1.27.0'
-  s.add_development_dependency 'rubocop-rspec', '~> 3.10.2'
+  s.add_development_dependency 'rubocop-rspec', '~> 3.11.0'
 
   s.files            = Dir['LICENSE', 'lib/**/*']
   s.rdoc_options     = ['--charset=UTF-8']
